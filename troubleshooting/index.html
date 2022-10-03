@@ -1,0 +1,1404 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://fleet.rancher.io/troubleshooting/">
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.4.0, mkdocs-material-8.5.6">
+    
+    
+      
+        <title>Troubleshooting - Fleet - GitOps at Scale</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.20d9efc8.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.cbb835fc.min.css">
+        
+          
+          
+          <meta name="theme-color" content="#4cae4f">
+        
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Work+Sans:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Work Sans";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="green" data-md-color-accent="">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#troubleshooting" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Fleet - GitOps at Scale" class="md-header__button md-logo" aria-label="Fleet - GitOps at Scale" data-md-component="logo">
+      
+  <img src="../assets/logo.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Fleet - GitOps at Scale
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Troubleshooting
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/rancher/fleet" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Fleet - GitOps at Scale" class="md-nav__button md-logo" aria-label="Fleet - GitOps at Scale" data-md-component="logo">
+      
+  <img src="../assets/logo.svg" alt="logo">
+
+    </a>
+    Fleet - GitOps at Scale
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/rancher/fleet" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        Overview
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../quickstart/" class="md-nav__link">
+        Quick Start
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../concepts/" class="md-nav__link">
+        Core Concepts
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/" class="md-nav__link">
+        Architecture
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/" class="md-nav__link">
+        Examples
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_6" type="checkbox" id="__nav_6" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_6">
+          Operator Guide
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Operator Guide" data-md-level="1">
+        <label class="md-nav__title" for="__nav_6">
+          <span class="md-nav__icon md-icon"></span>
+          Operator Guide
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_6_1" type="checkbox" id="__nav_6_1" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_6_1">
+          Managing Clusters
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Managing Clusters" data-md-level="2">
+        <label class="md-nav__title" for="__nav_6_1">
+          <span class="md-nav__icon md-icon"></span>
+          Managing Clusters
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_6_1_1" type="checkbox" id="__nav_6_1_1" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_6_1_1">
+          Registration
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Registration" data-md-level="3">
+        <label class="md-nav__title" for="__nav_6_1_1">
+          <span class="md-nav__icon md-icon"></span>
+          Registration
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cluster-overview/" class="md-nav__link">
+        Overview
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cluster-tokens/" class="md-nav__link">
+        Cluster Registration Tokens
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agent-initiated/" class="md-nav__link">
+        Agent Initiated
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../manager-initiated/" class="md-nav__link">
+        Manager Initiated
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cluster-group/" class="md-nav__link">
+        Cluster Groups
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../namespaces/" class="md-nav__link">
+        Namespaces
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_7" type="checkbox" id="__nav_7" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_7">
+          User Guide
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="User Guide" data-md-level="1">
+        <label class="md-nav__title" for="__nav_7">
+          <span class="md-nav__icon md-icon"></span>
+          User Guide
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_7_1" type="checkbox" id="__nav_7_1" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_7_1">
+          Managing Git Repos
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Managing Git Repos" data-md-level="2">
+        <label class="md-nav__title" for="__nav_7_1">
+          <span class="md-nav__icon md-icon"></span>
+          Managing Git Repos
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../gitrepo-add/" class="md-nav__link">
+        Registering
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../gitrepo-structure/" class="md-nav__link">
+        Expected Repo Structure
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../gitrepo-targets/" class="md-nav__link">
+        Mapping to Downstream Clusters
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../bundle-diffs/" class="md-nav__link">
+        Bundle diffs
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../webhook/" class="md-nav__link">
+        Webhook
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../imagescan/" class="md-nav__link">
+        Image scan
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cluster-bundles-state/" class="md-nav__link">
+        Cluster and Bundle state
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Troubleshooting
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Troubleshooting
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#how-do-i" class="md-nav__link">
+    How Do I...
+  </a>
+  
+    <nav class="md-nav" aria-label="How Do I...">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fetch-the-log-from-fleet-controller" class="md-nav__link">
+    Fetch the log from fleet-controller?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fetch-the-log-from-the-fleet-agent" class="md-nav__link">
+    Fetch the log from the fleet-agent?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fetch-detailed-error-logs-from-gitrepos-and-bundles" class="md-nav__link">
+    Fetch detailed error logs from GitRepos and Bundles?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#check-a-chart-rendering-error-in-kustomize" class="md-nav__link">
+    Check a chart rendering error in Kustomize?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#check-errors-about-watching-or-checking-out-the-gitrepo-or-about-the-downloaded-helm-repo-in-fleetyaml" class="md-nav__link">
+    Check errors about watching or checking out the GitRepo, or about the downloaded Helm repo in fleet.yaml?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#check-the-status-of-the-fleet-controller" class="md-nav__link">
+    Check the status of the fleet-controller?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#migrate-the-local-cluster-to-the-fleet-default-cluster" class="md-nav__link">
+    Migrate the local cluster to the Fleet default cluster?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enable-debug-logging-for-fleet-controller-and-fleet-agent" class="md-nav__link">
+    Enable debug logging for fleet-controller and fleet-agent?
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#additional-solutions-for-other-fleet-issues" class="md-nav__link">
+    Additional Solutions for Other Fleet Issues
+  </a>
+  
+    <nav class="md-nav" aria-label="Additional Solutions for Other Fleet Issues">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#naming-conventions-for-crds" class="md-nav__link">
+    Naming conventions for CRDs
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#http-secrets-in-github" class="md-nav__link">
+    HTTP secrets in Github
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fleet-fails-with-bad-response-code-403" class="md-nav__link">
+    Fleet fails with bad response code: 403
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#helm-chart-repo-certificate-signed-by-unknown-authority" class="md-nav__link">
+    Helm chart repo: certificate signed by unknown authority
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fleet-deployment-stuck-in-modified-state" class="md-nav__link">
+    Fleet deployment stuck in modified state
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gitrepo-or-bundle-stuck-in-modified-state" class="md-nav__link">
+    GitRepo or Bundle stuck in modified state
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bundle-has-a-horizontal-pod-autoscaler-hpa-in-modified-state" class="md-nav__link">
+    Bundle has a Horizontal Pod Autoscaler (HPA) in modified state
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-if-the-cluster-is-unavailable-or-is-in-a-waitcheckin-state" class="md-nav__link">
+    What if the cluster is unavailable, or is in a WaitCheckIn state?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gitrepo-complains-with-gzip-invalid-header" class="md-nav__link">
+    GitRepo complains with gzip: invalid header
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_9" type="checkbox" id="__nav_9" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_9">
+          Advanced Users
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Advanced Users" data-md-level="1">
+        <label class="md-nav__title" for="__nav_9">
+          <span class="md-nav__icon md-icon"></span>
+          Advanced Users
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../advanced-users/" class="md-nav__link">
+        Overview
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_9_2" type="checkbox" id="__nav_9_2" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_9_2">
+          Installation
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Installation" data-md-level="2">
+        <label class="md-nav__title" for="__nav_9_2">
+          <span class="md-nav__icon md-icon"></span>
+          Installation
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../installation/" class="md-nav__link">
+        Overview
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../single-cluster-install/" class="md-nav__link">
+        Single Cluster Install
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../multi-cluster-install/" class="md-nav__link">
+        Multi-cluster Install
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../uninstall/" class="md-nav__link">
+        Uninstall
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#how-do-i" class="md-nav__link">
+    How Do I...
+  </a>
+  
+    <nav class="md-nav" aria-label="How Do I...">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fetch-the-log-from-fleet-controller" class="md-nav__link">
+    Fetch the log from fleet-controller?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fetch-the-log-from-the-fleet-agent" class="md-nav__link">
+    Fetch the log from the fleet-agent?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fetch-detailed-error-logs-from-gitrepos-and-bundles" class="md-nav__link">
+    Fetch detailed error logs from GitRepos and Bundles?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#check-a-chart-rendering-error-in-kustomize" class="md-nav__link">
+    Check a chart rendering error in Kustomize?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#check-errors-about-watching-or-checking-out-the-gitrepo-or-about-the-downloaded-helm-repo-in-fleetyaml" class="md-nav__link">
+    Check errors about watching or checking out the GitRepo, or about the downloaded Helm repo in fleet.yaml?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#check-the-status-of-the-fleet-controller" class="md-nav__link">
+    Check the status of the fleet-controller?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#migrate-the-local-cluster-to-the-fleet-default-cluster" class="md-nav__link">
+    Migrate the local cluster to the Fleet default cluster?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enable-debug-logging-for-fleet-controller-and-fleet-agent" class="md-nav__link">
+    Enable debug logging for fleet-controller and fleet-agent?
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#additional-solutions-for-other-fleet-issues" class="md-nav__link">
+    Additional Solutions for Other Fleet Issues
+  </a>
+  
+    <nav class="md-nav" aria-label="Additional Solutions for Other Fleet Issues">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#naming-conventions-for-crds" class="md-nav__link">
+    Naming conventions for CRDs
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#http-secrets-in-github" class="md-nav__link">
+    HTTP secrets in Github
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fleet-fails-with-bad-response-code-403" class="md-nav__link">
+    Fleet fails with bad response code: 403
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#helm-chart-repo-certificate-signed-by-unknown-authority" class="md-nav__link">
+    Helm chart repo: certificate signed by unknown authority
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fleet-deployment-stuck-in-modified-state" class="md-nav__link">
+    Fleet deployment stuck in modified state
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gitrepo-or-bundle-stuck-in-modified-state" class="md-nav__link">
+    GitRepo or Bundle stuck in modified state
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bundle-has-a-horizontal-pod-autoscaler-hpa-in-modified-state" class="md-nav__link">
+    Bundle has a Horizontal Pod Autoscaler (HPA) in modified state
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-if-the-cluster-is-unavailable-or-is-in-a-waitcheckin-state" class="md-nav__link">
+    What if the cluster is unavailable, or is in a WaitCheckIn state?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gitrepo-complains-with-gzip-invalid-header" class="md-nav__link">
+    GitRepo complains with gzip: invalid header
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  <a href="https://github.com/rancher/fleet/edit/master/docs/troubleshooting.md" title="Edit this page" class="md-content__button md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
+  </a>
+
+
+<h1 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h1>
+<p>This section contains commands and tips to troubleshoot Fleet.</p>
+<h2 id="how-do-i"><strong>How Do I...</strong><a class="headerlink" href="#how-do-i" title="Permanent link">&para;</a></h2>
+<h3 id="fetch-the-log-from-fleet-controller">Fetch the log from <code>fleet-controller</code>?<a class="headerlink" href="#fetch-the-log-from-fleet-controller" title="Permanent link">&para;</a></h3>
+<p>In the local management cluster where the <code>fleet-controller</code> is deployed, run the following command with your specific <code>fleet-controller</code> pod name filled in:</p>
+<div class="codehilite"><pre><span></span><code>$ kubectl logs -l <span class="nv">app</span><span class="o">=</span>fleet-controller -n cattle-fleet-system
+</code></pre></div>
+
+<h3 id="fetch-the-log-from-the-fleet-agent">Fetch the log from the <code>fleet-agent</code>?<a class="headerlink" href="#fetch-the-log-from-the-fleet-agent" title="Permanent link">&para;</a></h3>
+<p>Go to each downstream cluster and run the following command for the local cluster with your specific <code>fleet-agent</code> pod name filled in:</p>
+<div class="codehilite"><pre><span></span><code># Downstream cluster
+$ kubectl logs -l app=fleet-agent -n cattle-fleet-system
+# Local cluster
+$ kubectl logs -l app=fleet-agent -n cattle-local-fleet-system
+</code></pre></div>
+
+<h3 id="fetch-detailed-error-logs-from-gitrepos-and-bundles">Fetch detailed error logs from <code>GitRepos</code> and <code>Bundles</code>?<a class="headerlink" href="#fetch-detailed-error-logs-from-gitrepos-and-bundles" title="Permanent link">&para;</a></h3>
+<p>Normally, errors should appear in the Rancher UI. However, if there is not enough information displayed about the error there, you can research further by trying one or more of the following as needed:</p>
+<ul>
+<li>For more information about the bundle, click on <code>bundle</code>, and the YAML mode will be enabled. </li>
+<li>For more information about the GitRepo, click on <code>GitRepo</code>, then click on <code>View Yaml</code> in the upper right of the screen. After viewing the YAML, check <code>status.conditions</code>; a detailed error message should be displayed here.</li>
+<li>Check the <code>fleet-controller</code> for synching errors.</li>
+<li>Check the <code>fleet-agent</code> log in the downstream cluster if you encounter issues when deploying the bundle.</li>
+</ul>
+<h3 id="check-a-chart-rendering-error-in-kustomize">Check a chart rendering error in <code>Kustomize</code>?<a class="headerlink" href="#check-a-chart-rendering-error-in-kustomize" title="Permanent link">&para;</a></h3>
+<p>Check the <a href="./#fetch-the-log-from-fleet-controller"><code>fleet-controller</code> logs</a> and the <a href="./#fetch-the-log-from-the-fleet-agent"><code>fleet-agent</code> logs</a>.</p>
+<h3 id="check-errors-about-watching-or-checking-out-the-gitrepo-or-about-the-downloaded-helm-repo-in-fleetyaml">Check errors about watching or checking out the <code>GitRepo</code>, or about the downloaded Helm repo in <code>fleet.yaml</code>?<a class="headerlink" href="#check-errors-about-watching-or-checking-out-the-gitrepo-or-about-the-downloaded-helm-repo-in-fleetyaml" title="Permanent link">&para;</a></h3>
+<p>Check the <code>gitjob-controller</code> logs using the following command with your specific <code>gitjob</code> pod name filled in:</p>
+<div class="codehilite"><pre><span></span><code>$ kubectl logs -f -l <span class="nv">app</span><span class="o">=</span>gitjob -n cattle-fleet-system
+</code></pre></div>
+
+<p>Note that there are two containers inside the pod: the <code>step-git-source</code> container that clones the git repo, and the <code>fleet</code> container that applies bundles based on the git repo. </p>
+<p>The pods will usually have images named <code>rancher/tekton-utils</code> with the <code>gitRepo</code> name as a prefix. Check the logs for these Kubernetes job pods in the local management cluster as follows, filling in your specific <code>gitRepoName</code> pod name and namespace:</p>
+<div class="codehilite"><pre><span></span><code>$ kubectl logs -f <span class="nv">$gitRepoName</span>-pod-name -n namespace
+</code></pre></div>
+
+<h3 id="check-the-status-of-the-fleet-controller">Check the status of the <code>fleet-controller</code>?<a class="headerlink" href="#check-the-status-of-the-fleet-controller" title="Permanent link">&para;</a></h3>
+<p>You can check the status of the <code>fleet-controller</code> pods by running the commands below:</p>
+<div class="codehilite"><pre><span></span><code>kubectl -n cattle-fleet-system logs -l <span class="nv">app</span><span class="o">=</span>fleet-controller
+kubectl -n cattle-fleet-system get pods -l <span class="nv">app</span><span class="o">=</span>fleet-controller
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code>NAME                                READY   STATUS    RESTARTS   AGE
+fleet-controller-64f49d756b-n57wq   <span class="m">1</span>/1     Running   <span class="m">0</span>          3m21s
+</code></pre></div>
+
+<h3 id="migrate-the-local-cluster-to-the-fleet-default-cluster">Migrate the local cluster to the Fleet default cluster?<a class="headerlink" href="#migrate-the-local-cluster-to-the-fleet-default-cluster" title="Permanent link">&para;</a></h3>
+<p>For users who want to deploy to the local cluster as well, they may move the cluster from <code>fleet-local</code> to <code>fleet-default</code> in the Rancher UI as follows:</p>
+<ul>
+<li>To get to Fleet in Rancher, click ☰ &gt; Continuous Delivery.</li>
+<li>Under the <strong>Clusters</strong> menu, select the <strong>local</strong> cluster by checking the box to the left.</li>
+<li>Select <strong>Assign to</strong> from the tabs above the cluster.</li>
+<li>Select <strong><code>fleet-default</code></strong> from the <strong>Assign Cluster To</strong> dropdown.</li>
+</ul>
+<p><strong>Result</strong>: The cluster will be migrated to <code>fleet-default</code>.</p>
+<h3 id="enable-debug-logging-for-fleet-controller-and-fleet-agent">Enable debug logging for <code>fleet-controller</code> and <code>fleet-agent</code>?<a class="headerlink" href="#enable-debug-logging-for-fleet-controller-and-fleet-agent" title="Permanent link">&para;</a></h3>
+<p>Available in Rancher v2.6.3 (Fleet v0.3.8), the ability to enable debug logging has been added.</p>
+<ul>
+<li>Go to the <strong>Dashboard</strong>, then click on the <strong>local cluster</strong> in the left navigation menu </li>
+<li>Select <strong>Apps &amp; Marketplace</strong>, then <strong>Installed Apps</strong> from the dropdown </li>
+<li>From there, you will upgrade the Fleet chart with the value <code>debug=true</code>. You can also set <code>debugLevel=5</code> if desired.</li>
+</ul>
+<h2 id="additional-solutions-for-other-fleet-issues"><strong>Additional Solutions for Other Fleet Issues</strong><a class="headerlink" href="#additional-solutions-for-other-fleet-issues" title="Permanent link">&para;</a></h2>
+<h3 id="naming-conventions-for-crds">Naming conventions for CRDs<a class="headerlink" href="#naming-conventions-for-crds" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p>For CRD terms like <code>clusters</code> and <code>gitrepos</code>, you must reference the full CRD name. For example, the cluster CRD's complete name is <code>cluster.fleet.cattle.io</code>, and the gitrepo CRD's complete name is <code>gitrepo.fleet.cattle.io</code>.</p>
+</li>
+<li>
+<p><code>Bundles</code>, which are created from the <code>GitRepo</code>, follow the pattern <code>$gitrepoName-$path</code> in the same workspace/namespace where the <code>GitRepo</code> was created. Note that <code>$path</code> is the path directory in the git repository that contains the <code>bundle</code> (<code>fleet.yaml</code>).</p>
+</li>
+<li>
+<p><code>BundleDeployments</code>, which are created from the <code>bundle</code>, follow the pattern <code>$bundleName-$clusterName</code> in the namespace <code>clusters-$workspace-$cluster-$generateHash</code>. Note that <code>$clusterName</code> is the cluster to which the bundle will be deployed.</p>
+</li>
+</ol>
+<h3 id="http-secrets-in-github">HTTP secrets in Github<a class="headerlink" href="#http-secrets-in-github" title="Permanent link">&para;</a></h3>
+<p>When testing Fleet with private git repositories, you will notice that HTTP secrets are no longer supported in Github. To work around this issue, follow these steps:</p>
+<ol>
+<li>Create a <a href="https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token">personal access token</a> in Github.</li>
+<li>In Rancher, create an HTTP <a href="https://rancher.com/docs/rancher/v2.6/en/k8s-in-rancher/secrets/">secret</a> with your Github username.</li>
+<li>Use your token as the secret.</li>
+</ol>
+<h3 id="fleet-fails-with-bad-response-code-403">Fleet fails with bad response code: 403<a class="headerlink" href="#fleet-fails-with-bad-response-code-403" title="Permanent link">&para;</a></h3>
+<p>If your GitJob returns the error below, the problem may be that Fleet cannot access the Helm repo you specified in your <a href="../gitrepo-structure/"><code>fleet.yaml</code></a>:</p>
+<div class="codehilite"><pre><span></span><code>time=&quot;2021-11-04T09:21:24Z&quot; level=fatal msg=&quot;bad response code: 403&quot;
+</code></pre></div>
+
+<p>Perform the following steps to assess:</p>
+<ul>
+<li>Check that your repo is accessible from your dev machine, and that you can download the Helm chart successfully</li>
+<li>Check that your credentials for the git repo are valid</li>
+</ul>
+<h3 id="helm-chart-repo-certificate-signed-by-unknown-authority">Helm chart repo: certificate signed by unknown authority<a class="headerlink" href="#helm-chart-repo-certificate-signed-by-unknown-authority" title="Permanent link">&para;</a></h3>
+<p>If your GitJob returns the error below, you may have added the wrong certificate chain:</p>
+<div class="codehilite"><pre><span></span><code>time=&quot;2021-11-11T05:55:08Z&quot; level=fatal msg=&quot;Get \&quot;https://helm.intra/virtual-helm/index.yaml\&quot;: x509: certificate signed by unknown authority&quot; 
+</code></pre></div>
+
+<p>Please verify your certificate with the following command:</p>
+<div class="codehilite"><pre><span></span><code><span class="nv">context</span><span class="o">=</span>playground-local
+kubectl get secret -n fleet-default helm-repo -o <span class="nv">jsonpath</span><span class="o">=</span><span class="s2">&quot;{[&#39;data&#39;][&#39;cacerts&#39;]}&quot;</span> --context <span class="nv">$context</span> <span class="p">|</span> base64 -d <span class="p">|</span> openssl x509 -text -noout
+Certificate:
+    Data:
+        Version: <span class="m">3</span> <span class="o">(</span>0x2<span class="o">)</span>
+        Serial Number:
+            7a:1e:df:79:5f:b0:e0:be:49:de:11:5e:d9:9c:a9:71
+        Signature Algorithm: sha512WithRSAEncryption
+        Issuer: <span class="nv">C</span> <span class="o">=</span> CH, <span class="nv">O</span> <span class="o">=</span> MY COMPANY, <span class="nv">CN</span> <span class="o">=</span> NOP Root CA G3
+...
+</code></pre></div>
+
+<h3 id="fleet-deployment-stuck-in-modified-state">Fleet deployment stuck in modified state<a class="headerlink" href="#fleet-deployment-stuck-in-modified-state" title="Permanent link">&para;</a></h3>
+<p>When you deploy bundles to Fleet, some of the components are modified, and this causes the "modified" flag in the Fleet environment.</p>
+<p>To ignore the modified flag for the differences between the Helm install generated by <code>fleet.yaml</code> and the resource in your cluster, add a <code>diff.comparePatches</code> to the <code>fleet.yaml</code> for your Deployment, as shown in this example:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">defaultNamespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;namespace name&gt;</span><span class="w"> </span>
+<span class="nt">helm</span><span class="p">:</span><span class="w">  </span>
+<span class="w">  </span><span class="nt">releaseName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;release name&gt;</span><span class="w">  </span>
+<span class="w">  </span><span class="nt">repo</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;repo name&gt;</span><span class="w"> </span>
+<span class="w">  </span><span class="nt">chart</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;chart name&gt;</span><span class="w"></span>
+<span class="nt">diff</span><span class="p">:</span><span class="w">  </span>
+<span class="w">  </span><span class="nt">comparePatches</span><span class="p">:</span><span class="w">  </span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">apps/v1</span><span class="w"></span>
+<span class="w">    </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Deployment</span><span class="w"></span>
+<span class="w">    </span><span class="nt">operations</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="s">&quot;op&quot;</span><span class="p p-Indicator">:</span><span class="s">&quot;remove&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;path&quot;</span><span class="p p-Indicator">:</span><span class="s">&quot;/spec/template/spec/hostNetwork&quot;</span><span class="p p-Indicator">}</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="s">&quot;op&quot;</span><span class="p p-Indicator">:</span><span class="s">&quot;remove&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;path&quot;</span><span class="p p-Indicator">:</span><span class="s">&quot;/spec/template/spec/nodeSelector&quot;</span><span class="p p-Indicator">}</span><span class="w"></span>
+<span class="w">    </span><span class="nt">jsonPointers</span><span class="p">:</span><span class="w"> </span><span class="c1"># jsonPointers allows to ignore diffs at certain json path</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;/spec/template/spec/priorityClassName&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;/spec/template/spec/tolerations&quot;</span><span class="w"> </span>
+</code></pre></div>
+
+<p>To determine which operations should be removed, observe the logs from <code>fleet-agent</code> on the target cluster. You should see entries similar to the following:</p>
+<div class="codehilite"><pre><span></span><code>level=error msg=&quot;bundle monitoring-monitoring: deployment.apps monitoring/monitoring-monitoring-kube-state-metrics modified {\&quot;spec\&quot;:{\&quot;template\&quot;:{\&quot;spec\&quot;:{\&quot;hostNetwork\&quot;:false}}}}&quot;
+</code></pre></div>
+
+<p>Based on the above log, you can add the following entry to remove the operation:</p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span><span class="nt">&quot;op&quot;</span><span class="p">:</span><span class="s2">&quot;remove&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="s2">&quot;/spec/template/spec/hostNetwork&quot;</span><span class="p">}</span><span class="w"></span>
+</code></pre></div>
+
+<h3 id="gitrepo-or-bundle-stuck-in-modified-state"><code>GitRepo</code> or <code>Bundle</code> stuck in modified state<a class="headerlink" href="#gitrepo-or-bundle-stuck-in-modified-state" title="Permanent link">&para;</a></h3>
+<p><strong>Modified</strong> means that there is a mismatch between the actual state and the desired state, the source of truth, which lives in the git repository.</p>
+<ol>
+<li>
+<p>Check the <a href="../bundle-diffs/">bundle diffs documentation</a> for more information. </p>
+</li>
+<li>
+<p>You can also force update the <code>gitrepo</code> to perform a manual resync. Select <strong>GitRepo</strong> on the left navigation bar, then select <strong>Force Update</strong>.</p>
+</li>
+</ol>
+<h3 id="bundle-has-a-horizontal-pod-autoscaler-hpa-in-modified-state">Bundle has a Horizontal Pod Autoscaler (HPA) in modified state<a class="headerlink" href="#bundle-has-a-horizontal-pod-autoscaler-hpa-in-modified-state" title="Permanent link">&para;</a></h3>
+<p>For bundles with an HPA, the expected state is <code>Modified</code>, as the bundle contains fields that differ from the state of the Bundle at deployment - usually <code>ReplicaSet</code>.</p>
+<p>You must define a patch in the <code>fleet.yaml</code> to ignore this field according to <a href="#gitrepo-or-bundle-stuck-in-modified-state"><code>GitRepo</code> or <code>Bundle</code> stuck in modified state</a>.</p>
+<p>Here is an example of such a patch for the deployment <code>nginx</code> in namespace <code>default</code>:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">diff</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">comparePatches</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">apps/v1</span><span class="w"></span>
+<span class="w">    </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Deployment</span><span class="w"></span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nginx</span><span class="w"></span>
+<span class="w">    </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">default</span><span class="w"></span>
+<span class="w">    </span><span class="nt">operations</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="s">&quot;op&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;remove&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;path&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;/spec/replicas&quot;</span><span class="p p-Indicator">}</span><span class="w"></span>
+</code></pre></div>
+
+<h3 id="what-if-the-cluster-is-unavailable-or-is-in-a-waitcheckin-state">What if the cluster is unavailable, or is in a <code>WaitCheckIn</code> state?<a class="headerlink" href="#what-if-the-cluster-is-unavailable-or-is-in-a-waitcheckin-state" title="Permanent link">&para;</a></h3>
+<p>You will need to re-import and restart the registration process: Select <strong>Cluster</strong> on the left navigation bar, then select <strong>Force Update</strong></p>
+<div class="admonition note">
+<p class="admonition-title">WaitCheckIn status for Rancher v2.5</p>
+<p>The cluster will show in <code>WaitCheckIn</code> status because the <code>fleet-controller</code> is attempting to communicate with Fleet using the Rancher service IP. However, Fleet must communicate directly with Rancher via the Kubernetes service DNS using service discovery, not through the proxy. For more, see the <a href="https://rancher.com/docs/rancher/v2.5/en/installation/other-installation-methods/behind-proxy/install-rancher/#install-rancher">Rancher docs</a>. </p>
+</div>
+<h3 id="gitrepo-complains-with-gzip-invalid-header">GitRepo complains with <code>gzip: invalid header</code><a class="headerlink" href="#gitrepo-complains-with-gzip-invalid-header" title="Permanent link">&para;</a></h3>
+<p>When you see an error like the one below ...</p>
+<div class="codehilite"><pre><span></span><code>Error opening a gzip reader <span class="k">for</span> /tmp/getter154967024/archive: gzip: invalid header
+</code></pre></div>
+
+<p>... the content of the helm chart is incorrect. Manually download the chart to your local machine and check the content.</p>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+    <nav class="md-footer__inner md-grid" aria-label="Footer" >
+      
+        
+        <a href="../cluster-bundles-state/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Cluster and Bundle state" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              Cluster and Bundle state
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../advanced-users/" class="md-footer__link md-footer__link--next" aria-label="Next: Overview" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              Overview
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.5bf1dace.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.078830c0.min.js"></script>
+      
+    
+  </body>
+</html>
