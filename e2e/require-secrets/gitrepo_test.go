@@ -118,11 +118,6 @@ var _ = Describe("Git Repo with polling", func() {
 	})
 })
 
-// 1. Create local repo
-// 2. Create (executable!) .git/hooks/post-receive hook which calls the external ingress IP with the right payload (use github webhook payload as example?)
-// 3. Clone that repo in local folder
-// 4. Make changes to clone and push
-// 5. Check deployment
 var _ = Describe("Git Repo with webhook", func() {
 	var (
 		tmpdir   string
@@ -194,7 +189,6 @@ var _ = Describe("Git Repo with webhook", func() {
 
 	AfterEach(func() {
 		os.RemoveAll(tmpdir)
-		//_, _ = k.Delete("secret", "git-auth")
 		_, _ = k.Delete("gitrepo", "gitrepo-test")
 		_, _ = k.Delete("deployment", "git-server")
 		_, _ = k.Delete("service", "git-service")
