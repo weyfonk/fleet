@@ -26,8 +26,6 @@ const (
 	gitjobServiceURL = "gitjob.cattle-fleet-system.svc.cluster.local"
 )
 
-// TODO factor this? Table-based test cases or simply helper functions for common logic?
-
 var _ = Describe("Git Repo with polling", func() {
 	var (
 		tmpdir   string
