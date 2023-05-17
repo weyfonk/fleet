@@ -40,6 +40,10 @@ var _ = Describe("Git Repo with polling", func() {
 	BeforeEach(func() {
 		k = env.Kubectl.Namespace(env.Namespace)
 
+		// Build git repo URL reachable _within_ the cluster, for the GitRepo
+		host, err := buildGitHostname(env.Namespace)
+		Expect(err).ToNot(HaveOccurred())
+
 		// Create git server
 		out, err := k.Apply("-f", testenv.AssetPath("gitrepo/nginx_deployment.yaml"))
 		Expect(err).ToNot(HaveOccurred(), out)
@@ -52,10 +56,6 @@ var _ = Describe("Git Repo with polling", func() {
 		ip, err := getExternalRepoIP(port, repoName)
 		Expect(err).ToNot(HaveOccurred())
 		gh = githelper.New(ip)
-
-		// Build git repo URL reachable _within_ the cluster, for the GitRepo
-		host, err := buildGitHostname(env.Namespace)
-		Expect(err).ToNot(HaveOccurred())
 
 		// For some reason, using an HTTP secret makes `git fetch` fail within tektoncd/pipeline;
 		// Hence we resort to inline credentials here, for an ephemeral test setup.
@@ -85,7 +85,6 @@ var _ = Describe("Git Repo with polling", func() {
 		_, _ = k.Delete("gitrepo", "gitrepo-test")
 		_, _ = k.Delete("deployment", "git-server")
 		_, _ = k.Delete("service", "git-service")
-		_, _ = k.Delete("configmap", "hook-script")
 	})
 
 	When("updating a git repository monitored via polling", func() {
@@ -159,10 +158,6 @@ var _ = Describe("Git Repo with webhook", func() {
 		Expect(err).ToNot(HaveOccurred(), out)
 
 		time.Sleep(3 * time.Second) // give git server time to spin up
-
-		// Build git repo URL reachable _within_ the cluster, for the GitRepo
-		host, err = buildGitHostname(env.Namespace)
-		Expect(err).ToNot(HaveOccurred())
 
 		ip, err := getExternalRepoIP(port, repoName)
 		Expect(err).ToNot(HaveOccurred())
