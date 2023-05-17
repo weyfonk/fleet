@@ -125,12 +125,11 @@ var _ = Describe("Git Repo with polling", func() {
 // 5. Check deployment
 var _ = Describe("Git Repo with webhook", func() {
 	var (
-		tmpdir          string
-		clonedir        string
-		k               kubectl.Command
-		gh              *githelper.Git
-		clone           *git.Repository
-		pollingInterval string
+		tmpdir   string
+		clonedir string
+		k        kubectl.Command
+		gh       *githelper.Git
+		clone    *git.Repository
 	)
 
 	BeforeEach(func() {
@@ -181,7 +180,7 @@ var _ = Describe("Git Repo with webhook", func() {
 		}{
 			inClusterRepoURL,
 			gh.Branch,
-			pollingInterval,
+			"24h", // prevent polling
 		})
 		Expect(err).ToNot(HaveOccurred())
 
@@ -201,8 +200,6 @@ var _ = Describe("Git Repo with webhook", func() {
 		_, _ = k.Delete("service", "git-service")
 		_, _ = k.Delete("configmap", "hook-script")
 	})
-
-	pollingInterval = "24h" // prevent polling
 
 	When("updating a git repository monitored via webhook", func() {
 		It("updates the deployment", func() {
