@@ -80,6 +80,7 @@ jobs:
         run: |
           k3d image import rancher/fleet:dev rancher/fleet-agent:dev
           k3d image import nginx-git:test nginx-git:test
+          
       -
         name: Set Up Tmate Debug Session
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.enable_tmate == 'true' }}
@@ -92,10 +93,30 @@ jobs:
         run: |
           ./.github/scripts/deploy-fleet.sh
       -
+        name: Deploy zot for OCI tests
+        run: |
+          # Generate cert and key for TLS
+          ./dev/create_zot_certs
+
+          # Install root cert in host
+          mkdir /usr/share/ca-certificates/extra
+          cp FleetCI-RootCA/FleetCI-RootCA.crt /usr/share/ca-certificates/extra/
+          update-ca-certificates
+
+          # TODO import image ghcr.io/project-zot/zot-linux-amd64:v1.4.3
+          helm repo add project-zot http://zotregistry.io/helm-charts
+          helm install zot project-zot/zot --version 0.1.16 --values e2e/assets/oci/zot_values.yaml # zot version 1.4.3
+      -
         name: E2E Tests
         env:
           FLEET_E2E_NS: fleet-local
         run: |
+          export NODE_IP=$(kubectl get nodes --namespace default -o jsonpath="{.items[0].status.addresses[0].address}")
+          helm registry login http://$NODE_IP:5000 -u fleet-ci -p foo
+          
+          helm package e2e/assets/gitrepo/sleeper-chart/
+          helm push sleeper-chart-0.1.0.tgz oci://$NODE_IP:5000 #XXX will this prompt for a passphrase?
+
           ginkgo e2e/single-cluster e2e/keep-resources
       -
         name: Acceptance Tests for Examples
