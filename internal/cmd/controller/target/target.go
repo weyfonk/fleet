@@ -13,7 +13,6 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	kyaml "sigs.k8s.io/yaml"
 
@@ -484,7 +483,7 @@ func limit(count int, val ...*intstr.IntOrString) (int, error) {
 
 	percent, err := strconv.ParseFloat(strings.TrimSuffix(maxUnavailable.StrVal, "%"), 64)
 	if err != nil {
-		return 0, errors.Wrapf(err, "failed to parse %s", maxUnavailable.StrVal)
+		return 0, fmt.Errorf("failed to parse %s: %w", maxUnavailable.StrVal, err)
 	}
 
 	if percent <= 0 {

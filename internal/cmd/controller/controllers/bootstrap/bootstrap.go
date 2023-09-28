@@ -2,10 +2,10 @@ package bootstrap
 
 import (
 	"context"
+	"errors"
 	"os"
 	"regexp"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
 	fleetns "github.com/rancher/fleet/internal/cmd/controller/namespace"

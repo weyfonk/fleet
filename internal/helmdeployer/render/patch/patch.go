@@ -7,8 +7,6 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/pkg/errors"
-
 	"github.com/rancher/fleet/internal/content"
 	"github.com/rancher/fleet/internal/manifest"
 	fleet "github.com/rancher/fleet/pkg/apis/fleet.cattle.io/v1alpha1"
@@ -114,17 +112,17 @@ func patchContent(content map[string][]byte, overlays []string) error {
 
 			targetContent, err := convertToJSON(targetContent)
 			if err != nil {
-				return errors.Wrapf(err, "failed to convert %s to json", target)
+				return fmt.Errorf("failed to convert %s to json: %w", target, err)
 			}
 
 			bytes, err = convertToJSON(bytes)
 			if err != nil {
-				return errors.Wrapf(err, "failed to convert %s to json", name)
+				return fmt.Errorf("failed to convert %s to json: %w", name, err)
 			}
 
 			newBytes, err := patch.Apply(targetContent, bytes)
 			if err != nil {
-				return errors.Wrapf(err, "failed to patch %s", target)
+				return fmt.Errorf("failed to patch %s: %w", name, err)
 			}
 			content[target] = newBytes
 		}

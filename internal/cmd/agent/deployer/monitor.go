@@ -7,7 +7,6 @@ import (
 
 	jsonpatch "github.com/evanphx/json-patch"
 
-	"github.com/pkg/errors"
 	"github.com/rancher/fleet/internal/cmd/agent/deployer/internal/diff"
 	"github.com/rancher/fleet/internal/cmd/agent/deployer/internal/diffnormalize"
 	"github.com/rancher/fleet/internal/cmd/agent/deployer/internal/resource"
@@ -180,9 +179,12 @@ func (m *Manager) UpdateBundleDeploymentStatus(mapper meta.RESTMapper, bd *fleet
 			// Update BundleDeployment status as wrangler doesn't update the status if error is not nil.
 			_, errStatus := m.bundleDeploymentController.UpdateStatus(bd)
 			if errStatus != nil {
-				return errors.Wrap(err, "error updating status when reconciling drift: "+errStatus.Error())
+				return fmt.Errorf(
+					"error updating status when reconciling drift: %w",
+					fmt.Errorf("%s: %w", errStatus, err),
+				)
 			}
-			return errors.Wrapf(err, "error reconciling drift")
+			return fmt.Errorf("error reconciling drift: %w", err)
 		}
 	}
 

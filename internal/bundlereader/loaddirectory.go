@@ -17,7 +17,6 @@ import (
 	"unicode/utf8"
 
 	"github.com/hashicorp/go-getter"
-	"github.com/pkg/errors"
 	"github.com/rancher/fleet/internal/content"
 	fleet "github.com/rancher/fleet/pkg/apis/fleet.cattle.io/v1alpha1"
 	"helm.sh/helm/v3/pkg/cli"
@@ -292,7 +291,7 @@ func GetContent(ctx context.Context, base, source, version string, auth Auth) (m
 		return nil
 	})
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to read %s relative to %s", orgSource, base)
+		return nil, fmt.Errorf("failed to read %s relative to %s: %w", orgSource, base, err)
 	}
 
 	return files, nil

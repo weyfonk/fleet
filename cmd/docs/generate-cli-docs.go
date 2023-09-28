@@ -7,8 +7,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/pkg/errors"
-
 	fleetagent "github.com/rancher/fleet/internal/cmd/agent"
 	fleetcli "github.com/rancher/fleet/internal/cmd/cli"
 	fleetcontroller "github.com/rancher/fleet/internal/cmd/controller"
@@ -58,13 +56,13 @@ func generateCmdDoc(cmd *cobra.Command, dir string) error {
 	// create the directory if it doesn't exist
 	err := os.MkdirAll(dir, 0700)
 	if err != nil {
-		return errors.Wrapf(err, "error creating directory [%s]", dir)
+		return fmt.Errorf("error creating directory [%s]: %w", dir, err)
 	}
 
 	// create the documentation for the given command
 	err = createMarkdownFile(cmd, dir)
 	if err != nil {
-		return errors.Wrapf(err, "error creating markdown file for command [%s]", cmd.Name())
+		return fmt.Errorf("error creating markdown file for command [%s]: %w", cmd.Name(), err)
 	}
 
 	// create the documentation for its subcommands
@@ -73,7 +71,7 @@ func generateCmdDoc(cmd *cobra.Command, dir string) error {
 		if !subcmd.HasSubCommands() {
 			err = createMarkdownFile(subcmd, dir)
 			if err != nil {
-				return errors.Wrapf(err, "error creating markdown file for command [%s]", subcmd.Name())
+				return fmt.Errorf("error creating markdown file for command [%s]: %w", subcmd.Name(), err)
 			}
 			continue
 		}
@@ -82,7 +80,7 @@ func generateCmdDoc(cmd *cobra.Command, dir string) error {
 		subdir := filepath.Join(dir, subcmd.Name())
 		err = generateCmdDoc(subcmd, subdir)
 		if err != nil {
-			return errors.Wrapf(err, "error generating doc for command [%s]", subcmd.Name())
+			return fmt.Errorf("error generating doc for command [%s]: %w", subcmd.Name(), err)
 		}
 	}
 
@@ -101,17 +99,20 @@ func createMarkdownFile(cmd *cobra.Command, dir string) error {
 
 	f, err := os.Create(filename)
 	if err != nil {
-		return errors.Wrap(err, "error creating file")
+		return fmt.Errorf("error creating file: %w", err)
 	}
 	defer f.Close()
 
 	err = writeFileHeader(f, cmd.CommandPath())
 	if err != nil {
-		return errors.Wrapf(err, "error writing file header for command [%s]", cmd.Name())
+		return fmt.Errorff("error writing file header for command [%s]: %w", cmd.Name(), err)
 	}
 
-	err = doc.GenMarkdownCustom(cmd, f, linkHandler(cmd, dir))
-	return errors.Wrap(err, "error generating markdown custom")
+	if err = doc.GenMarkdownCustom(cmd, f, linkHandler(cmd, dir)); err != nil {
+		return fmt.Errorf("error generating markdown custom: %w", err)
+	}
+
+	return nil
 }
 
 // linkHandler will return a function that will handle the markdown link generation
@@ -144,5 +145,9 @@ sidebar_label: "%s"
 ---
 `, sidebarLabel)
 
-	return errors.Wrap(err, "error writing file header")
+	if err != nil {
+		return fmt.Errorf("error writing file header: %w", err)
+	}
+
+	return nil
 }

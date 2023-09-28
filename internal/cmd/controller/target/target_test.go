@@ -3,10 +3,11 @@ package target
 //go:generate mockgen --build_flags=--mod=mod -destination=../mocks/bundle_deployment_cache_mock.go -package=mocks github.com/rancher/fleet/pkg/generated/controllers/fleet.cattle.io/v1alpha1 BundleDeploymentCache
 
 import (
+	"errors"
+	"fmt"
 	"testing"
 
 	"github.com/golang/mock/gomock"
-	"github.com/pkg/errors"
 	"github.com/rancher/wrangler/pkg/yaml"
 	"github.com/stretchr/testify/assert"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -336,13 +337,13 @@ func getClusterAndBundle(bundleYaml string) (*v1alpha1.Cluster, *v1alpha1.Bundle
 	cluster := &v1alpha1.Cluster{}
 	err := yaml.Unmarshal([]byte(clusterYamlWithTemplateValues), cluster)
 	if err != nil {
-		return nil, nil, errors.Wrapf(err, "error during cluster yaml parsing")
+		return nil, nil, fmt.Errorf("error during cluster yaml parsing: %w", err)
 	}
 
 	bundle := &v1alpha1.BundleDeploymentOptions{}
 	err = yaml.Unmarshal([]byte(bundleYaml), bundle)
 	if err != nil {
-		return nil, nil, errors.Wrapf(err, "error during bundle yaml parsing")
+		return nil, nil, fmt.Errorf("error during bundle yaml parsing: %w", err)
 	}
 
 	return cluster, bundle, nil

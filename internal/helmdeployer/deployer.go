@@ -2,12 +2,12 @@ package helmdeployer
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/rancher/fleet/internal/config"
 	"github.com/rancher/fleet/pkg/durations"
 	"github.com/sirupsen/logrus"
@@ -931,18 +931,18 @@ func GetSetID(bundleID, labelPrefix, labelSuffix string) string {
 func removeFailedRollback(cfg action.Configuration, currentRelease *release.Release, err error) error {
 	failedRelease, errRel := cfg.Releases.Last(currentRelease.Name)
 	if errRel != nil {
-		return errors.Wrap(err, errRel.Error())
+		return fmt.Errorf("%s: %w", errRel.Error(), err)
 	}
 	if failedRelease.Version == currentRelease.Version+1 &&
 		failedRelease.Info.Status == release.StatusFailed &&
 		strings.HasPrefix(failedRelease.Info.Description, "Rollback") {
 		_, errDel := cfg.Releases.Delete(failedRelease.Name, failedRelease.Version)
 		if errDel != nil {
-			return errors.Wrap(err, errDel.Error())
+			return fmt.Errorf("%s: %w", errDel.Error(), err)
 		}
 		errUpdate := cfg.Releases.Update(currentRelease)
 		if errUpdate != nil {
-			return errors.Wrap(err, errUpdate.Error())
+			return fmt.Errorf("%s: %w", errUpdate.Error(), err)
 		}
 	}
 
