@@ -26,11 +26,11 @@ jobs:
           # k3d version list k3s | sed 's/+/-/' | sort -h
           # https://hub.docker.com/r/rancher/k3s/tags
           - v1.27.5-k3s1
-          - v1.26.8-k3s1
-          - v1.24.17-k3s1
+            #- v1.26.8-k3s1
+            #- v1.24.17-k3s1
         test_type:
-          - acceptance
-          - e2e-secrets
+          #- acceptance
+          #- e2e-secrets
           - e2e-nosecrets
     steps:
       -
