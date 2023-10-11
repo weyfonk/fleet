@@ -21,7 +21,7 @@ var _ = Describe("Keep resources", func() {
 			// Let's delete the namespace and its resources anyway once done, as this may free up precious
 			// resources, especially on CI runners.
 			// Redis pods may take over a minute to terminate, hence we skip the wait here.
-			_, _ = k.Delete("ns", namespace, "--wait=false")
+			//_, _ = k.Delete("ns", namespace, "--wait=false")
 		})
 	})
 
