@@ -117,6 +117,46 @@ jobs:
         run: |
           export CI_OCI_CERTS_DIR="$(git rev-parse --show-toplevel)/FleetCI-RootCA"
 
+          # 0. Deploy disk-checker for troubleshooting
+          kubectl apply -f - <<EOF
+          apiVersion: apps/v1
+          kind: DaemonSet
+          metadata:
+            name: disk-checker
+            labels:
+              app: disk-checker
+          spec:
+            selector:
+              matchLabels:
+                app: disk-checker
+            template:
+              metadata:
+                labels:
+                  app: disk-checker
+              spec:
+                hostPID: true
+                hostIPC: true
+                hostNetwork: true
+                containers:
+                - resources:
+                    requests:
+                      cpu: 0.15
+                  securityContext:
+                    privileged: true
+                  image: busybox
+                  imagePullPolicy: IfNotPresent
+                  name: disk-checked
+                  command: ["/bin/sh"]
+                  args: ["-c", "du -a /host | sort -n -r | head -n 20"]
+                  volumeMounts:
+                  - name: host
+                    mountPath: "/host"
+                volumes:
+                  - name: host
+                    hostPath:
+                      path: "/"
+          EOF
+
           # 1. Run tests requiring only the git server
           e2e/testenv/infra/infra setup --git-server=true
           ginkgo --label-filter='infra-setup && !helm-registry && !oci-registry' e2e/single-cluster/
