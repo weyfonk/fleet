@@ -11,6 +11,32 @@ on:
         description: "checkout git branch/tag"
         required: true
         default: "main"
+      cluster_name:
+        description: Name of the provisioned cluster
+        required: true
+        type: string
+      cluster_number:
+        description: Number of clusters to deploy in multi-cluster test
+        type: string
+      cluster_type:
+        description: Cluster type (empty if normal or hardened)
+        type: string
+      destroy_runner:
+        description: Destroy the auto-generated self-hosted runner
+        default: true
+        type: boolean
+      rancher_version:
+        description: Rancher Manager channel/version/head_version to use for installation
+        default: stable/latest/none
+        type: string
+      runner_template:
+        description: Runner template to use
+        default: fleet-e2e-ci-runner-standard-x86-64-template-v1
+        type: string
+      zone:
+        description: GCP zone to host the runner
+        default: us-central1-a
+        type: string
   push:
     tags: [ 'v*' ]
     paths-ignore:
