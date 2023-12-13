@@ -22,6 +22,7 @@ on:
         description: "checkout git branch/tag"
         required: true
         default: "main"
+        type: string
       cluster_name:
         description: Name of the provisioned cluster
         required: true
