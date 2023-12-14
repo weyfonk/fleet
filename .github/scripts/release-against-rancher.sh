@@ -28,9 +28,10 @@ if [ ! -e ~/.gitconfig ]; then
     git config --global user.email fleet@suse.de
 fi
 
-sed -i -e "s/ENV CATTLE_FLEET_VERSION=.*$/ENV CATTLE_FLEET_VERSION=${NEW_CHART_VERSION}+up${NEW_FLEET_VERSION}/g" package/Dockerfile
+sed -i -e "s/fleetVersion:.*$/fleetVersion: ${NEW_CHART_VERSION}+up${NEW_FLEET_VERSION}/g" build.yaml
 
-git add package/Dockerfile
+go generate
+git add build.yaml pkg/buildconfig/constants.go
 
 if [ "${BUMP_API}" == "true" ]; then
     pushd ../fleet > /dev/null
