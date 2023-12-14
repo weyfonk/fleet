@@ -54,7 +54,7 @@ jobs:
         with:
           token: ${{secrets.PUSH_TO_FORKS_SUBMIT_PRS}}
           push-to-fork: rancherbot/rancher
-          title: ' Update Fleet to v${{github.event.inputs.new_fleet}}'
+          title: '[TEST Fleet release script] Update Fleet to v${{github.event.inputs.new_fleet}}'
           body: |
             Update Fleet to v${{github.event.inputs.new_fleet}}
 
@@ -62,3 +62,4 @@ jobs:
           branch-suffix: timestamp
           base: ${{github.event.inputs.rancher_ref}}
           path: ./rancher/
+          draft: true # TEST: prevent created PR from being merged
