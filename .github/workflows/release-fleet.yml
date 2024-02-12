@@ -1,0 +1,70 @@
+# Fleet release workflow
+name: Fleet release
+
+on:
+  push:
+    tags:
+      - v**
+
+env:
+  GOARCH: amd64
+  CGO_ENABLED: 0
+  SETUP_K3D_VERSION: 'v5.5.1'
+
+jobs:
+  build-fleet:
+    runs-on: ubuntu-latest
+            # TODO need: 
+ 
+    # linux-amd64: build job:
+    #   * step: push tags to releases.rancher.com
+    #   * step: push latest tag to releases.rancher.com
+    # windows-1809: publish agent image
+    # windows-2022: publish agent image
+    steps:
+      - name: Check out Fleet
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: 'go.mod'
+          check-latest: true
+
+      - name: Build Fleet Binaries
+        env:
+          CROSS: "windows"
+        run: |
+          ./scripts/build
+
+          cd e2e/testenv/infra
+          go build -o . ./...
+
+      - name: Run FOSSA scan
+        uses: fossas/fossa-action@v1.3.1
+        with:
+          api-key: ${{ secrets.FOSSA_API_KEY }}
+
+      - name: Run FOSSA tests
+        uses: fossas/fossa-action@v1.3.1
+        with:
+          api-key: ${{ secrets.FOSSA_API_KEY }}
+          run-tests: true
+
+      - name: Log into Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v5
+        with:
+          distribution: goreleaser
+          version: v1.24.0
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
