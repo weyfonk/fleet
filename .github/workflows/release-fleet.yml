@@ -89,12 +89,12 @@ jobs:
 #          hash-type: sha256
 #          file-name: dist/artifacts/CHECKSUMsum-amd64.txt
 
-      - name: Release binaries to Github
-        uses: ncipollo/release-action@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          prerelease: true
-          artifacts: "dist/artifacts/*"
+#      - name: Release binaries to Github
+#        uses: ncipollo/release-action@v1
+#        with:
+#          token: ${{ secrets.GITHUB_TOKEN }}
+#          prerelease: true
+#          artifacts: "dist/artifacts/*"
 
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v5
