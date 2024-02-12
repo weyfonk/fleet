@@ -1,19 +1,40 @@
 ---
 project_name: fleet
 
-archives:
-  -
-    name_template: '{{ .ProjectName }}-{{ .Os }}-{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}'
-    replacements:
-      amd64: x86_64
-    format: binary
-    format_overrides:
-      - goos: windows
-        format: zip
-
 before:
   hooks:
     - go mod download
+
+archives:
+  - id: fleet-controller
+    format: binary
+    name_template: "{{ .Binary }}"
+    builds:
+      - fleet-controller
+
+  - id: fleet-agent
+    format: binary
+    name_template: "{{ .Binary }}"
+    builds:
+      - fleet-agent
+
+  - id: fleet-gitcloner
+    format: binary
+    name_template: "{{ .Binary }}"
+    builds:
+      - fleet-gitcloner
+
+  - id: fleet-gitjob
+    format: binary
+    name_template: "{{ .Binary }}"
+    builds:
+      - fleet-gitjob
+
+  - id: fleet-cli
+    format: binary
+    name_template: "{{ .Binary }}"
+    builds:
+      - fleet-cli
 
 builds:
   -
