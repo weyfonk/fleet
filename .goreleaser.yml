@@ -45,8 +45,8 @@ builds:
     #   - all="-N -l"
     ldflags:
       - -w -s
-      - -X github.com/rancher/fleet/pkg/version.GitCommit={{ .Commit }}
-      - -X github.com/rancher/fleet/pkg/version.Version={{ .Tag }}
+      - -X github.com/weyfonk/fleet/pkg/version.GitCommit={{ .Commit }}
+      - -X github.com/weyfonk/fleet/pkg/version.Version={{ .Tag }}
     goos:
       - linux
       - windows
@@ -65,8 +65,8 @@ builds:
     binary: fleetagent
     ldflags:
       - -w -s
-      - -X github.com/rancher/fleet/pkg/version.GitCommit={{ .Commit }}
-      - -X github.com/rancher/fleet/pkg/version.Version={{ .Tag }}
+      - -X github.com/weyfonk/fleet/pkg/version.GitCommit={{ .Commit }}
+      - -X github.com/weyfonk/fleet/pkg/version.Version={{ .Tag }}
     goos:
       - linux
       - windows
@@ -85,8 +85,8 @@ builds:
     binary: gitcloner
     ldflags:
       - -w -s
-      - -X github.com/rancher/fleet/pkg/version.GitCommit={{ .Commit }}
-      - -X github.com/rancher/fleet/pkg/version.Version={{ .Tag }}
+      - -X github.com/weyfonk/fleet/pkg/version.GitCommit={{ .Commit }}
+      - -X github.com/weyfonk/fleet/pkg/version.Version={{ .Tag }}
     goos:
       - linux
       - windows
@@ -105,8 +105,8 @@ builds:
     binary: gitjob
     ldflags:
       - -w -s
-      - -X github.com/rancher/fleet/pkg/version.GitCommit={{ .Commit }}
-      - -X github.com/rancher/fleet/pkg/version.Version={{ .Tag }}
+      - -X github.com/weyfonk/fleet/pkg/version.GitCommit={{ .Commit }}
+      - -X github.com/weyfonk/fleet/pkg/version.Version={{ .Tag }}
     goos:
       - linux
       - windows
@@ -125,8 +125,8 @@ builds:
     binary: fleet
     ldflags:
       - -w -s
-      - -X github.com/rancher/fleet/pkg/version.GitCommit={{ .Commit }}
-      - -X github.com/rancher/fleet/pkg/version.Version={{ .Tag }}
+      - -X github.com/weyfonk/fleet/pkg/version.GitCommit={{ .Commit }}
+      - -X github.com/weyfonk/fleet/pkg/version.Version={{ .Tag }}
     goos:
       - darwin
       - linux
@@ -168,7 +168,7 @@ dockers:
 
     # Templates of the Docker image names.
     image_templates:
-    - "ghcr.io/rancher/fleet:{{ .Tag }}-amd64"
+    - "ghcr.io/weyfonk/fleet:{{ .Tag }}-amd64"
 
     # Skips the docker push.
     skip_push: "true"
@@ -183,7 +183,7 @@ dockers:
     - "--label=org.opencontainers.image.title={{.ProjectName}}"
     - "--label=org.opencontainers.image.revision={{.FullCommit}}"
     - "--label=org.opencontainers.image.version={{.Version}}"
-    - "--label=org.opencontainers.image.source=https://github.com/rancher/fleet"
+    - "--label=org.opencontainers.image.source=https://github.com/weyfonk/fleet"
     - "--build-arg=BUILD_ENV=goreleaser"
     - "--platform=linux/amd64"
   -
@@ -193,7 +193,7 @@ dockers:
     ids:
     - fleet-controller
     image_templates:
-    - "ghcr.io/rancher/fleet:{{ .Tag }}-arm64v8"
+    - "ghcr.io/weyfonk/fleet:{{ .Tag }}-arm64v8"
     dockerfile: package/Dockerfile
     build_flag_templates:
     - "--pull"
@@ -201,7 +201,7 @@ dockers:
     - "--label=org.opencontainers.image.title={{.ProjectName}}"
     - "--label=org.opencontainers.image.revision={{.FullCommit}}"
     - "--label=org.opencontainers.image.version={{.Version}}"
-    - "--label=org.opencontainers.image.source=https://github.com/rancher/fleet"
+    - "--label=org.opencontainers.image.source=https://github.com/weyfonk/fleet"
     - "--build-arg=BUILD_ENV=goreleaser"
     - "--platform=linux/arm64/v8"
   # fleet-agent images
@@ -213,7 +213,7 @@ dockers:
     - fleet-agent
     - fleet-cli
     image_templates:
-    - "ghcr.io/rancher/fleet-agent:{{ .Tag }}-amd64"
+    - "ghcr.io/weyfonk/fleet-agent:{{ .Tag }}-amd64"
     skip_push: "true"
     dockerfile: package/Dockerfile.agent
     build_flag_templates:
@@ -222,7 +222,7 @@ dockers:
     - "--label=org.opencontainers.image.title={{.ProjectName}}"
     - "--label=org.opencontainers.image.revision={{.FullCommit}}"
     - "--label=org.opencontainers.image.version={{.Version}}"
-    - "--label=org.opencontainers.image.source=https://github.com/rancher/fleet"
+    - "--label=org.opencontainers.image.source=https://github.com/weyfonk/fleet"
     - "--build-arg=BUILD_ENV=goreleaser"
     - "--platform=linux/amd64"
     extra_files: [ "package/log.sh" ]
@@ -234,7 +234,7 @@ dockers:
     - fleet-agent
     - fleet-cli
     image_templates:
-    - "ghcr.io/rancher/fleet-agent:{{ .Tag }}-arm64v8"
+    - "ghcr.io/weyfonk/fleet-agent:{{ .Tag }}-arm64v8"
     dockerfile: package/Dockerfile.agent
     build_flag_templates:
     - "--pull"
@@ -242,7 +242,7 @@ dockers:
     - "--label=org.opencontainers.image.title={{.ProjectName}}"
     - "--label=org.opencontainers.image.revision={{.FullCommit}}"
     - "--label=org.opencontainers.image.version={{.Version}}"
-    - "--label=org.opencontainers.image.source=https://github.com/rancher/fleet"
+    - "--label=org.opencontainers.image.source=https://github.com/weyfonk/fleet"
     - "--build-arg=BUILD_ENV=goreleaser"
     - "--platform=linux/arm64/v8"
     extra_files: [ "package/log.sh" ]
@@ -255,7 +255,7 @@ dockers:
     - fleet-gitcloner
     - fleet-gitjob
     image_templates:
-    - "ghcr.io/rancher/fleet-gitjob:{{ .Tag }}-amd64"
+    - "ghcr.io/weyfonk/fleet-gitjob:{{ .Tag }}-amd64"
     skip_push: "true"
     dockerfile: package/Dockerfile.gitjob
     build_flag_templates:
@@ -264,7 +264,7 @@ dockers:
     - "--label=org.opencontainers.image.title={{.ProjectName}}"
     - "--label=org.opencontainers.image.revision={{.FullCommit}}"
     - "--label=org.opencontainers.image.version={{.Version}}"
-    - "--label=org.opencontainers.image.source=https://github.com/rancher/fleet"
+    - "--label=org.opencontainers.image.source=https://github.com/weyfonk/fleet"
     - "--build-arg=BUILD_ENV=goreleaser"
     - "--platform=linux/amd64"
   -
@@ -275,7 +275,7 @@ dockers:
     - fleet-gitcloner
     - fleet-gitjob
     image_templates:
-    - "ghcr.io/rancher/fleet-gitjob:{{ .Tag }}-arm64v8"
+    - "ghcr.io/weyfonk/fleet-gitjob:{{ .Tag }}-arm64v8"
     dockerfile: package/Dockerfile.gitjob
     build_flag_templates:
     - "--pull"
@@ -283,24 +283,24 @@ dockers:
     - "--label=org.opencontainers.image.title={{.ProjectName}}"
     - "--label=org.opencontainers.image.revision={{.FullCommit}}"
     - "--label=org.opencontainers.image.version={{.Version}}"
-    - "--label=org.opencontainers.image.source=https://github.com/rancher/fleet"
+    - "--label=org.opencontainers.image.source=https://github.com/weyfonk/fleet"
     - "--build-arg=BUILD_ENV=goreleaser"
     - "--platform=linux/arm64/v8"
 
 docker_manifests:
   # https://goreleaser.com/customization/docker_manifest/
   -
-    name_template: "ghcr.io/rancher/fleet:{{ .Tag }}"
+    name_template: "ghcr.io/weyfonk/fleet:{{ .Tag }}"
     image_templates:
-    - "ghcr.io/rancher/fleet:{{ .Tag }}-amd64"
-    - "ghcr.io/rancher/fleet:{{ .Tag }}-arm64v8"
+    - "ghcr.io/weyfonk/fleet:{{ .Tag }}-amd64"
+    - "ghcr.io/weyfonk/fleet:{{ .Tag }}-arm64v8"
   -
-    name_template: "ghcr.io/rancher/fleet-agent:{{ .Tag }}"
+    name_template: "ghcr.io/weyfonk/fleet-agent:{{ .Tag }}"
     image_templates:
-    - "ghcr.io/rancher/fleet-agent:{{ .Tag }}-amd64"
-    - "ghcr.io/rancher/fleet-agent:{{ .Tag }}-arm64v8"
+    - "ghcr.io/weyfonk/fleet-agent:{{ .Tag }}-amd64"
+    - "ghcr.io/weyfonk/fleet-agent:{{ .Tag }}-arm64v8"
   -
-    name_template: "ghcr.io/rancher/fleet-gitjob:{{ .Tag }}"
+    name_template: "ghcr.io/weyfonk/fleet-gitjob:{{ .Tag }}"
     image_templates:
-    - "ghcr.io/rancher/fleet-gitjob:{{ .Tag }}-amd64"
-    - "ghcr.io/rancher/fleet-gitjob:{{ .Tag }}-arm64v8"
+    - "ghcr.io/weyfonk/fleet-gitjob:{{ .Tag }}-amd64"
+    - "ghcr.io/weyfonk/fleet-gitjob:{{ .Tag }}-arm64v8"
