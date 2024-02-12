@@ -101,6 +101,7 @@ builds:
     - windows_amd64
   -
     id: fleet-cli
+    main: ./cmd/fleetcli
     binary: fleet
     ldflags:
       - -w -s
