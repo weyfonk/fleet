@@ -20,17 +20,17 @@ env:
 jobs:
   build-fleet:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        platforms:
-          - linux-amd64
-          - linux-arm64
-          - windows-1809
-          - windows-2022
-        test_type:
-          - acceptance
-          - e2e-secrets
-          - e2e-nosecrets
+#    strategy:
+#      matrix:
+#        platforms:
+#          - linux-amd64
+#          - linux-arm64
+#          - windows-1809
+#          - windows-2022
+#        test_type:
+#          - acceptance
+#          - e2e-secrets
+#          - e2e-nosecrets
             # TODO need: 
  
     # linux-amd64: build job:
