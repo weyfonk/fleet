@@ -5,7 +5,7 @@ archives:
   -
     name_template: >-
       {{ .ProjectName }}-{{ .Os }}-
-      {{- if eq .Arch "amd64" }}x86_64{{- else }}{{ .Arch }}{{ end }}{{ .Arch }}
+      {{- if eq .Arch "amd64" }}x86_64{{- else }}{{ .Arch }}{{ end }}
       {{ if .Arm }}v{{ .Arm }}{{ end }}
     format: binary
     format_overrides:
