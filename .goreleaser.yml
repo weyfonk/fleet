@@ -21,6 +21,10 @@ builds:
     id: fleet-controller
     main: ./cmd/fleetcontroller
     binary: fleetcontroller
+    name_template: >-
+      {{ .binary }}-{{ .Os }}-
+      {{- if eq .Arch "amd64" }}x86_64{{- else }}{{ .Arch }}{{ end }}
+      {{ if .Arm }}v{{ .Arm }}{{ end }}
     # gcflags:
     #   - all="-N -l"
     ldflags:
@@ -43,6 +47,10 @@ builds:
     id: fleet-agent
     main: ./cmd/fleetagent
     binary: fleetagent
+    name_template: >-
+      {{ .binary }}-{{ .Os }}-
+      {{- if eq .Arch "amd64" }}x86_64{{- else }}{{ .Arch }}{{ end }}
+      {{ if .Arm }}v{{ .Arm }}{{ end }}
     ldflags:
       - -w -s
       - -X github.com/weyfonk/fleet/pkg/version.GitCommit={{ .Commit }}
@@ -63,6 +71,10 @@ builds:
     id: fleet-gitcloner
     main: ./cmd/gitcloner
     binary: gitcloner
+    name_template: >-
+      {{ .binary }}-{{ .Os }}-
+      {{- if eq .Arch "amd64" }}x86_64{{- else }}{{ .Arch }}{{ end }}
+      {{ if .Arm }}v{{ .Arm }}{{ end }}
     ldflags:
       - -w -s
       - -X github.com/weyfonk/fleet/pkg/version.GitCommit={{ .Commit }}
@@ -83,6 +95,10 @@ builds:
     id: fleet-gitjob
     main: ./cmd/gitjob
     binary: gitjob
+    name_template: >-
+      {{ .binary }}-{{ .Os }}-
+      {{- if eq .Arch "amd64" }}x86_64{{- else }}{{ .Arch }}{{ end }}
+      {{ if .Arm }}v{{ .Arm }}{{ end }}
     ldflags:
       - -w -s
       - -X github.com/weyfonk/fleet/pkg/version.GitCommit={{ .Commit }}
@@ -103,6 +119,10 @@ builds:
     id: fleet-cli
     main: ./cmd/fleetcli
     binary: fleet
+    name_template: >-
+      {{ .binary }}-{{ .Os }}-
+      {{- if eq .Arch "amd64" }}x86_64{{- else }}{{ .Arch }}{{ end }}
+      {{ if .Arm }}v{{ .Arm }}{{ end }}
     ldflags:
       - -w -s
       - -X github.com/weyfonk/fleet/pkg/version.GitCommit={{ .Commit }}
