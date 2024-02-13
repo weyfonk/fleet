@@ -170,9 +170,6 @@ dockers:
     image_templates:
     - "ghcr.io/weyfonk/fleet:{{ .Tag }}-amd64"
 
-    # Skips the docker push.
-    skip_push: "true"
-
     # Path to the Dockerfile (from the project root).
     dockerfile: package/Dockerfile
 
@@ -214,7 +211,6 @@ dockers:
     - fleet-cli
     image_templates:
     - "ghcr.io/weyfonk/fleet-agent:{{ .Tag }}-amd64"
-    skip_push: "true"
     dockerfile: package/Dockerfile.agent
     build_flag_templates:
     - "--pull"
@@ -256,7 +252,6 @@ dockers:
     - fleet-gitjob
     image_templates:
     - "ghcr.io/weyfonk/fleet-gitjob:{{ .Tag }}-amd64"
-    skip_push: "true"
     dockerfile: package/Dockerfile.gitjob
     build_flag_templates:
     - "--pull"
