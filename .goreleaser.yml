@@ -1,17 +1,6 @@
 ---
 project_name: fleet
 
-archives:
-  -
-    name_template: >-
-      {{ .ProjectName }}-{{ .Os }}-
-      {{- if eq .Arch "amd64" }}x86_64{{- else }}{{ .Arch }}{{ end }}
-      {{ if .Arm }}v{{ .Arm }}{{ end }}
-    format: tgz
-    format_overrides:
-      - goos: windows
-        format: zip
-
 before:
   hooks:
     - go mod download
