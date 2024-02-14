@@ -102,7 +102,7 @@ builds:
   -
     id: fleet-cli
     main: ./cmd/fleetcli
-    binary: fleet-cli
+    binary: fleet
     ldflags:
       - -w -s
       - -X github.com/weyfonk/fleet/pkg/version.GitCommit={{ .Commit }}
