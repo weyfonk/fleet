@@ -7,7 +7,7 @@ archives:
       {{ .ProjectName }}-{{ .Os }}-
       {{- if eq .Arch "amd64" }}x86_64{{- else }}{{ .Arch }}{{ end }}
       {{ if .Arm }}v{{ .Arm }}{{ end }}
-    format: binary
+    format: tar.gz
     format_overrides:
       - goos: windows
         format: zip
