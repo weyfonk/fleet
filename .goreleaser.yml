@@ -16,6 +16,7 @@ builds:
       - -w -s
       - -X github.com/weyfonk/fleet/pkg/version.GitCommit={{ .Commit }}
       - -X github.com/weyfonk/fleet/pkg/version.Version={{ .Tag }}
+    # TODO remove goos, goarm and gooarch, ignored when targets is set
     goos:
       - linux
       - windows
@@ -150,7 +151,7 @@ dockers:
     - "--label=org.opencontainers.image.revision={{.FullCommit}}"
     - "--label=org.opencontainers.image.version={{.Version}}"
     - "--label=org.opencontainers.image.source=https://github.com/weyfonk/fleet"
-    - "--build-arg=BUILD_ENV=goreleaser"
+    - "--build-arg=BUILD_ENV=buildx"
     - "--platform=linux/amd64"
   -
     use: buildx
@@ -168,7 +169,7 @@ dockers:
     - "--label=org.opencontainers.image.revision={{.FullCommit}}"
     - "--label=org.opencontainers.image.version={{.Version}}"
     - "--label=org.opencontainers.image.source=https://github.com/weyfonk/fleet"
-    - "--build-arg=BUILD_ENV=goreleaser"
+    - "--build-arg=BUILD_ENV=buildx"
     - "--platform=linux/arm64/v8"
   # fleet-agent images
   -
@@ -188,7 +189,7 @@ dockers:
     - "--label=org.opencontainers.image.revision={{.FullCommit}}"
     - "--label=org.opencontainers.image.version={{.Version}}"
     - "--label=org.opencontainers.image.source=https://github.com/weyfonk/fleet"
-    - "--build-arg=BUILD_ENV=goreleaser"
+    - "--build-arg=BUILD_ENV=buildx"
     - "--platform=linux/amd64"
     extra_files: [ "package/log.sh" ]
   -
@@ -208,7 +209,7 @@ dockers:
     - "--label=org.opencontainers.image.revision={{.FullCommit}}"
     - "--label=org.opencontainers.image.version={{.Version}}"
     - "--label=org.opencontainers.image.source=https://github.com/weyfonk/fleet"
-    - "--build-arg=BUILD_ENV=goreleaser"
+    - "--build-arg=BUILD_ENV=buildx"
     - "--platform=linux/arm64/v8"
     extra_files: [ "package/log.sh" ]
   # fleet-gitjob images
@@ -229,7 +230,7 @@ dockers:
     - "--label=org.opencontainers.image.revision={{.FullCommit}}"
     - "--label=org.opencontainers.image.version={{.Version}}"
     - "--label=org.opencontainers.image.source=https://github.com/weyfonk/fleet"
-    - "--build-arg=BUILD_ENV=goreleaser"
+    - "--build-arg=BUILD_ENV=buildx"
     - "--platform=linux/amd64"
   -
     use: buildx
@@ -248,7 +249,7 @@ dockers:
     - "--label=org.opencontainers.image.revision={{.FullCommit}}"
     - "--label=org.opencontainers.image.version={{.Version}}"
     - "--label=org.opencontainers.image.source=https://github.com/weyfonk/fleet"
-    - "--build-arg=BUILD_ENV=goreleaser"
+    - "--build-arg=BUILD_ENV=buildx"
     - "--platform=linux/arm64/v8"
 
 docker_manifests:
