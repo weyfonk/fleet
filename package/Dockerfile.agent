@@ -1,6 +1,7 @@
 ARG BUILD_ENV=dapper
+ARG ARCH
 
-FROM registry.suse.com/suse/git:2.35 AS base
+FROM --platform=linux/$ARCH registry.suse.com/suse/git:2.35 AS base
 COPY package/log.sh /usr/bin/
 # Create non-root user and group
 RUN echo "fleet-apply:x:1000:1000::/home/fleet-apply:/bin/bash" >> /etc/passwd && \
@@ -19,9 +20,9 @@ ONBUILD COPY bin/fleetagent-linux-$TARGETARCH /usr/bin/fleetagent
 ONBUILD COPY bin/fleet-linux-$TARGETARCH /usr/bin/fleet
 
 FROM base AS copy_goreleaser
-ONBUILD ARG TARGETARCH
-ONBUILD COPY fleetagent-linux-$TARGETARCH /usr/bin/fleetagent
-ONBUILD COPY fleet-linux-$TARGETARCH /usr/bin/fleet
+ONBUILD ARG ARCH
+ONBUILD COPY fleetagent-linux-$ARCH /usr/bin/fleetagent
+ONBUILD COPY fleet-linux-$ARCH /usr/bin/fleet
 
 FROM copy_${BUILD_ENV}
 USER 1000

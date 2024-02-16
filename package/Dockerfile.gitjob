@@ -1,6 +1,7 @@
 ARG BUILD_ENV=dapper
+ARG ARCH
 
-FROM registry.suse.com/bci/bci-base:15.5 AS base
+FROM --platform=linux/$ARCH registry.suse.com/bci/bci-base:15.5 AS base
 RUN zypper -n update && \
     zypper -n install openssh catatonit git-core && \
     zypper -n clean -a
@@ -17,9 +18,9 @@ ONBUILD COPY bin/gitjob-linux-$TARGETARCH /usr/bin/gitjob
 ONBUILD COPY bin/gitcloner-linux-$TARGETARCH /usr/bin/gitcloner
 
 FROM base AS copy_goreleaser
-ONBUILD ARG TARGETARCH
-ONBUILD COPY gitjob-linux-$TARGETARCH /usr/bin/gitjob
-ONBUILD COPY gitcloner-linux-$TARGETARCH /usr/bin/gitcloner
+ONBUILD ARG ARCH
+ONBUILD COPY gitjob-linux-$ARCH /usr/bin/gitjob
+ONBUILD COPY gitcloner-linux-$ARCH /usr/bin/gitcloner
 
 FROM copy_${BUILD_ENV}
 USER 1000
