@@ -1,6 +1,7 @@
 ARG BUILD_ENV=dapper
+ARG ARCH
 
-FROM registry.suse.com/bci/bci-busybox:15.5 AS base
+FROM --platform=linux/$ARCH registry.suse.com/bci/bci-busybox:15.5 AS base
 
 FROM base AS copy_dapper
 ONBUILD ARG ARCH
@@ -11,8 +12,8 @@ ONBUILD ARG TARGETARCH
 ONBUILD COPY bin/fleetcontroller-linux-${TARGETARCH} /usr/bin/fleetcontroller
 
 FROM base AS copy_goreleaser
-ONBUILD ARG TARGETARCH
-ONBUILD COPY fleetcontroller-linux-${TARGETARCH} /usr/bin/fleetcontroller
+ONBUILD ARG ARCH
+ONBUILD COPY fleetcontroller-linux-${ARCH} /usr/bin/fleetcontroller
 
 FROM copy_${BUILD_ENV}
 RUN addgroup -g 1000 fleet-apply && adduser -u 1000 -G fleet-apply -D fleet-apply
