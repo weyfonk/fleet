@@ -19,8 +19,9 @@ ONBUILD COPY bin/fleetagent-linux-$TARGETARCH /usr/bin/fleetagent
 ONBUILD COPY bin/fleet-linux-$TARGETARCH /usr/bin/fleet
 
 FROM base AS copy_goreleaser
-ONBUILD COPY fleetagent /usr/bin/fleetagent
-ONBUILD COPY fleet /usr/bin/fleet
+ONBUILD ARG TARGETARCH
+ONBUILD COPY fleetagent-linux-$TARGETARCH /usr/bin/fleetagent
+ONBUILD COPY fleet-linux-$TARGETARCH /usr/bin/fleet
 
 FROM copy_${BUILD_ENV}
 USER 1000
