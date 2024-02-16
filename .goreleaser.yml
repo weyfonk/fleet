@@ -238,3 +238,7 @@ docker_manifests:
     image_templates:
     - "ghcr.io/weyfonk/fleet-gitjob:{{ .Tag }}-amd64"
     - "ghcr.io/weyfonk/fleet-gitjob:{{ .Tag }}-arm64v8"
+
+release:
+  github:
+  disable: false
