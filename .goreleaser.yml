@@ -114,7 +114,7 @@ dockers:
     - "--label=org.opencontainers.image.revision={{.FullCommit}}"
     - "--label=org.opencontainers.image.version={{.Version}}"
     - "--label=org.opencontainers.image.source=https://github.com/weyfonk/fleet"
-    - "--build-arg=BUILD_ENV=buildx"
+    - "--build-arg=BUILD_ENV=goreleaser"
     - "--platform=linux/amd64"
   -
     use: buildx
@@ -132,7 +132,7 @@ dockers:
     - "--label=org.opencontainers.image.revision={{.FullCommit}}"
     - "--label=org.opencontainers.image.version={{.Version}}"
     - "--label=org.opencontainers.image.source=https://github.com/weyfonk/fleet"
-    - "--build-arg=BUILD_ENV=buildx"
+    - "--build-arg=BUILD_ENV=goreleaser"
     - "--platform=linux/arm64/v7"
   # fleet-agent images
   -
@@ -152,7 +152,7 @@ dockers:
     - "--label=org.opencontainers.image.revision={{.FullCommit}}"
     - "--label=org.opencontainers.image.version={{.Version}}"
     - "--label=org.opencontainers.image.source=https://github.com/weyfonk/fleet"
-    - "--build-arg=BUILD_ENV=buildx"
+    - "--build-arg=BUILD_ENV=goreleaser"
     - "--platform=linux/amd64"
     extra_files: [ "package/log.sh" ]
   -
@@ -172,7 +172,7 @@ dockers:
     - "--label=org.opencontainers.image.revision={{.FullCommit}}"
     - "--label=org.opencontainers.image.version={{.Version}}"
     - "--label=org.opencontainers.image.source=https://github.com/weyfonk/fleet"
-    - "--build-arg=BUILD_ENV=buildx"
+    - "--build-arg=BUILD_ENV=goreleaser"
     - "--platform=linux/arm64/v7"
     extra_files: [ "package/log.sh" ]
   # fleet-gitjob images
@@ -193,7 +193,7 @@ dockers:
     - "--label=org.opencontainers.image.revision={{.FullCommit}}"
     - "--label=org.opencontainers.image.version={{.Version}}"
     - "--label=org.opencontainers.image.source=https://github.com/weyfonk/fleet"
-    - "--build-arg=BUILD_ENV=buildx"
+    - "--build-arg=BUILD_ENV=goreleaser"
     - "--platform=linux/amd64"
   -
     use: buildx
@@ -212,7 +212,7 @@ dockers:
     - "--label=org.opencontainers.image.revision={{.FullCommit}}"
     - "--label=org.opencontainers.image.version={{.Version}}"
     - "--label=org.opencontainers.image.source=https://github.com/weyfonk/fleet"
-    - "--build-arg=BUILD_ENV=buildx"
+    - "--build-arg=BUILD_ENV=goreleaser"
     - "--platform=linux/arm64/v7"
 
 docker_manifests:

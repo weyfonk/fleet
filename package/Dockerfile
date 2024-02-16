@@ -11,7 +11,8 @@ ONBUILD ARG TARGETARCH
 ONBUILD COPY bin/fleetcontroller-linux-${TARGETARCH} /usr/bin/fleetcontroller
 
 FROM base AS copy_goreleaser
-ONBUILD COPY fleetcontroller /usr/bin/fleetcontroller
+ONBUILD ARG TARGETARCH
+ONBUILD COPY fleetcontroller-linux-${TARGETARCH} /usr/bin/fleetcontroller
 
 FROM copy_${BUILD_ENV}
 RUN addgroup -g 1000 fleet-apply && adduser -u 1000 -G fleet-apply -D fleet-apply
