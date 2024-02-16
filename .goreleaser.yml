@@ -40,7 +40,8 @@ builds:
   -
     id: fleet-controller
     main: ./cmd/fleetcontroller
-    binary: fleetcontroller
+    binary: fleetcontroller-{{ .Os }}-{{ .Arch }}{{ if .Arm }}64{{ end }}
+    no_unique_dist_dir: true
     # gcflags:
     #   - all="-N -l"
     ldflags:
@@ -63,7 +64,8 @@ builds:
   -
     id: fleet-agent
     main: ./cmd/fleetagent
-    binary: fleetagent
+    binary: fleetagent-{{ .Os }}-{{ .Arch }}{{ if .Arm }}64{{ end }}
+    no_unique_dist_dir: true
     ldflags:
       - -w -s
       - -X github.com/weyfonk/fleet/pkg/version.GitCommit={{ .Commit }}
@@ -83,7 +85,8 @@ builds:
   -
     id: fleet-gitcloner
     main: ./cmd/gitcloner
-    binary: gitcloner
+    binary: gitcloner-{{ .Os }}-{{ .Arch }}{{ if .Arm }}64{{ end }}
+    no_unique_dist_dir: true
     ldflags:
       - -w -s
       - -X github.com/weyfonk/fleet/pkg/version.GitCommit={{ .Commit }}
@@ -103,7 +106,8 @@ builds:
   -
     id: fleet-gitjob
     main: ./cmd/gitjob
-    binary: gitjob
+    binary: gitjob-{{ .Os }}-{{ .Arch }}{{ if .Arm }}64{{ end }}
+    no_unique_dist_dir: true
     ldflags:
       - -w -s
       - -X github.com/weyfonk/fleet/pkg/version.GitCommit={{ .Commit }}
@@ -123,7 +127,8 @@ builds:
   -
     id: fleet-cli
     main: ./cmd/fleetcli
-    binary: fleet
+    binary: fleet-{{ .Os }}-{{ .Arch }}{{ if .Arm }}64{{ end }}
+    no_unique_dist_dir: true
     ldflags:
       - -w -s
       - -X github.com/weyfonk/fleet/pkg/version.GitCommit={{ .Commit }}
