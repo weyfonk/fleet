@@ -5,6 +5,32 @@ before:
   hooks:
     - go mod download
 
+archives:
+  - id: fleet-controller
+    format: binary
+    builds:
+      - fleet-controller
+
+  - id: fleet-agent
+    format: binary
+    builds:
+      - fleet-agent
+
+  - id: fleet-gitcloner
+    format: binary
+    builds:
+      - fleet-gitcloner
+
+  - id: fleet-gitjob
+    format: binary
+    builds:
+      - fleet-gitjob
+
+  - id: fleet-cli
+    format: binary
+    builds:
+      - fleet-cli
+
 builds:
   -
     id: fleet-controller
