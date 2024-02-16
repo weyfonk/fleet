@@ -48,15 +48,6 @@ builds:
       - -w -s
       - -X github.com/weyfonk/fleet/pkg/version.GitCommit={{ .Commit }}
       - -X github.com/weyfonk/fleet/pkg/version.Version={{ .Tag }}
-    # TODO remove goos, goarm and gooarch, ignored when targets is set
-    goos:
-      - linux
-      - windows
-    goarch:
-      - amd64
-      - arm64
-    goarm:
-      - "7"
     targets:
     - linux_amd64_v1
     - linux_arm64
@@ -70,14 +61,6 @@ builds:
       - -w -s
       - -X github.com/weyfonk/fleet/pkg/version.GitCommit={{ .Commit }}
       - -X github.com/weyfonk/fleet/pkg/version.Version={{ .Tag }}
-    goos:
-      - linux
-      - windows
-    goarch:
-      - amd64
-      - arm64
-    goarm:
-      - "7"
     targets:
     - linux_amd64_v1
     - linux_arm64
@@ -91,14 +74,6 @@ builds:
       - -w -s
       - -X github.com/weyfonk/fleet/pkg/version.GitCommit={{ .Commit }}
       - -X github.com/weyfonk/fleet/pkg/version.Version={{ .Tag }}
-    goos:
-      - linux
-      - windows
-    goarch:
-      - amd64
-      - arm64
-    goarm:
-      - "7"
     targets:
     - linux_amd64_v1
     - linux_arm64
@@ -112,14 +87,6 @@ builds:
       - -w -s
       - -X github.com/weyfonk/fleet/pkg/version.GitCommit={{ .Commit }}
       - -X github.com/weyfonk/fleet/pkg/version.Version={{ .Tag }}
-    goos:
-      - linux
-      - windows
-    goarch:
-      - amd64
-      - arm64
-    goarm:
-      - "7"
     targets:
     - linux_amd64_v1
     - linux_arm64
@@ -133,15 +100,6 @@ builds:
       - -w -s
       - -X github.com/weyfonk/fleet/pkg/version.GitCommit={{ .Commit }}
       - -X github.com/weyfonk/fleet/pkg/version.Version={{ .Tag }}
-    goos:
-      - darwin
-      - linux
-      - windows
-    goarch:
-      - amd64
-      - arm64
-    goarm:
-      - "7"
     targets:
     - linux_amd64_v1
     - linux_arm64
