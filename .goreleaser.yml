@@ -19,7 +19,7 @@ builds:
       - -X github.com/weyfonk/fleet/pkg/version.Version={{ .Tag }}
     targets:
     - linux_amd64_v1
-    - linux_arm_7
+    - linux_arm64
     - windows_amd64
   -
     id: fleet-agent
@@ -32,7 +32,7 @@ builds:
       - -X github.com/weyfonk/fleet/pkg/version.Version={{ .Tag }}
     targets:
     - linux_amd64_v1
-    - linux_arm_7
+    - linux_arm64
     - windows_amd64
   -
     id: fleet-gitcloner
@@ -45,7 +45,7 @@ builds:
       - -X github.com/weyfonk/fleet/pkg/version.Version={{ .Tag }}
     targets:
     - linux_amd64_v1
-    - linux_arm_7
+    - linux_arm64
     - windows_amd64
   -
     id: fleet-gitjob
@@ -58,7 +58,7 @@ builds:
       - -X github.com/weyfonk/fleet/pkg/version.Version={{ .Tag }}
     targets:
     - linux_amd64_v1
-    - linux_arm_7
+    - linux_arm64
     - windows_amd64
   -
     id: fleet-cli
@@ -71,7 +71,7 @@ builds:
       - -X github.com/weyfonk/fleet/pkg/version.Version={{ .Tag }}
     targets:
     - linux_amd64_v1
-    - linux_arm_7
+    - linux_arm64
     - windows_amd64
 
 changelog:
@@ -123,7 +123,7 @@ dockers:
     ids:
     - fleet-controller
     image_templates:
-    - "ghcr.io/weyfonk/fleet:{{ .Tag }}-arm64v7"
+    - "ghcr.io/weyfonk/fleet:{{ .Tag }}-arm64v8"
     dockerfile: package/Dockerfile
     build_flag_templates:
     - "--pull"
@@ -133,7 +133,7 @@ dockers:
     - "--label=org.opencontainers.image.version={{.Version}}"
     - "--label=org.opencontainers.image.source=https://github.com/weyfonk/fleet"
     - "--build-arg=BUILD_ENV=goreleaser"
-    - "--platform=linux/arm64/v7"
+    - "--platform=linux/arm64/v8"
   # fleet-agent images
   -
     use: buildx
@@ -163,7 +163,7 @@ dockers:
     - fleet-agent
     - fleet-cli
     image_templates:
-    - "ghcr.io/weyfonk/fleet-agent:{{ .Tag }}-arm64v7"
+    - "ghcr.io/weyfonk/fleet-agent:{{ .Tag }}-arm64v8"
     dockerfile: package/Dockerfile.agent
     build_flag_templates:
     - "--pull"
@@ -173,7 +173,7 @@ dockers:
     - "--label=org.opencontainers.image.version={{.Version}}"
     - "--label=org.opencontainers.image.source=https://github.com/weyfonk/fleet"
     - "--build-arg=BUILD_ENV=goreleaser"
-    - "--platform=linux/arm64/v7"
+    - "--platform=linux/arm64/v8"
     extra_files: [ "package/log.sh" ]
   # fleet-gitjob images
   -
@@ -203,7 +203,7 @@ dockers:
     - fleet-gitcloner
     - fleet-gitjob
     image_templates:
-    - "ghcr.io/weyfonk/fleet-gitjob:{{ .Tag }}-arm64v7"
+    - "ghcr.io/weyfonk/fleet-gitjob:{{ .Tag }}-arm64v8"
     dockerfile: package/Dockerfile.gitjob
     build_flag_templates:
     - "--pull"
@@ -213,7 +213,7 @@ dockers:
     - "--label=org.opencontainers.image.version={{.Version}}"
     - "--label=org.opencontainers.image.source=https://github.com/weyfonk/fleet"
     - "--build-arg=BUILD_ENV=goreleaser"
-    - "--platform=linux/arm64/v7"
+    - "--platform=linux/arm64/v8"
 
 docker_manifests:
   # https://goreleaser.com/customization/docker_manifest/
@@ -221,14 +221,14 @@ docker_manifests:
     name_template: "ghcr.io/weyfonk/fleet:{{ .Tag }}"
     image_templates:
     - "ghcr.io/weyfonk/fleet:{{ .Tag }}-amd64"
-    - "ghcr.io/weyfonk/fleet:{{ .Tag }}-arm64v7"
+    - "ghcr.io/weyfonk/fleet:{{ .Tag }}-arm64v8"
   -
     name_template: "ghcr.io/weyfonk/fleet-agent:{{ .Tag }}"
     image_templates:
     - "ghcr.io/weyfonk/fleet-agent:{{ .Tag }}-amd64"
-    - "ghcr.io/weyfonk/fleet-agent:{{ .Tag }}-arm64v7"
+    - "ghcr.io/weyfonk/fleet-agent:{{ .Tag }}-arm64v8"
   -
     name_template: "ghcr.io/weyfonk/fleet-gitjob:{{ .Tag }}"
     image_templates:
     - "ghcr.io/weyfonk/fleet-gitjob:{{ .Tag }}-amd64"
-    - "ghcr.io/weyfonk/fleet-gitjob:{{ .Tag }}-arm64v7"
+    - "ghcr.io/weyfonk/fleet-gitjob:{{ .Tag }}-arm64v8"
