@@ -112,3 +112,11 @@ jobs:
           args: release --clean --verbose
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload charts to release
+        if: ${{ startsWith(github.ref, 'refs/tags/') }}
+        run: |
+          ./scripts/package-helm
+          for f in $(find dist/artifacts/ -name '*.tgz'); do
+            gh release upload ${{ github.ref }} $f
+          done
