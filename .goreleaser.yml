@@ -107,7 +107,8 @@ builds:
 
 changelog:
   ## Delegate Changelog to release-drafter
-  disable: true
+  disable: false
+  use: github
 
 env:
   - CGO_ENABLED=0
