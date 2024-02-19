@@ -83,20 +83,6 @@ jobs:
 #          api-key: ${{ secrets.FOSSA_API_KEY }}
 #          run-tests: true
 
-      # TODO check which hashes this generates (which files are used as input?)
-#      - name: Compute hashes for released files
-#        uses: MCJack123/ghaction-generate-release-hashes@v3
-#        with:
-#          hash-type: sha256
-#          file-name: dist/artifacts/CHECKSUMsum-amd64.txt
-
-#      - name: Release binaries to Github
-#        uses: ncipollo/release-action@v1
-#        with:
-#          token: ${{ secrets.GITHUB_TOKEN }}
-#          prerelease: true
-#          artifacts: "dist/artifacts/*"
-
       - name: Log into Container registry
         uses: docker/login-action@v3
         with:
