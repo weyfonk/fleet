@@ -79,6 +79,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           ./scripts/package-helm
+          tag=${GITHUB_REF#refs/tags/}
           for f in $(find dist/artifacts/ -name '*.tgz'); do
-            gh release upload ${{ github.ref }} $f
+            gh release upload $tag $f
           done
