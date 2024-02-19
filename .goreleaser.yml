@@ -4,6 +4,7 @@ project_name: fleet
 before:
   hooks:
     - go mod download
+    - ./scripts/package-helm
 
 archives:
   - id: fleet-controller
