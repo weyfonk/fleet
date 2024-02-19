@@ -132,7 +132,7 @@ dockers:
 
     # Templates of the Docker image names.
     image_templates:
-    - "ghcr.io/weyfonk/fleet:{{ .Tag }}-amd64"
+    - "ghcr.io/weyfonk/fleet:{{ .Tag }}-linux-amd64"
 
     # Path to the Dockerfile (from the project root).
     dockerfile: package/Dockerfile
@@ -155,7 +155,7 @@ dockers:
     ids:
     - fleet-controller
     image_templates:
-    - "ghcr.io/weyfonk/fleet:{{ .Tag }}-arm64v8"
+    - "ghcr.io/weyfonk/fleet:{{ .Tag }}-linux-arm64"
     dockerfile: package/Dockerfile
     build_flag_templates:
     - "--pull"
@@ -176,7 +176,7 @@ dockers:
     - fleet-agent
     - fleet-cli
     image_templates:
-    - "ghcr.io/weyfonk/fleet-agent:{{ .Tag }}-amd64"
+    - "ghcr.io/weyfonk/fleet-agent:{{ .Tag }}-linux-amd64"
     dockerfile: package/Dockerfile.agent
     build_flag_templates:
     - "--pull"
@@ -197,7 +197,7 @@ dockers:
     - fleet-agent
     - fleet-cli
     image_templates:
-    - "ghcr.io/weyfonk/fleet-agent:{{ .Tag }}-arm64v8"
+    - "ghcr.io/weyfonk/fleet-agent:{{ .Tag }}-linux-arm64"
     dockerfile: package/Dockerfile.agent
     build_flag_templates:
     - "--pull"
@@ -219,7 +219,7 @@ dockers:
     - fleet-gitcloner
     - fleet-gitjob
     image_templates:
-    - "ghcr.io/weyfonk/fleet-gitjob:{{ .Tag }}-amd64"
+    - "ghcr.io/weyfonk/fleet-gitjob:{{ .Tag }}-linux-amd64"
     dockerfile: package/Dockerfile.gitjob
     build_flag_templates:
     - "--pull"
@@ -239,7 +239,7 @@ dockers:
     - fleet-gitcloner
     - fleet-gitjob
     image_templates:
-    - "ghcr.io/weyfonk/fleet-gitjob:{{ .Tag }}-arm64v8"
+    - "ghcr.io/weyfonk/fleet-gitjob:{{ .Tag }}-linux-arm64"
     dockerfile: package/Dockerfile.gitjob
     build_flag_templates:
     - "--pull"
@@ -254,18 +254,17 @@ dockers:
 
 docker_manifests:
   # https://goreleaser.com/customization/docker_manifest/
-  -
-    name_template: "ghcr.io/weyfonk/fleet:{{ .Tag }}"
+  - name_template: "ghcr.io/weyfonk/fleet:{{ .Tag }}"
     image_templates:
-    - "ghcr.io/weyfonk/fleet:{{ .Tag }}-amd64"
-    - "ghcr.io/weyfonk/fleet:{{ .Tag }}-arm64v8"
-  -
-    name_template: "ghcr.io/weyfonk/fleet-agent:{{ .Tag }}"
+    - "ghcr.io/weyfonk/fleet:{{ .Tag }}-linux-amd64"
+    - "ghcr.io/weyfonk/fleet:{{ .Tag }}-linux-arm64"
+
+  - name_template: "ghcr.io/weyfonk/fleet-agent:{{ .Tag }}"
     image_templates:
-    - "ghcr.io/weyfonk/fleet-agent:{{ .Tag }}-amd64"
-    - "ghcr.io/weyfonk/fleet-agent:{{ .Tag }}-arm64v8"
-  -
-    name_template: "ghcr.io/weyfonk/fleet-gitjob:{{ .Tag }}"
+    - "ghcr.io/weyfonk/fleet-agent:{{ .Tag }}-linux-amd64"
+    - "ghcr.io/weyfonk/fleet-agent:{{ .Tag }}-linux-arm64"
+
+  - name_template: "ghcr.io/weyfonk/fleet-gitjob:{{ .Tag }}"
     image_templates:
-    - "ghcr.io/weyfonk/fleet-gitjob:{{ .Tag }}-amd64"
-    - "ghcr.io/weyfonk/fleet-gitjob:{{ .Tag }}-arm64v8"
+    - "ghcr.io/weyfonk/fleet-gitjob:{{ .Tag }}-linux-amd64"
+    - "ghcr.io/weyfonk/fleet-gitjob:{{ .Tag }}-linux-arm64"
