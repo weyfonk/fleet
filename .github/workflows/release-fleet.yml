@@ -90,7 +90,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v5
+        uses: weyfonk/goreleaser-action@v5
         with:
           distribution: goreleaser
           version: v1.24.0
