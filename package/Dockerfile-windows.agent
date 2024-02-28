@@ -1,13 +1,5 @@
 ARG SERVERCORE_VERSION
 FROM mcr.microsoft.com/windows/servercore:${SERVERCORE_VERSION}
-ARG RELEASES
-ARG VERSION
-ENV RELEASES=$RELEASES
-ENV VERSION=$VERSION
-SHELL ["powershell", "-NoLogo", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
-RUN $URL = 'https://{0}/fleet/{1}/fleetagent-windows-amd64.exe' -f $env:RELEASES, $env:VERSION; \
-    New-Item -Path 'c:\\' -Name 'fleet' -ItemType 'directory'; \
-    Write-Host ('Downloading dapper from {0} ...' -f $URL); \
-    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
-    Invoke-WebRequest -UseBasicParsing -OutFile c:/fleet/fleetagent-windows.exe -Uri $URL;
+USER ContainerUser
+ONBUILD COPY fleetagent-windows.exe fleetagent-windows.exe
 CMD ["C:\\fleet\\fleetagent-windows.exe"]
