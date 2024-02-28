@@ -211,6 +211,44 @@ dockers:
     - "--build-arg=BUILD_ENV=goreleaser"
     - "--platform=linux/arm64/v8"
     extra_files: [ "package/log.sh" ]
+  -
+    use: buildx
+    goos: windows
+    goarch: amd64
+    ids:
+    - fleet-agent
+    - fleet-cli
+    image_templates:
+    - "ghcr.io/weyfonk/fleet-agent:{{ .Tag }}-windows-1809"
+    dockerfile: package/Dockerfile-windows.agent
+    build_flag_templates:
+    - "--pull"
+    - "--label=org.opencontainers.image.created={{.Date}}"
+    - "--label=org.opencontainers.image.title={{.ProjectName}}"
+    - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+    - "--label=org.opencontainers.image.version={{.Version}}"
+    - "--label=org.opencontainers.image.source=https://github.com/weyfonk/fleet"
+    - "--build-arg=SERVERCORE_VERSION=1809"
+    - "--platform=windows/amd64"
+  -
+    use: buildx
+    goos: windows
+    goarch: amd64
+    ids:
+    - fleet-agent
+    - fleet-cli
+    image_templates:
+    - "ghcr.io/weyfonk/fleet-agent:{{ .Tag }}-windows-ltsc2022"
+    dockerfile: package/Dockerfile-windows.agent
+    build_flag_templates:
+    - "--pull"
+    - "--label=org.opencontainers.image.created={{.Date}}"
+    - "--label=org.opencontainers.image.title={{.ProjectName}}"
+    - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+    - "--label=org.opencontainers.image.version={{.Version}}"
+    - "--label=org.opencontainers.image.source=https://github.com/weyfonk/fleet"
+    - "--build-arg=SERVERCORE_VERSION=ltsc2022"
+    - "--platform=windows/amd64"
   # fleet-gitjob images
   -
     use: buildx
@@ -264,6 +302,8 @@ docker_manifests:
     image_templates:
     - "ghcr.io/weyfonk/fleet-agent:{{ .Tag }}-linux-amd64"
     - "ghcr.io/weyfonk/fleet-agent:{{ .Tag }}-linux-arm64"
+    - "ghcr.io/weyfonk/fleet-agent:{{ .Tag }}-windows-1809"
+    - "ghcr.io/weyfonk/fleet-agent:{{ .Tag }}-windows-ltsc2022"
 
   - name_template: "ghcr.io/weyfonk/fleet-gitjob:{{ .Tag }}"
     image_templates:
