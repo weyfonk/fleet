@@ -88,15 +88,23 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+            #
+#      - name: Run GoReleaser
+#        uses: weyfonk/goreleaser-action@v5
+#        with:
+#          distribution: goreleaser
+#          version: v1.24.0
+#          args: release --clean --verbose
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run GoReleaser
-        uses: weyfonk/goreleaser-action@v5
-        with:
-          distribution: goreleaser
-          version: v1.24.0
-          args: release --clean --verbose
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          go install github.com/weyfonk/goreleaser@58e91f8e
+          goreleaser release --clean --verbose
+
 
       - name: Upload charts to release
         if: ${{ startsWith(github.ref, 'refs/tags/') }}
