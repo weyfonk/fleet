@@ -228,7 +228,7 @@ dockers:
     - "--label=org.opencontainers.image.revision={{.FullCommit}}"
     - "--label=org.opencontainers.image.version={{.Version}}"
     - "--label=org.opencontainers.image.source=https://github.com/weyfonk/fleet"
-    - "--build-arg=SERVERCORE_VERSION=1809"
+    - "--build-arg=WINDOWS_VERSION=1809"
     - "--platform=windows/amd64"
   -
     use: buildx
@@ -247,7 +247,7 @@ dockers:
     - "--label=org.opencontainers.image.revision={{.FullCommit}}"
     - "--label=org.opencontainers.image.version={{.Version}}"
     - "--label=org.opencontainers.image.source=https://github.com/weyfonk/fleet"
-    - "--build-arg=SERVERCORE_VERSION=ltsc2022"
+    - "--build-arg=WINDOWS_VERSION=ltsc2022"
     - "--platform=windows/amd64"
   # fleet-gitjob images
   -

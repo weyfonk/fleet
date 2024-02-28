@@ -1,5 +1,5 @@
-ARG SERVERCORE_VERSION
-FROM mcr.microsoft.com/windows/servercore:${SERVERCORE_VERSION}
+ARG WINDOWS_VERSION
+FROM mcr.microsoft.com/windows/nanoserver:${WINDOWS_VERSION}
 USER ContainerUser
 COPY fleetagent-windows-amd64.exe fleetagent-windows.exe
 CMD ["C:\\fleet\\fleetagent-windows.exe"]
