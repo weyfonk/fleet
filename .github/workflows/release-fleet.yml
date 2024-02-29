@@ -102,8 +102,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          #go install github.com/weyfonk/goreleaser@58e91f8e # push directly to registry instead of loading
-          go install github.com/weyfonk/goreleaser@16def2cd # only load non-Windows image; do nothing for Windows images
+          go install github.com/weyfonk/goreleaser@58e91f8e # push directly to registry instead of loading
+          #go install github.com/weyfonk/goreleaser@16def2cd # only load non-Windows image; do nothing for Windows images
           goreleaser release --clean --verbose
 
 

@@ -230,6 +230,7 @@ dockers:
     - "--label=org.opencontainers.image.source=https://github.com/weyfonk/fleet"
     - "--build-arg=WINDOWS_VERSION=1809"
     - "--platform=windows/amd64"
+    skip_push: true
   -
     use: buildx
     goos: windows
@@ -249,6 +250,7 @@ dockers:
     - "--label=org.opencontainers.image.source=https://github.com/weyfonk/fleet"
     - "--build-arg=WINDOWS_VERSION=ltsc2022"
     - "--platform=windows/amd64"
+    skip_push: true
   # fleet-gitjob images
   -
     use: buildx
