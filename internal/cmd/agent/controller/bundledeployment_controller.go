@@ -42,7 +42,7 @@ type BundleDeploymentReconciler struct {
 
 	DefaultNamespace string
 
-	// AgentInfo is the labelSuffix used by the helm deployer
+	// AgentScope is the labelSuffix used by the helm deployer
 	AgentScope string
 }
 

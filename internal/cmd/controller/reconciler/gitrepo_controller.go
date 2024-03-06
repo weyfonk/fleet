@@ -55,6 +55,8 @@ func (r *GitRepoReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	// Clean up
 	if apierrors.IsNotFound(err) {
 		logger.V(1).Info("Gitrepo deleted, deleting bundle, image scans")
+		// XXX: This cleans up bundles → is my e2e test case still relevant? ie, is bundle cleanup part of what
+		// needs to be replaced?
 		if err := purgeBundles(ctx, r.Client, req.NamespacedName); err != nil {
 			return ctrl.Result{}, err
 		}
