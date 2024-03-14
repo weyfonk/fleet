@@ -3,6 +3,6 @@ apiVersion: fleet.cattle.io/v1alpha1
 metadata:
   name: kustomize
 spec:
-  repo: https://github.com/rancher/fleet-examples
+  repo: https://github.com/emilianolangella/fleet-examples
   paths:
   - single-cluster/kustomize

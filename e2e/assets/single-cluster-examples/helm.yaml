@@ -5,7 +5,7 @@ metadata:
   labels:
     test: me
 spec:
-  repo: https://github.com/rancher/fleet-examples
+  repo: https://github.com/emilianolangella/fleet-examples
   paths:
   - single-cluster/helm
   targets:
