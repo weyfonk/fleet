@@ -1,5 +1,6 @@
 ---
 project_name: fleet
+prerelease: auto
 
 before:
   hooks:
