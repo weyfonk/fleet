@@ -76,6 +76,7 @@ jobs:
           tar -xz --strip-components=2 -f rancher-linux-amd64-$latest_version.tar.gz -C /usr/local/bin
           rancher --version
 
+      # TODO replace k3d action with script call once the workflow passes
       - name: Set up k3d control-plane cluster
         uses: AbsaOSS/k3d-action@v2
         with:
