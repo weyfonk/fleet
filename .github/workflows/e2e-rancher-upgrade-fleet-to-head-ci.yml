@@ -147,7 +147,6 @@ jobs:
             --set replicas=1 \
             --set hostname="$public_hostname" \
             --set bootstrapPassword=admin \
-            --set rancherImageTag=v2.9-head \
             --set "extraEnv[0].name=CATTLE_CHART_DEFAULT_URL" \
             --set "extraEnv[0].value=https://github.com/${{ inputs.charts_repo }}" \
             --set "extraEnv[1].name=CATTLE_CHART_DEFAULT_BRANCH" \
