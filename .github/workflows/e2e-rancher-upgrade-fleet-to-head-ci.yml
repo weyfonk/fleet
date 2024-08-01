@@ -159,9 +159,10 @@ jobs:
           kubectl -n cattle-system rollout status deploy/rancher
 
           # wait for rancher to create fleet namespace, deployment and controller
-          { grep -q -m 1 "fleet"; kill $!; } < <(kubectl get deployments -n cattle-fleet-system -w)
+          until kubectl get deployments -n cattle-fleet-system | grep -q "fleet"; do sleep 3; done
           kubectl -n cattle-fleet-system rollout status deploy/fleet-controller
-          { grep -E -q -m 1 "fleet-agent-local.*1/1"; kill $!; } < <(kubectl get bundles -n fleet-local -w)
+
+          until kubectl get bundles -n fleet-local | grep -q "fleet-agent-local.*1/1"; do sleep 3; done
 
           helm list -A
 
