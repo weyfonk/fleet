@@ -2,6 +2,23 @@
 name: Test Fleet in Rancher
 
 on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "checkout git branch/tag"
+        required: true
+        default: "main"
+        type: string
+      charts_repo:
+        description: Repository from which to source Fleet charts
+        default: "fleetrepoci/charts"
+        type: string
+      charts_branch:
+        description: Branch from which to source Fleet charts
+        type: string
+      fleet_version:
+        description: Fleet version to install in Rancher
+        type: string
   workflow_call:
     # Variables to set when calling this reusable workflow
     inputs:
@@ -16,6 +33,9 @@ on:
         type: string
       charts_branch:
         description: Branch from which to source Fleet charts
+        type: string
+      fleet_version:
+        description: Fleet version to install in Rancher
         type: string
   push:
     tags: [ 'v*' ]
@@ -154,7 +174,7 @@ jobs:
             --set "extraEnv[1].name=CATTLE_CHART_DEFAULT_BRANCH" \
             --set "extraEnv[1].value=${{ inputs.charts_branch }}" \
             --set "extraEnv[2].name=CATTLE_FLEET_VERSION" \
-            --set "extraEnv[2].value=999.9.9+up9.9.9"
+            --set "extraEnv[2].value=${{ inputs.fleet_version }}"
 
           # wait for deployment of rancher
           kubectl -n cattle-system rollout status deploy/rancher
