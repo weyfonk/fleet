@@ -49,7 +49,6 @@ id=$( rancher cluster ls --format json | jq -r 'select(.Name=="second") | .ID' )
 
 kubectl config use-context "$cluster_downstream"
 kubectl create clusterrolebinding cluster-admin-binding --clusterrole cluster-admin --user $user
-sleep 10
 rancher cluster import "$id"
 rancher cluster import "$id" | grep curl | sh
 
