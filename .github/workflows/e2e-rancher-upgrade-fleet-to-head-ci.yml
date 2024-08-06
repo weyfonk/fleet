@@ -92,7 +92,7 @@ jobs:
           HELM_INSTALL_DIR=~/.local/bin ./get_helm.sh
           helm version
 
-          sudo apt-get update && sudo apt install -y wget
+          apt-get update && apt install -y wget
 
       - name: Install Rancher CLI
         if: steps.rancher-cli-cache.outputs.cache-hit != 'true'
