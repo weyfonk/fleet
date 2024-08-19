@@ -22,7 +22,7 @@ on:
       enable_tmate:
         description: 'Enable debugging via tmate'
         required: false
-        default: "false"
+        type: boolean
   workflow_call:
     # Variables to set when calling this reusable workflow
     inputs:
@@ -44,7 +44,7 @@ on:
       enable_tmate:
         description: 'Enable debugging via tmate'
         required: false
-        default: "false"
+        type: boolean
   push:
     tags: [ 'v*' ]
     paths-ignore:
