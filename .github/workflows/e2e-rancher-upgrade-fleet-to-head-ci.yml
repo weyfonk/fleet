@@ -41,6 +41,8 @@ on:
     tags: [ 'v*' ]
     paths-ignore:
       - '*.md'
+    branches:
+      - '1640-test-fleet-in-rancher' # hack to enable the workflow
 
 env:
   GOARCH: amd64
