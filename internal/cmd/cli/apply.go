@@ -97,7 +97,7 @@ func (a *Apply) Run(cmd *cobra.Command, args []string) error {
 		CorrectDriftForce:           a.CorrectDriftForce,
 		CorrectDriftKeepFailHistory: a.CorrectDriftKeepFailHistory,
 	}
-	if err := a.addAuthToOpts(&opts, os.ReadFile); err != nil {
+	if err := a.AddAuthToOpts(&opts, os.ReadFile); err != nil {
 		return err
 	}
 	if err := a.addOCISpecToOpts(&opts, os.ReadFile); err != nil {
@@ -130,10 +130,10 @@ func (a *Apply) Run(cmd *cobra.Command, args []string) error {
 	return apply.CreateBundles(cmd.Context(), Client, name, args, opts)
 }
 
-// addAuthToOpts adds auth if provided as arguments. It will look first for HelmCredentialsByPathFile. If HelmCredentialsByPathFile
+// AddAuthToOpts adds auth if provided as arguments. It will look first for HelmCredentialsByPathFile. If HelmCredentialsByPathFile
 // is not provided it means that the same helm secret should be used for all helm repositories, then it will look for
 // Username, PasswordFile, CACertsFile and SSHPrivateKeyFile
-func (a *Apply) addAuthToOpts(opts *apply.Options, readFile readFile) error {
+func (a *Apply) AddAuthToOpts(opts *apply.Options, readFile readFile) error {
 	if a.HelmCredentialsByPathFile != "" {
 		file, err := readFile(a.HelmCredentialsByPathFile)
 		if err != nil && !os.IsNotExist(err) {

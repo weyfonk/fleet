@@ -1,4 +1,4 @@
-package cli
+package cli_test
 
 import (
 	"errors"
@@ -8,6 +8,7 @@ import (
 	"sigs.k8s.io/yaml"
 
 	"github.com/rancher/fleet/internal/bundlereader"
+	"github.com/rancher/fleet/internal/cmd/cli"
 	"github.com/rancher/fleet/internal/cmd/cli/apply"
 )
 
@@ -31,32 +32,32 @@ var helmSecretsNameByPath_content = map[string]bundlereader.Auth{"path": {Userna
 func TestAddAuthToOpts(t *testing.T) {
 	tests := map[string]struct {
 		name         string
-		apply        Apply
+		apply        cli.Apply
 		expectedOpts *apply.Options
 		expectedErr  error
 	}{
 		"Auth is empty if no arguments are provided": {
-			apply:        Apply{},
+			apply:        cli.Apply{},
 			expectedOpts: &apply.Options{},
 			expectedErr:  nil,
 		},
 		"Auth contains values from username, password, caCerts and sshPrivatey when helmSecretsNameByPath not provided": {
-			apply:        Apply{PasswordFile: password_file, Username: username, CACertsFile: caCerts_file, SSHPrivateKeyFile: sshPrivateKey_file},
+			apply:        cli.Apply{PasswordFile: password_file, Username: username, CACertsFile: caCerts_file, SSHPrivateKeyFile: sshPrivateKey_file},
 			expectedOpts: &apply.Options{Auth: bundlereader.Auth{Username: username, Password: password_content, CABundle: []byte(caCerts_content), SSHPrivateKey: []byte(sshPrivateKey_content)}},
 			expectedErr:  nil,
 		},
 		"AuthByPath contains values from HelmCredentialsByPathFile if provided": {
-			apply:        Apply{HelmCredentialsByPathFile: helmSecretsNameByPath_file},
+			apply:        cli.Apply{HelmCredentialsByPathFile: helmSecretsNameByPath_file},
 			expectedOpts: &apply.Options{AuthByPath: helmSecretsNameByPath_content},
 			expectedErr:  nil,
 		},
 		"HelmCredentialsByPathFile has priority over username and password for a generic helm secret if both are provided": {
-			apply:        Apply{HelmCredentialsByPathFile: helmSecretsNameByPath_file, PasswordFile: password_file, Username: username, CACertsFile: caCerts_file, SSHPrivateKeyFile: sshPrivateKey_file},
+			apply:        cli.Apply{HelmCredentialsByPathFile: helmSecretsNameByPath_file, PasswordFile: password_file, Username: username, CACertsFile: caCerts_file, SSHPrivateKeyFile: sshPrivateKey_file},
 			expectedOpts: &apply.Options{AuthByPath: helmSecretsNameByPath_content},
 			expectedErr:  nil,
 		},
 		"Error if file doesn't exist": {
-			apply:        Apply{HelmCredentialsByPathFile: "notfound"},
+			apply:        cli.Apply{HelmCredentialsByPathFile: "notfound"},
 			expectedOpts: &apply.Options{},
 			expectedErr:  errorNotFound,
 		},
@@ -65,7 +66,7 @@ func TestAddAuthToOpts(t *testing.T) {
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
 			opts := &apply.Options{}
-			err := test.apply.addAuthToOpts(opts, mockReadFile)
+			err := test.apply.AddAuthToOpts(opts, mockReadFile)
 			if !cmp.Equal(opts, test.expectedOpts) {
 				t.Errorf("opts don't match: expected %v, got %v", test.expectedOpts, opts)
 			}
