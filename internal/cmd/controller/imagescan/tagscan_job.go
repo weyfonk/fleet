@@ -141,7 +141,7 @@ func (j *TagScanJob) updateImageTags(ctx context.Context) {
 
 	image.Status.LastScanTime = metav1.NewTime(time.Now())
 
-	latestTag, err := latestTag(image.Spec.Policy, tags)
+	latestTag, err := LatestTag(image.Spec.Policy, tags)
 	if err != nil {
 		err = j.updateErrorStatus(ctx, image, err)
 		logger.Error(err, "Failed get the digest", "latestImage", image.Status.LatestImage)
@@ -252,7 +252,7 @@ func authFromSecret(secret *corev1.Secret, registry string) (authn.Authenticator
 	}
 }
 
-func latestTag(policy fleet.ImagePolicyChoice, versions []string) (string, error) {
+func LatestTag(policy fleet.ImagePolicyChoice, versions []string) (string, error) {
 	if len(versions) == 0 {
 		return "", errors.New("no tag found")
 	}

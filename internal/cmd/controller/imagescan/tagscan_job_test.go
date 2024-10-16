@@ -1,8 +1,9 @@
-package imagescan
+package imagescan_test
 
 import (
 	"testing"
 
+	"github.com/rancher/fleet/internal/cmd/controller/imagescan"
 	fleet "github.com/rancher/fleet/pkg/apis/fleet.cattle.io/v1alpha1"
 )
 
@@ -45,7 +46,7 @@ func TestLatestTag(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := latestTag(tt.policy, alphabeticalVersions)
+			got, err := imagescan.LatestTag(tt.policy, alphabeticalVersions)
 			if err != nil {
 				t.Fatalf("Error calling latestTag: %v", err)
 			}
