@@ -1,4 +1,4 @@
-package git
+package git_test
 
 import (
 	"crypto/md5"
@@ -11,6 +11,8 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+
+	"github.com/rancher/fleet/pkg/git"
 )
 
 func getRandomString(length int) string {
@@ -25,30 +27,30 @@ func getRandomString(length int) string {
 
 var _ = Describe("git's validate tests", func() {
 	It("Returns no error when branch is correct", func() {
-		Expect(validateBranch("valid")).ToNot(HaveOccurred())
+		Expect(git.ValidateBranch("valid")).ToNot(HaveOccurred())
 	})
 
 	It("Returns an error when branch is too long", func() {
 		longBranch := getRandomString(300)
-		err := validateBranch(longBranch)
+		err := git.ValidateBranch(longBranch)
 		Expect(err).To(HaveOccurred())
 		Expect(err.Error()).To(Equal("invalid branch name: too long"))
 	})
 
 	It("Returns an error when branch has .lock suffix", func() {
-		err := validateBranch("wrongsuffix.lock")
+		err := git.ValidateBranch("wrongsuffix.lock")
 		Expect(err).To(HaveOccurred())
 		Expect(err.Error()).To(Equal("invalid branch name: cannot end with \".lock\""))
 	})
 
 	It("Returns an error when branch starts with .", func() {
-		err := validateBranch(".wrongprefix")
+		err := git.ValidateBranch(".wrongprefix")
 		Expect(err).To(HaveOccurred())
 		Expect(err.Error()).To(Equal("invalid branch name: cannot start with \".\""))
 	})
 
 	It("Returns an error when branch equals @", func() {
-		err := validateBranch("@")
+		err := git.ValidateBranch("@")
 		Expect(err).To(HaveOccurred())
 		Expect(err.Error()).To(Equal("invalid branch name: \"@\""))
 	})
@@ -69,7 +71,7 @@ var _ = Describe("git's validate tests", func() {
 		}
 		for _, substr := range branchInvalidContains {
 			branch := "test" + substr + "branch"
-			err := validateBranch(branch)
+			err := git.ValidateBranch(branch)
 			Expect(err).To(HaveOccurred())
 			message := fmt.Sprintf("invalid branch name: cannot contain %q", substr)
 			Expect(err.Error()).To(Equal(message))
@@ -82,7 +84,7 @@ var _ = Describe("git's validate tests", func() {
 		byteBranch := []byte(branch)
 		for _, c := range controlChars {
 			byteBranch[0] = byte(c)
-			err := validateBranch(string(byteBranch))
+			err := git.ValidateBranch(string(byteBranch))
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(Equal("invalid branch name: control chars are not supported"))
 		}
@@ -91,47 +93,29 @@ var _ = Describe("git's validate tests", func() {
 	It("Returns no error when commit is a valid sha1", func() {
 		commit := sha1.Sum([]byte(getRandomString(10)))
 		commitStr := hex.EncodeToString(commit[:])
-		err := validateCommit(string(commitStr))
+		err := git.ValidateCommit(string(commitStr))
 		Expect(err).ToNot(HaveOccurred())
 	})
 
 	It("Returns no error when commit is a valid sha256", func() {
 		commit := sha256.Sum256([]byte(getRandomString(10)))
 		commitStr := hex.EncodeToString(commit[:])
-		err := validateCommit(string(commitStr))
+		err := git.ValidateCommit(string(commitStr))
 		Expect(err).ToNot(HaveOccurred())
 	})
 
 	It("Returns error when commit is not a valid sha256 not sha1", func() {
 		commit := md5.Sum([]byte(getRandomString(10)))
 		commitStr := hex.EncodeToString(commit[:])
-		err := validateCommit(string(commitStr))
+		err := git.ValidateCommit(string(commitStr))
 		Expect(err).To(HaveOccurred())
 		Expect(err.Error()).To(Equal(fmt.Sprintf("invalid commit ID: %q", commitStr)))
 	})
 
 	It("Returns error when commit has the right length but is not a valid digest", func() {
 		commit := getRandomString(40)
-		err := validateCommit(commit)
+		err := git.ValidateCommit(commit)
 		Expect(err).To(HaveOccurred())
 		Expect(err).To(Equal(fmt.Errorf("invalid commit ID: %q is not a valid hex", commit)))
-	})
-
-	It("Returns no error when url is not longer than 4096 chars nor empty", func() {
-		url := getRandomString(10)
-		err := validateURL(string(url))
-		Expect(err).ToNot(HaveOccurred())
-	})
-
-	It("Returns an error when url is empty", func() {
-		err := validateURL("")
-		Expect(err).To(HaveOccurred())
-		Expect(err.Error()).To(Equal("invalid url: cannot be empty"))
-	})
-
-	It("Returns an error when url is too long", func() {
-		err := validateURL(getRandomString(5000))
-		Expect(err).To(HaveOccurred())
-		Expect(err.Error()).To(Equal("invalid url: exceeds max length 4096"))
 	})
 })

@@ -8,12 +8,12 @@ import (
 	"strings"
 )
 
-// getVendorCommitsURL returns the commits url for supported
+// GetVendorCommitsURL returns the commits url for supported
 // git repositories.
 // In case or using a non supported git repository or in case of error it
 // returns an empty string.
 // Supported git repositories are: github and git.rancher.io
-func getVendorCommitsURL(url, branch string) string {
+func GetVendorCommitsURL(url, branch string) string {
 	u, err := neturl.Parse(url)
 	if err != nil {
 		return ""
@@ -55,7 +55,7 @@ func getRancherCommitsURL(url *neturl.URL, branch string) string {
 }
 
 // latestCommitFromCommitsURL returns the latest commit using the given commits url
-func latestCommitFromCommitsURL(commitsUrl string, opts *options) (string, error) {
+func latestCommitFromCommitsURL(commitsUrl string, opts *Options) (string, error) {
 	client, err := GetHTTPClientFromSecret(
 		opts.Credential,
 		opts.CABundle,

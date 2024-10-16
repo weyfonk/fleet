@@ -12,7 +12,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
-type options struct {
+type Options struct {
 	Credential        *corev1.Secret
 	CABundle          []byte
 	InsecureTLSVerify bool
@@ -66,10 +66,10 @@ func (g *GoGitRemoteLister) List(appendPeeled bool) ([]*RemoteRef, error) {
 type Remote struct {
 	Lister  RemoteLister
 	URL     string
-	Options *options
+	Options *Options
 }
 
-func NewRemote(url string, opts *options) (*Remote, error) {
+func NewRemote(url string, opts *Options) (*Remote, error) {
 	auth, err := GetAuthFromSecret(url, opts.Credential)
 	if err != nil {
 		return nil, err
@@ -88,7 +88,7 @@ func NewRemote(url string, opts *options) (*Remote, error) {
 
 // RevisionCommit returns the commit for the given revision
 func (r *Remote) RevisionCommit(revision string) (string, error) {
-	if err := validateCommit(revision); err == nil {
+	if err := ValidateCommit(revision); err == nil {
 		// revision is a commit already
 		return revision, nil
 	}
@@ -119,12 +119,12 @@ func (r *Remote) RevisionCommit(revision string) (string, error) {
 
 // LatestBranchCommit returns the latest commit for the given branch
 func (r *Remote) LatestBranchCommit(branch string) (string, error) {
-	if err := validateBranch(branch); err != nil {
+	if err := ValidateBranch(branch); err != nil {
 		return "", err
 	}
 
 	// check if the url is one of the supported for getting the last commit with a specific commits url
-	commitsURL := getVendorCommitsURL(r.URL, branch)
+	commitsURL := GetVendorCommitsURL(r.URL, branch)
 	if commitsURL != "" {
 		// it is supported. Get the last commit with the vendor's url
 		// (this is faster than running a whole ls-remote like operation)

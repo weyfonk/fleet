@@ -1,4 +1,4 @@
-package git
+package git_test
 
 import (
 	"fmt"
@@ -8,47 +8,49 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+
+	"github.com/rancher/fleet/pkg/git"
 )
 
 var _ = Describe("git's vendor specific functions tests", func() {
 	When("using invalid url", func() {
 		It("returns en empty string", func() {
-			resPath := getVendorCommitsURL("this-is-a-fake-site.com", "mybranch")
+			resPath := git.GetVendorCommitsURL("this-is-a-fake-site.com", "mybranch")
 			Expect(resPath).To(BeEmpty())
 		})
 	})
 
 	When("using not parseable url", func() {
 		It("returns en empty string", func() {
-			resPath := getVendorCommitsURL("\n{this-is-not-an-url}\n", "mybranch")
+			resPath := git.GetVendorCommitsURL("\n{this-is-not-an-url}\n", "mybranch")
 			Expect(resPath).To(BeEmpty())
 		})
 	})
 
 	When("using github host and non-valid address", func() {
 		It("returns en empty string", func() {
-			resPath := getVendorCommitsURL("https://github.com/thisisnotok", "mybranch")
+			resPath := git.GetVendorCommitsURL("https://github.com/thisisnotok", "mybranch")
 			Expect(resPath).To(BeEmpty())
 		})
 	})
 
 	When("using github host and valid address", func() {
 		It("returns en empty string", func() {
-			resPath := getVendorCommitsURL("https://github.com/rancher/fleet", "mybranch")
+			resPath := git.GetVendorCommitsURL("https://github.com/rancher/fleet", "mybranch")
 			Expect(resPath).To(Equal("https://api.github.com/repos/rancher/fleet/commits/mybranch"))
 		})
 	})
 
 	When("using rancher host and non-valid address", func() {
 		It("returns en empty string", func() {
-			resPath := getVendorCommitsURL("https://git.rancher.io", "mybranch")
+			resPath := git.GetVendorCommitsURL("https://git.rancher.io", "mybranch")
 			Expect(resPath).To(BeEmpty())
 		})
 	})
 
 	When("using rancher host and valid address", func() {
 		It("returns en empty string", func() {
-			resPath := getVendorCommitsURL("https://git.rancher.io/repository", "mybranch")
+			resPath := git.GetVendorCommitsURL("https://git.rancher.io/repository", "mybranch")
 			Expect(resPath).To(Equal("https://git.rancher.io/repos/repository/commits/mybranch"))
 		})
 	})
@@ -60,7 +62,7 @@ var _ = Describe("git's vendor specific functions tests", func() {
 				w.WriteHeader(http.StatusOK)
 				fmt.Fprint(w, latest)
 			}))
-			commit, err := latestCommitFromCommitsURL(svr.URL, &options{})
+			commit, err := git.LatestCommitFromCommitsURL(svr.URL, &git.Options{})
 			Expect(err).ToNot(HaveOccurred())
 			Expect(commit).To(Equal(latest))
 		})
@@ -73,7 +75,7 @@ var _ = Describe("git's vendor specific functions tests", func() {
 				Expect(accept[0]).To(Equal("application/vnd.github.v3.sha"))
 				w.WriteHeader(http.StatusNotModified)
 			}))
-			_, _ = latestCommitFromCommitsURL(svr.URL, &options{})
+			_, _ = git.LatestCommitFromCommitsURL(svr.URL, &git.Options{})
 		})
 
 		It("returns an error when the server timeouts", func() {
@@ -82,7 +84,7 @@ var _ = Describe("git's vendor specific functions tests", func() {
 				time.Sleep(clientTimeout + 1)
 				w.WriteHeader(http.StatusGatewayTimeout)
 			}))
-			commit, err := latestCommitFromCommitsURL(svr.URL, &options{Timeout: clientTimeout})
+			commit, err := git.LatestCommitFromCommitsURL(svr.URL, &git.Options{Timeout: clientTimeout})
 			Expect(err).To(HaveOccurred())
 			Expect(commit).To(BeEmpty())
 		})
@@ -95,7 +97,7 @@ var _ = Describe("git's vendor specific functions tests", func() {
 			caBundle := []byte(`-----BEGIN CERTIFICATE-----
 SUPER FAKE CERT
 -----END CERTIFICATE-----`)
-			commit, err := latestCommitFromCommitsURL(svr.URL, &options{CABundle: caBundle, Timeout: clientTimeout})
+			commit, err := git.LatestCommitFromCommitsURL(svr.URL, &git.Options{CABundle: caBundle, Timeout: clientTimeout})
 			// no error and returns true, so the client is forced to run the List to get results
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(Equal("x509: malformed certificate"))
@@ -105,7 +107,7 @@ SUPER FAKE CERT
 
 	When("requesting if lastSha has changed with a non valid URL", func() {
 		It("returns true and no error when the url is not parseable", func() {
-			commit, err := latestCommitFromCommitsURL("httpssss://blahblah   blaisnotanurl\n", &options{})
+			commit, err := git.LatestCommitFromCommitsURL("httpssss://blahblah   blaisnotanurl\n", &git.Options{})
 			// Returns no error and changed = true so the user is forced to run the List to get results
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(Equal("parse \"httpssss://blahblah   blaisnotanurl\\n\": net/url: invalid control character in URL"))

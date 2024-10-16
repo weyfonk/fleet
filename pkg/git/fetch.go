@@ -43,7 +43,7 @@ func (f *Fetch) LatestCommit(ctx context.Context, gitrepo *v1alpha1.GitRepo, cli
 		branch = "master"
 	}
 
-	r, err := NewRemote(gitrepo.Spec.Repo, &options{
+	r, err := NewRemote(gitrepo.Spec.Repo, &Options{
 		CABundle:          gitrepo.Spec.CABundle,
 		Credential:        &secret,
 		InsecureTLSVerify: gitrepo.Spec.InsecureSkipTLSverify,

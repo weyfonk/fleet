@@ -41,12 +41,12 @@ const (
 	urlMaxLength = 4096
 )
 
-// validateBranch validates a branch name and return an error in case it is
+// ValidateBranch validates a branch name and return an error in case it is
 // invalid.
 //
 // Implementation can be cross-checked with upstream:
 // - https://github.com/git/git/blob/4dbebc36b0893f5094668ddea077d0e235560b16/refs.c
-func validateBranch(name string) error {
+func ValidateBranch(name string) error {
 	switch {
 	case len(name) > branchMaxLength:
 		return fmt.Errorf("invalid branch name: too long")
@@ -73,8 +73,8 @@ func validateBranch(name string) error {
 	return nil
 }
 
-// validateCommit validates a commit and returns an error in case it is invalid.
-func validateCommit(commit string) error {
+// ValidateCommit validates a commit and returns an error in case it is invalid.
+func ValidateCommit(commit string) error {
 	switch len(commit) {
 	// git supports SHA1 and SHA256 (experimental).
 	case 40, 64:
@@ -84,16 +84,5 @@ func validateCommit(commit string) error {
 		return nil
 	default:
 		return fmt.Errorf("invalid commit ID: %q", commit)
-	}
-}
-
-func validateURL(u string) error {
-	switch {
-	case u == "":
-		return fmt.Errorf("invalid url: cannot be empty")
-	case len(u) > urlMaxLength:
-		return fmt.Errorf("invalid url: exceeds max length %d", urlMaxLength)
-	default:
-		return nil
 	}
 }
