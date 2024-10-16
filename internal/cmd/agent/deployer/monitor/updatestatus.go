@@ -223,7 +223,7 @@ func nonReady(logger logr.Logger, plan desiredset.Plan, ignoreOptions fleet.Igno
 		}
 		if u, ok := obj.(*unstructured.Unstructured); ok {
 			if ignoreOptions.Conditions != nil {
-				if err := excludeIgnoredConditions(u, ignoreOptions); err != nil {
+				if err := ExcludeIgnoredConditions(u, ignoreOptions); err != nil {
 					logger.Error(err, "failed to ignore conditions")
 				}
 			}
@@ -349,8 +349,8 @@ func isResourceInPreviousRelease(key objectset.ObjectKey, kind string, objsPrevi
 	return false
 }
 
-// excludeIgnoredConditions removes the conditions that are included in ignoreOptions from the object passed as a parameter
-func excludeIgnoredConditions(obj *unstructured.Unstructured, ignoreOptions fleet.IgnoreOptions) error {
+// ExcludeIgnoredConditions removes the conditions that are included in ignoreOptions from the object passed as a parameter
+func ExcludeIgnoredConditions(obj *unstructured.Unstructured, ignoreOptions fleet.IgnoreOptions) error {
 	conditions, _, err := unstructured.NestedSlice(obj.Object, "status", "conditions")
 	if err != nil {
 		return err

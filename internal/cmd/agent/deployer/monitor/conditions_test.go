@@ -1,9 +1,10 @@
-package monitor
+package monitor_test
 
 import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/rancher/fleet/internal/cmd/agent/deployer/monitor"
 	fleet "github.com/rancher/fleet/pkg/apis/fleet.cattle.io/v1alpha1"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -66,7 +67,7 @@ func TestExcludeIgnoredConditions(t *testing.T) {
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
 			obj := test.obj
-			err := excludeIgnoredConditions(obj, test.ignoreOptions)
+			err := monitor.ExcludeIgnoredConditions(obj, test.ignoreOptions)
 			if err != test.expectedErr {
 				t.Errorf("expected error doesn't match: expected %v, got %v", test.expectedErr, err)
 			}
