@@ -1,11 +1,10 @@
-package helmcache
+package helmcache_test
 
 import (
 	"context"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
-
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -16,6 +15,8 @@ import (
 	k8sfake "k8s.io/client-go/kubernetes/fake"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
+
+	"github.com/rancher/fleet/internal/helmdeployer/helmcache"
 )
 
 const (
@@ -36,7 +37,7 @@ func TestGet(t *testing.T) {
 
 	secret := defaultSecret
 	cache := fake.NewClientBuilder().WithScheme(scheme).WithObjects(&secret).Build()
-	secretClient := NewSecretClient(cache, nil, secretNamespace)
+	secretClient := helmcache.NewSecretClient(cache, nil, secretNamespace)
 
 	secretGot, err := secretClient.Get(context.TODO(), secretName, metav1.GetOptions{})
 	if err != nil {
@@ -57,7 +58,7 @@ func TestList(t *testing.T) {
 	secret := defaultSecret
 	secret.Labels = map[string]string{"foo": "bar"}
 	cache := fake.NewClientBuilder().WithScheme(scheme).WithObjects(&secret).Build()
-	secretClient := NewSecretClient(cache, nil, secretNamespace)
+	secretClient := helmcache.NewSecretClient(cache, nil, secretNamespace)
 
 	secretList, err := secretClient.List(context.TODO(), metav1.ListOptions{LabelSelector: "foo=bar"})
 	if err != nil {
@@ -76,7 +77,7 @@ func TestList(t *testing.T) {
 
 func TestCreate(t *testing.T) {
 	client := k8sfake.NewSimpleClientset()
-	secretClient := NewSecretClient(nil, client, secretNamespace)
+	secretClient := helmcache.NewSecretClient(nil, client, secretNamespace)
 	secret := defaultSecret
 	secretCreated, err := secretClient.Create(context.TODO(), &secret, metav1.CreateOptions{})
 
@@ -98,7 +99,7 @@ func TestUpdate(t *testing.T) {
 	}
 	secret := defaultSecret
 	client := k8sfake.NewSimpleClientset(&secret)
-	secretClient := NewSecretClient(nil, client, secretNamespace)
+	secretClient := helmcache.NewSecretClient(nil, client, secretNamespace)
 	secretUpdated, err := secretClient.Update(context.TODO(), &secretUpdate, metav1.UpdateOptions{})
 
 	if err != nil {
@@ -112,7 +113,7 @@ func TestUpdate(t *testing.T) {
 func TestDelete(t *testing.T) {
 	secret := defaultSecret
 	client := k8sfake.NewSimpleClientset(&secret)
-	secretClient := NewSecretClient(nil, client, secretNamespace)
+	secretClient := helmcache.NewSecretClient(nil, client, secretNamespace)
 	err := secretClient.Delete(context.TODO(), secretName, metav1.DeleteOptions{})
 
 	if err != nil {
@@ -123,7 +124,7 @@ func TestDelete(t *testing.T) {
 func TestDeleteCollection(t *testing.T) {
 	secret := defaultSecret
 	client := k8sfake.NewSimpleClientset(&secret)
-	secretClient := NewSecretClient(nil, client, secretNamespace)
+	secretClient := helmcache.NewSecretClient(nil, client, secretNamespace)
 	err := secretClient.DeleteCollection(context.TODO(), metav1.DeleteOptions{}, metav1.ListOptions{FieldSelector: "name=" + secretName})
 
 	if err != nil {
@@ -134,7 +135,7 @@ func TestDeleteCollection(t *testing.T) {
 func TestWatch(t *testing.T) {
 	secret := defaultSecret
 	client := k8sfake.NewSimpleClientset(&secret)
-	secretClient := NewSecretClient(nil, client, secretNamespace)
+	secretClient := helmcache.NewSecretClient(nil, client, secretNamespace)
 	watch, err := secretClient.Watch(context.TODO(), metav1.ListOptions{FieldSelector: "name=" + secretName})
 
 	if err != nil {
@@ -155,7 +156,7 @@ func TestPatch(t *testing.T) {
 	}
 	secret := defaultSecret
 	client := k8sfake.NewSimpleClientset(&secret)
-	secretClient := NewSecretClient(nil, client, secretNamespace)
+	secretClient := helmcache.NewSecretClient(nil, client, secretNamespace)
 	patch := []byte(`{"data":{"test":"Y29udGVudA=="}}`) // "content", base64-encoded
 	secretPatched, err := secretClient.Patch(context.TODO(), secretName, types.StrategicMergePatchType, patch, metav1.PatchOptions{})
 
@@ -177,7 +178,7 @@ func TestApply(t *testing.T) {
 	}
 	secret := defaultSecret
 	client := k8sfake.NewSimpleClientset(&secret)
-	secretClient := NewSecretClient(nil, client, secretNamespace)
+	secretClient := helmcache.NewSecretClient(nil, client, secretNamespace)
 	secretName := "test"
 	secretApplied, err := secretClient.Apply(context.TODO(), &applycorev1.SecretApplyConfiguration{
 		ObjectMetaApplyConfiguration: &v1.ObjectMetaApplyConfiguration{
