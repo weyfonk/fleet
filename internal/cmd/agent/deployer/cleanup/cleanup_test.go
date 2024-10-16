@@ -1,6 +1,6 @@
 //go:generate mockgen --build_flags=--mod=mod -destination=../../../../mocks/helm_deployer_mock.go -package=mocks github.com/rancher/fleet/internal/cmd/agent/deployer/cleanup HelmDeployer
 
-package cleanup
+package cleanup_test
 
 import (
 	"context"
@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/rancher/fleet/internal/cmd/agent/deployer/cleanup"
 	"github.com/rancher/fleet/internal/helmdeployer"
 	"github.com/rancher/fleet/internal/mocks"
 	fleet "github.com/rancher/fleet/pkg/apis/fleet.cattle.io/v1alpha1"
@@ -79,9 +80,9 @@ func TestCleanupReleases(t *testing.T) {
 	mockHelmDeployer.EXPECT().DeleteRelease(gomock.Any(), deployedBundles[1]).Return(nil)
 	mockHelmDeployer.EXPECT().DeleteRelease(gomock.Any(), deployedBundles[2]).Return(nil)
 
-	cleanup := New(mockClient, nil, nil, mockHelmDeployer, fleetNS, defaultNS, 1*time.Second)
+	c := cleanup.New(mockClient, nil, nil, mockHelmDeployer, fleetNS, defaultNS, 1*time.Second)
 
-	err := cleanup.cleanup(context.Background(), log.FromContext(context.Background()).WithName("test"))
+	err := c.Run(context.Background(), log.FromContext(context.Background()).WithName("test"))
 
 	if err != nil {
 		t.Errorf("cleanup failed: %v", err)

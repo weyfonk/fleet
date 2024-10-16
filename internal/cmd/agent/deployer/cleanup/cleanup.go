@@ -108,7 +108,7 @@ func (c *Cleanup) CleanupReleases(ctx context.Context, key string, bd *fleet.Bun
 func (c *Cleanup) garbageCollect(ctx context.Context) {
 	logger := log.FromContext(ctx).WithName("garbageCollect")
 	for {
-		if err := c.cleanup(ctx, logger); err != nil {
+		if err := c.Run(ctx, logger); err != nil {
 			logger.Error(err, "failed to cleanup orphaned releases")
 		}
 		select {
@@ -119,7 +119,7 @@ func (c *Cleanup) garbageCollect(ctx context.Context) {
 	}
 }
 
-func (c *Cleanup) cleanup(ctx context.Context, logger logr.Logger) error {
+func (c *Cleanup) Run(ctx context.Context, logger logr.Logger) error {
 	deployed, err := c.helmDeployer.ListDeployments(c.helmDeployer.NewListAction())
 	if err != nil {
 		return err
