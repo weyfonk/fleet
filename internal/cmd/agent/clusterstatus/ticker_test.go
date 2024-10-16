@@ -1,4 +1,4 @@
-package clusterstatus
+package clusterstatus_test
 
 import (
 	"context"
@@ -8,11 +8,13 @@ import (
 	"github.com/golang/mock/gomock"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	fleet "github.com/rancher/fleet/pkg/apis/fleet.cattle.io/v1alpha1"
 	"github.com/rancher/wrangler/v3/pkg/generic/fake"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
+
+	"github.com/rancher/fleet/internal/cmd/agent/clusterstatus"
+	fleet "github.com/rancher/fleet/pkg/apis/fleet.cattle.io/v1alpha1"
 )
 
 var _ = Describe("ClusterStatus Ticker", func() {
@@ -52,7 +54,7 @@ var _ = Describe("ClusterStatus Ticker", func() {
 				agentStatusNamespace = cluster.Status.Agent.Namespace
 				return *cluster, nil
 			}).AnyTimes()
-		Ticker(ctx, agentNamespace, clusterNamespace, clusterName, time.Second*1, nodeClient, clusterClient)
+		clusterstatus.Ticker(ctx, agentNamespace, clusterNamespace, clusterName, time.Second*1, nodeClient, clusterClient)
 	})
 
 	It("Increases the timestamp used to call Patch", func() {
