@@ -22,17 +22,17 @@ import (
 
 const CRDKind = "CustomResourceDefinition"
 
-type postRender struct {
+type PostRender struct {
 	labelPrefix string
 	labelSuffix string
 	bundleID    string
-	manifest    *manifest.Manifest
-	chart       *chart.Chart
+	Manifest    *manifest.Manifest
+	Chart       *chart.Chart
 	mapper      meta.RESTMapper
-	opts        fleet.BundleDeploymentOptions
+	Opts        fleet.BundleDeploymentOptions
 }
 
-func (p *postRender) Run(renderedManifests *bytes.Buffer) (modifiedManifests *bytes.Buffer, err error) {
+func (p *PostRender) Run(renderedManifests *bytes.Buffer) (modifiedManifests *bytes.Buffer, err error) {
 	data := renderedManifests.Bytes()
 
 	objs, err := yaml.ToObjects(bytes.NewBuffer(data))
@@ -48,7 +48,7 @@ func (p *postRender) Run(renderedManifests *bytes.Buffer) (modifiedManifests *by
 	// names. If no instructions for kustomize are found in the manifests, then kustomize shouldn't be called at all
 	// to prevent causing issues with these restrictions.
 	kustomizable := false
-	for _, resource := range p.manifest.Resources {
+	for _, resource := range p.Manifest.Resources {
 		if strings.HasSuffix(resource.Name, "kustomization.yaml") ||
 			strings.HasSuffix(resource.Name, "kustomization.yml") ||
 			strings.HasSuffix(resource.Name, "Kustomization") {
@@ -57,7 +57,7 @@ func (p *postRender) Run(renderedManifests *bytes.Buffer) (modifiedManifests *by
 		}
 	}
 	if kustomizable {
-		newObjs, processed, err := kustomize.Process(p.manifest, data, p.opts.Kustomize.Dir)
+		newObjs, processed, err := kustomize.Process(p.Manifest, data, p.Opts.Kustomize.Dir)
 		if err != nil {
 			return nil, err
 		}
@@ -66,7 +66,7 @@ func (p *postRender) Run(renderedManifests *bytes.Buffer) (modifiedManifests *by
 		}
 	}
 
-	yamlObjs, err := rawyaml.ToObjects(p.chart)
+	yamlObjs, err := rawyaml.ToObjects(p.Chart)
 	if err != nil {
 		return nil, err
 	}
@@ -84,14 +84,14 @@ func (p *postRender) Run(renderedManifests *bytes.Buffer) (modifiedManifests *by
 			return nil, err
 		}
 		objAnnotations := mergeMaps(m.GetAnnotations(), annotations)
-		if !p.opts.DeleteCRDResources &&
+		if !p.Opts.DeleteCRDResources &&
 			obj.GetObjectKind().GroupVersionKind().Kind == CRDKind {
 			objAnnotations[kube.ResourcePolicyAnno] = kube.KeepPolicy
 		}
 		m.SetLabels(mergeMaps(m.GetLabels(), labels))
 		m.SetAnnotations(objAnnotations)
 
-		if p.opts.TargetNamespace != "" {
+		if p.Opts.TargetNamespace != "" {
 			if p.mapper != nil {
 				gvk := obj.GetObjectKind().GroupVersionKind()
 				mapping, err := p.mapper.RESTMapping(gvk.GroupKind(), gvk.Version)
@@ -107,7 +107,7 @@ func (p *postRender) Run(renderedManifests *bytes.Buffer) (modifiedManifests *by
 						kind, apiVersion)
 				}
 			}
-			m.SetNamespace(p.opts.TargetNamespace)
+			m.SetNamespace(p.Opts.TargetNamespace)
 		}
 	}
 

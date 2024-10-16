@@ -1,9 +1,10 @@
-package helmdeployer
+package helmdeployer_test
 
 import (
 	"bytes"
 	"testing"
 
+	"github.com/rancher/fleet/internal/helmdeployer"
 	"github.com/rancher/fleet/internal/manifest"
 	"github.com/rancher/fleet/pkg/apis/fleet.cattle.io/v1alpha1"
 	"github.com/rancher/wrangler/v3/pkg/yaml"
@@ -27,7 +28,7 @@ func TestPostRenderer_Run_DeleteCRDs(t *testing.T) {
 		"default (no DeleteCRDResources specified)": {
 			obj: &apiextensionsv1.CustomResourceDefinition{
 				TypeMeta: metav1.TypeMeta{
-					Kind:       CRDKind,
+					Kind:       helmdeployer.CRDKind,
 					APIVersion: "apiextensions.k8s.io/v1",
 				},
 			},
@@ -40,7 +41,7 @@ func TestPostRenderer_Run_DeleteCRDs(t *testing.T) {
 		"DeleteCRDResources set to true": {
 			obj: &apiextensionsv1.CustomResourceDefinition{
 				TypeMeta: metav1.TypeMeta{
-					Kind:       CRDKind,
+					Kind:       helmdeployer.CRDKind,
 					APIVersion: "apiextensions.k8s.io/v1",
 				},
 			},
@@ -54,7 +55,7 @@ func TestPostRenderer_Run_DeleteCRDs(t *testing.T) {
 		"DeleteCRDResources set to false": {
 			obj: &apiextensionsv1.CustomResourceDefinition{
 				TypeMeta: metav1.TypeMeta{
-					Kind:       CRDKind,
+					Kind:       helmdeployer.CRDKind,
 					APIVersion: "apiextensions.k8s.io/v1",
 				},
 			},
@@ -89,12 +90,12 @@ func TestPostRenderer_Run_DeleteCRDs(t *testing.T) {
 			}
 			renderedManifests := bytes.NewBuffer(data)
 
-			pr := postRender{
-				manifest: &manifest.Manifest{
+			pr := helmdeployer.PostRender{
+				Manifest: &manifest.Manifest{
 					Resources: []v1alpha1.BundleResource{},
 				},
-				chart: &chart.Chart{},
-				opts:  test.opts,
+				Chart: &chart.Chart{},
+				Opts:  test.opts,
 			}
 			postRenderedManifests, err := pr.Run(renderedManifests)
 			if err != nil {
@@ -120,7 +121,7 @@ func TestPostRenderer_Run_DeleteCRDs(t *testing.T) {
 	t.Run("Multiple resources, only add to CRDs", func(t *testing.T) {
 		crd := &apiextensionsv1.CustomResourceDefinition{
 			TypeMeta: metav1.TypeMeta{
-				Kind:       CRDKind,
+				Kind:       helmdeployer.CRDKind,
 				APIVersion: "apiextensions.k8s.io/v1",
 			},
 		}
@@ -136,12 +137,12 @@ func TestPostRenderer_Run_DeleteCRDs(t *testing.T) {
 		}
 		renderedManifests := bytes.NewBuffer(data)
 
-		pr := postRender{
-			manifest: &manifest.Manifest{
+		pr := helmdeployer.PostRender{
+			Manifest: &manifest.Manifest{
 				Resources: []v1alpha1.BundleResource{},
 			},
-			chart: &chart.Chart{},
-			opts: v1alpha1.BundleDeploymentOptions{
+			Chart: &chart.Chart{},
+			Opts: v1alpha1.BundleDeploymentOptions{
 				DeleteCRDResources: false,
 			},
 		}
@@ -164,7 +165,7 @@ func TestPostRenderer_Run_DeleteCRDs(t *testing.T) {
 
 			annotations := m.GetAnnotations()
 			kind := obj.GetObjectKind().GroupVersionKind().Kind
-			if kind == CRDKind {
+			if kind == helmdeployer.CRDKind {
 				if val, ok := annotations[kube.ResourcePolicyAnno]; !ok || val != kube.KeepPolicy {
 					t.Errorf("expected %s, got %s", kube.KeepPolicy, annotations[kube.ResourcePolicyAnno])
 				}

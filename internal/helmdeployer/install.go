@@ -97,13 +97,13 @@ func (h *Helm) install(ctx context.Context, bundleID string, manifest *manifest.
 		return nil, err
 	}
 
-	pr := &postRender{
+	pr := &PostRender{
 		labelPrefix: h.labelPrefix,
 		labelSuffix: h.labelSuffix,
 		bundleID:    bundleID,
-		manifest:    manifest,
-		opts:        options,
-		chart:       chart,
+		Manifest:    manifest,
+		Opts:        options,
+		Chart:       chart,
 	}
 
 	if !h.useGlobalCfg {
@@ -231,13 +231,13 @@ func (h *Helm) getValues(ctx context.Context, options fleet.BundleDeploymentOpti
 				if err != nil {
 					return nil, err
 				}
-				tempValues, err = valuesFromConfigMap(name, namespace, key, configMap)
+				tempValues, err = ValuesFromConfigMap(name, namespace, key, configMap)
 				if err != nil {
 					return nil, err
 				}
 			}
 			if tempValues != nil {
-				values = mergeValues(values, tempValues)
+				values = MergeValues(values, tempValues)
 				tempValues = nil
 			}
 
@@ -257,13 +257,13 @@ func (h *Helm) getValues(ctx context.Context, options fleet.BundleDeploymentOpti
 				if err != nil {
 					return nil, err
 				}
-				tempValues, err = valuesFromSecret(name, namespace, key, secret)
+				tempValues, err = ValuesFromSecret(name, namespace, key, secret)
 				if err != nil {
 					return nil, err
 				}
 			}
 			if tempValues != nil {
-				values = mergeValues(values, tempValues)
+				values = MergeValues(values, tempValues)
 			}
 		}
 	}
@@ -271,7 +271,7 @@ func (h *Helm) getValues(ctx context.Context, options fleet.BundleDeploymentOpti
 	return values, nil
 }
 
-func valuesFromSecret(name, namespace, key string, secret *corev1.Secret) (map[string]interface{}, error) {
+func ValuesFromSecret(name, namespace, key string, secret *corev1.Secret) (map[string]interface{}, error) {
 	var m map[string]interface{}
 	if secret == nil {
 		return m, nil
@@ -287,7 +287,7 @@ func valuesFromSecret(name, namespace, key string, secret *corev1.Secret) (map[s
 	return m, nil
 }
 
-func valuesFromConfigMap(name, namespace, key string, configMap *corev1.ConfigMap) (map[string]interface{}, error) {
+func ValuesFromConfigMap(name, namespace, key string, configMap *corev1.ConfigMap) (map[string]interface{}, error) {
 	var m map[string]interface{}
 	if configMap == nil {
 		return m, nil
@@ -314,10 +314,10 @@ func mergeMaps(base, other map[string]string) map[string]string {
 	return result
 }
 
-// mergeValues merges source and destination map, preferring values over maps
+// MergeValues merges source and destination map, preferring values over maps
 // from the source values. This is slightly adapted from:
 // https://github.com/helm/helm/blob/2332b480c9cb70a0d8a85247992d6155fbe82416/cmd/helm/install.go#L359
-func mergeValues(dest, src map[string]interface{}) map[string]interface{} {
+func MergeValues(dest, src map[string]interface{}) map[string]interface{} {
 	for k, v := range src {
 		// If the key doesn't exist already, then just set the key to that value
 		if _, exists := dest[k]; !exists {
@@ -340,7 +340,7 @@ func mergeValues(dest, src map[string]interface{}) map[string]interface{} {
 			continue
 		}
 		// If we got to this point, it is a map in both, so merge them
-		dest[k] = mergeValues(destMap, nextMap)
+		dest[k] = MergeValues(destMap, nextMap)
 	}
 	return dest
 }
