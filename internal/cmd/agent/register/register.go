@@ -128,7 +128,7 @@ func tryRegister(ctx context.Context, namespace string, cfg *rest.Config) (*Agen
 	if apierrors.IsNotFound(err) {
 		logrus.Warn("Cannot find fleet-agent secret, running registration")
 		// fallback to local cattle-fleet-system/fleet-agent-bootstrap
-		secret, err = runRegistration(ctx, k8s.Core().V1(), namespace)
+		secret, err = RunRegistration(ctx, k8s.Core().V1(), namespace)
 		if err != nil {
 			return nil, fmt.Errorf("registration failed: %w", err)
 		}
@@ -137,7 +137,7 @@ func tryRegister(ctx context.Context, namespace string, cfg *rest.Config) (*Agen
 	} else if err := testClientConfig(secret.Data[Kubeconfig]); err != nil {
 		// skip testClientConfig check if previous error, or IsNotFound fallback succeeded
 		logrus.Errorf("Current credential failed, failing back to reregistering: %v", err)
-		secret, err = runRegistration(ctx, k8s.Core().V1(), namespace)
+		secret, err = RunRegistration(ctx, k8s.Core().V1(), namespace)
 		if err != nil {
 			return nil, fmt.Errorf("re-registration failed: %w", err)
 		}
@@ -164,7 +164,7 @@ type coreInterface interface {
 	Secret() corecontrollers.SecretController
 }
 
-// runRegistration reads the cattle-fleet-system/fleet-agent-bootstrap secret and
+// RunRegistration reads the cattle-fleet-system/fleet-agent-bootstrap secret and
 // waits for the registration secret to appear on the management cluster to
 // create a new fleet-agent secret.
 // It uses the token provided in fleet-agent-bootstrap to build a
@@ -175,7 +175,7 @@ type coreInterface interface {
 // Finally uses the client from the config (service account: fleet-agent), to
 // update the "fleet-agent" secret with a new kubeconfig from the registration
 // secret. The new kubeconfig can then be used to query bundledeployments.
-func runRegistration(ctx context.Context, k8s coreInterface, namespace string) (*corev1.Secret, error) {
+func RunRegistration(ctx context.Context, k8s coreInterface, namespace string) (*corev1.Secret, error) {
 	secret, err := k8s.Secret().Get(namespace, config.AgentBootstrapConfigName, metav1.GetOptions{})
 	if err != nil {
 		return nil, fmt.Errorf("looking up secret %s/%s: %w", namespace, config.AgentBootstrapConfigName, err)

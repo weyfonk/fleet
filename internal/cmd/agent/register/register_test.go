@@ -1,4 +1,4 @@
-package register
+package register_test
 
 import (
 	"context"
@@ -6,6 +6,8 @@ import (
 	"regexp"
 	"testing"
 	"time"
+
+	"github.com/rancher/fleet/internal/cmd/agent/register"
 
 	"github.com/golang/mock/gomock"
 	corecontrollers "github.com/rancher/wrangler/v3/pkg/generated/controllers/core/v1"
@@ -60,7 +62,7 @@ func TestRunRegistrationLabelSmokeTest(t *testing.T) {
 	mockCoreController := mockCoreInterface{mockConfigMapController, mockNamespaceController, mockSecretController}
 
 	http.DefaultClient.Timeout = 100 * time.Millisecond // no need to wait longer, the API server URL is a dummy.
-	agentSecret, err := runRegistration(context.Background(), mockCoreController, namespace)
+	agentSecret, err := register.RunRegistration(context.Background(), mockCoreController, namespace)
 
 	assert.Nil(t, agentSecret)
 	// expecting an error at cluster registration creation time because the API server URL is a dummy.
