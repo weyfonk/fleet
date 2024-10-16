@@ -1,9 +1,10 @@
-package bundlereader
+package bundlereader_test
 
 import (
 	"bytes"
 	"testing"
 
+	"github.com/rancher/fleet/internal/bundlereader"
 	"github.com/rancher/fleet/pkg/apis/fleet.cattle.io/v1alpha1"
 
 	"k8s.io/apimachinery/pkg/util/yaml"
@@ -48,7 +49,7 @@ func TestValueMerge(t *testing.T) {
 		t.Fatalf("error during valuesTwoYaml parsing %v", err)
 	}
 
-	mergeMap := mergeGenericMap(first, second)
+	mergeMap := bundlereader.MergeGenericMap(first, second)
 
 	for _, serviceName := range []string{"microService1", "microService2"} {
 		serviceVals, ok := mergeMap.Data[serviceName]
