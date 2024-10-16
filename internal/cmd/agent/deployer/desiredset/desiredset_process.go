@@ -170,7 +170,7 @@ func (o *desiredSet) list(ctx context.Context, informer cache.SharedIndexInforme
 		var namespaces []string = desiredObjects.Namespaces()
 
 		// no owner or lister namespace intentionally restricted; only search in specified namespaces
-		err := multiNamespaceList(ctx, namespaces, client, selector, func(obj unstructured.Unstructured) {
+		err := MultiNamespaceList(ctx, namespaces, client, selector, func(obj unstructured.Unstructured) {
 			if err := addObjectToMap(objs, &obj); err != nil {
 				errs = append(errs, err)
 			}
@@ -186,7 +186,7 @@ func (o *desiredSet) list(ctx context.Context, informer cache.SharedIndexInforme
 
 	// Special case for listing only by hash using indexers
 	indexer := informer.GetIndexer()
-	if hash, ok := getIndexableHash(indexer, selector); ok {
+	if hash, ok := GetIndexableHash(indexer, selector); ok {
 		return listByHash(indexer, hash, namespace)
 	}
 
@@ -253,8 +253,8 @@ func addObjectToMap(objs objectset.ObjectByKey, obj interface{}) error {
 	return nil
 }
 
-// multiNamespaceList lists objects across all given namespaces, because requests are concurrent it is possible for appendFn to be called before errors are reported.
-func multiNamespaceList(ctx context.Context, namespaces []string, baseClient dynamic.NamespaceableResourceInterface, selector labels.Selector, appendFn func(obj unstructured.Unstructured)) error {
+// MultiNamespaceList lists objects across all given namespaces, because requests are concurrent it is possible for appendFn to be called before errors are reported.
+func MultiNamespaceList(ctx context.Context, namespaces []string, baseClient dynamic.NamespaceableResourceInterface, selector labels.Selector, appendFn func(obj unstructured.Unstructured)) error {
 	var mu sync.Mutex
 	wg, _ctx := errgroup.WithContext(ctx)
 
@@ -282,10 +282,10 @@ func multiNamespaceList(ctx context.Context, namespaces []string, baseClient dyn
 	return wg.Wait()
 }
 
-// getIndexableHash detects if provided selector can be replaced by using the hash index, if configured, in which case returns the hash value
-func getIndexableHash(indexer cache.Indexer, selector labels.Selector) (string, bool) {
+// GetIndexableHash detects if provided selector can be replaced by using the hash index, if configured, in which case returns the hash value
+func GetIndexableHash(indexer cache.Indexer, selector labels.Selector) (string, bool) {
 	// Check if indexer was added
-	if indexer == nil || indexer.GetIndexers()[byHash] == nil {
+	if indexer == nil || indexer.GetIndexers()[ByHash] == nil {
 		return "", false
 	}
 
@@ -297,8 +297,8 @@ func getIndexableHash(indexer cache.Indexer, selector labels.Selector) (string, 
 	return selector.RequiresExactMatch(LabelHash)
 }
 
-// inNamespace checks whether a given object is a Kubernetes object and is part of the provided namespace
-func inNamespace(namespace string, obj interface{}) bool {
+// InNamespace checks whether a given object is a Kubernetes object and is part of the provided namespace
+func InNamespace(namespace string, obj interface{}) bool {
 	metadata, err := meta.Accessor(obj)
 	return err == nil && metadata.GetNamespace() == namespace
 }
@@ -309,12 +309,12 @@ func listByHash(indexer cache.Indexer, hash string, namespace string) (map[objec
 		errs []error
 		objs = objectset.ObjectByKey{}
 	)
-	res, err := indexer.ByIndex(byHash, hash)
+	res, err := indexer.ByIndex(ByHash, hash)
 	if err != nil {
 		return nil, err
 	}
 	for _, obj := range res {
-		if namespace != "" && !inNamespace(namespace, obj) {
+		if namespace != "" && !InNamespace(namespace, obj) {
 			continue
 		}
 		if err := addObjectToMap(objs, obj); err != nil {

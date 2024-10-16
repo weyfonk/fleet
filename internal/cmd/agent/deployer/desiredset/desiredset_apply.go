@@ -91,7 +91,7 @@ func (o *desiredSet) apply(ctx context.Context) error {
 
 	objs := o.collect(objList)
 
-	sel, err := getSelector(labelSet)
+	sel, err := GetSelector(labelSet)
 	if err != nil {
 		return o.addErr(err)
 	}
@@ -115,7 +115,7 @@ func (o *desiredSet) collect(objList []runtime.Object) objectset.ObjectByGVK {
 	return result
 }
 
-func getSelector(labelSet map[string]string) (labels.Selector, error) {
+func GetSelector(labelSet map[string]string) (labels.Selector, error) {
 	req, err := labels.NewRequirement(LabelHash, selection.Equals, []string{labelSet[LabelHash]})
 	if err != nil {
 		return nil, err

@@ -10,7 +10,7 @@ import (
 )
 
 // Indexer name added for cached types
-const byHash = "wrangler.byObjectSetHash"
+const ByHash = "wrangler.byObjectSetHash"
 
 type desiredSet struct {
 	client           *Client

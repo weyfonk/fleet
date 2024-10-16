@@ -1,4 +1,4 @@
-package desiredset
+package desiredset_test
 
 import (
 	"context"
@@ -6,8 +6,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/rancher/fleet/internal/cmd/agent/deployer/desiredset"
 
+	"github.com/stretchr/testify/assert"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -97,7 +98,7 @@ func Test_multiNamespaceList(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			var calls int
-			err := multiNamespaceList(context.TODO(), tt.args.namespaces, baseClient.Resource(appsv1.SchemeGroupVersion.WithResource("deployments")), labels.NewSelector(), func(obj unstructured.Unstructured) {
+			err := desiredset.MultiNamespaceList(context.TODO(), tt.args.namespaces, baseClient.Resource(appsv1.SchemeGroupVersion.WithResource("deployments")), labels.NewSelector(), func(obj unstructured.Unstructured) {
 				calls += 1
 			})
 
@@ -116,7 +117,7 @@ func Test_multiNamespaceList(t *testing.T) {
 
 func Test_getIndexableHash(t *testing.T) {
 	const hash = "somehash"
-	hashSelector, err := getSelector(map[string]string{LabelHash: hash})
+	hashSelector, err := desiredset.GetSelector(map[string]string{desiredset.LabelHash: hash})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -125,7 +126,7 @@ func Test_getIndexableHash(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	indexer := cache.NewIndexer(cache.MetaNamespaceKeyFunc, cache.Indexers{byHash: func(obj interface{}) ([]string, error) {
+	indexer := cache.NewIndexer(cache.MetaNamespaceKeyFunc, cache.Indexers{desiredset.ByHash: func(obj interface{}) ([]string, error) {
 		return nil, nil
 	}})
 	type args struct {
@@ -157,9 +158,9 @@ func Test_getIndexableHash(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotHash, got := getIndexableHash(tt.args.indexer, tt.args.selector)
-			assert.Equalf(t, tt.wantHash, gotHash, "getIndexableHash(%v, %v)", tt.args.indexer, tt.args.selector)
-			assert.Equalf(t, tt.want, got, "getIndexableHash(%v, %v)", tt.args.indexer, tt.args.selector)
+			gotHash, got := desiredset.GetIndexableHash(tt.args.indexer, tt.args.selector)
+			assert.Equalf(t, tt.wantHash, gotHash, "GetIndexableHash(%v, %v)", tt.args.indexer, tt.args.selector)
+			assert.Equalf(t, tt.want, got, "GetIndexableHash(%v, %v)", tt.args.indexer, tt.args.selector)
 		})
 	}
 }
@@ -193,7 +194,12 @@ func Test_inNamespace(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equalf(t, tt.want, inNamespace(tt.args.namespace, tt.args.obj), "inNamespace(%v, %v)", tt.args.namespace, tt.args.obj)
+			assert.Equalf(
+				t,
+				tt.want,
+				desiredset.InNamespace(tt.args.namespace, tt.args.obj),
+				"inNamespace(%v, %v)", tt.args.namespace, tt.args.obj,
+			)
 		})
 	}
 }
