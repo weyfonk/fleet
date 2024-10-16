@@ -1,4 +1,4 @@
-package clusterregistration
+package clusterregistration_test
 
 import (
 	"fmt"
@@ -11,6 +11,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 
+	"github.com/rancher/fleet/internal/cmd/controller/agentmanagement/controllers/clusterregistration"
 	fleet "github.com/rancher/fleet/pkg/apis/fleet.cattle.io/v1alpha1"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -30,7 +31,7 @@ var _ = Describe("ClusterRegistration OnChange", func() {
 		clusterClient                 *fake.MockClientInterface[*fleet.Cluster, *fleet.ClusterList]
 		clusterRegistrationController *fake.MockControllerInterface[*fleet.ClusterRegistration, *fleet.ClusterRegistrationList]
 		clusterCache                  *fake.MockCacheInterface[*fleet.Cluster]
-		h                             *handler
+		h                             *clusterregistration.Handler
 		notFound                      = errors.NewNotFound(schema.GroupResource{}, "")
 		anError                       = fmt.Errorf("an error occurred")
 	)
@@ -44,15 +45,15 @@ var _ = Describe("ClusterRegistration OnChange", func() {
 		clusterRegistrationController = fake.NewMockControllerInterface[*fleet.ClusterRegistration, *fleet.ClusterRegistrationList](ctrl)
 		clusterCache = fake.NewMockCacheInterface[*fleet.Cluster](ctrl)
 
-		h = &handler{
-			systemNamespace:             "fleet-system",
-			systemRegistrationNamespace: "fleet-clusters-system",
-			clusterRegistration:         clusterRegistrationController,
-			clusterCache:                clusterCache,
-			clusters:                    clusterClient,
-			secretsCache:                secretCache,
-			secrets:                     secretController,
-			serviceAccountCache:         saCache,
+		h = &clusterregistration.Handler{
+			SystemNamespace:             "fleet-system",
+			SystemRegistrationNamespace: "fleet-clusters-system",
+			ClusterRegistration:         clusterRegistrationController,
+			ClusterCache:                clusterCache,
+			Clusters:                    clusterClient,
+			SecretsCache:                secretCache,
+			Secrets:                     secretController,
+			ServiceAccountCache:         saCache,
 		}
 
 	})

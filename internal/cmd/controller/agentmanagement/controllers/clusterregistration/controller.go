@@ -40,15 +40,15 @@ const (
 	deleteSecretAfter             = durations.ClusterRegistrationDeleteDelay
 )
 
-type handler struct {
-	systemNamespace             string
-	systemRegistrationNamespace string
-	clusterRegistration         fleetcontrollers.ClusterRegistrationController
-	clusterCache                fleetcontrollers.ClusterCache
-	clusters                    fleetcontrollers.ClusterClient
-	serviceAccountCache         corecontrollers.ServiceAccountCache
-	secretsCache                corecontrollers.SecretCache
-	secrets                     corecontrollers.SecretController
+type Handler struct {
+	SystemNamespace             string
+	SystemRegistrationNamespace string
+	ClusterRegistration         fleetcontrollers.ClusterRegistrationController
+	ClusterCache                fleetcontrollers.ClusterCache
+	Clusters                    fleetcontrollers.ClusterClient
+	ServiceAccountCache         corecontrollers.ServiceAccountCache
+	SecretsCache                corecontrollers.SecretCache
+	Secrets                     corecontrollers.SecretController
 }
 
 func Register(ctx context.Context,
@@ -61,15 +61,15 @@ func Register(ctx context.Context,
 	roleBinding rbaccontrollers.RoleBindingController,
 	clusterRegistration fleetcontrollers.ClusterRegistrationController,
 	clusters fleetcontrollers.ClusterController) {
-	h := &handler{
-		systemNamespace:             systemNamespace,
-		systemRegistrationNamespace: systemRegistrationNamespace,
-		clusterRegistration:         clusterRegistration,
-		clusterCache:                clusters.Cache(),
-		clusters:                    clusters,
-		serviceAccountCache:         serviceAccount.Cache(),
-		secrets:                     secret,
-		secretsCache:                secret.Cache(),
+	h := &Handler{
+		SystemNamespace:             systemNamespace,
+		SystemRegistrationNamespace: systemRegistrationNamespace,
+		ClusterRegistration:         clusterRegistration,
+		ClusterCache:                clusters.Cache(),
+		Clusters:                    clusters,
+		ServiceAccountCache:         serviceAccount.Cache(),
+		Secrets:                     secret,
+		SecretsCache:                secret.Cache(),
 	}
 
 	fleetcontrollers.RegisterClusterRegistrationGeneratingHandler(ctx,
@@ -115,12 +115,12 @@ func saToClusterRegistration(namespace, name string, obj runtime.Object) ([]rela
 	return nil, nil
 }
 
-func (h *handler) OnCluster(key string, cluster *fleet.Cluster) (*fleet.Cluster, error) {
+func (h *Handler) OnCluster(key string, cluster *fleet.Cluster) (*fleet.Cluster, error) {
 	if cluster == nil || cluster.Status.Namespace == "" {
 		return cluster, nil
 	}
 
-	crs, err := h.clusterRegistration.Cache().GetByIndex(clusterRegistrationByClientID,
+	crs, err := h.ClusterRegistration.Cache().GetByIndex(clusterRegistrationByClientID,
 		fmt.Sprintf("%s/%s", cluster.Namespace, cluster.Spec.ClientID))
 	if err != nil {
 		return nil, err
@@ -129,25 +129,25 @@ func (h *handler) OnCluster(key string, cluster *fleet.Cluster) (*fleet.Cluster,
 		if !cr.Status.Granted {
 			logrus.Infof("Namespace assigned to cluster '%s/%s' enqueues cluster registration '%s/%s'", cluster.Namespace, cluster.Name,
 				cr.Namespace, cr.Name)
-			h.clusterRegistration.Enqueue(cr.Namespace, cr.Name)
+			h.ClusterRegistration.Enqueue(cr.Namespace, cr.Name)
 		}
 	}
 
 	return cluster, nil
 }
 
-func (h *handler) OnSecretChange(key string, secret *v1.Secret) (*v1.Secret, error) {
-	if secret == nil || secret.Namespace != h.systemRegistrationNamespace ||
+func (h *Handler) OnSecretChange(key string, secret *v1.Secret) (*v1.Secret, error) {
+	if secret == nil || secret.Namespace != h.SystemRegistrationNamespace ||
 		secret.Labels[fleet.ClusterAnnotation] == "" {
 		return secret, nil
 	}
 
 	if time.Since(secret.CreationTimestamp.Time) > deleteSecretAfter {
 		logrus.Infof("Deleting expired registration secret %s/%s", secret.Namespace, secret.Name)
-		return secret, h.secrets.Delete(secret.Namespace, secret.Name, nil)
+		return secret, h.Secrets.Delete(secret.Namespace, secret.Name, nil)
 	}
 
-	h.secrets.EnqueueAfter(secret.Namespace, secret.Name, deleteSecretAfter/2)
+	h.Secrets.EnqueueAfter(secret.Namespace, secret.Name, deleteSecretAfter/2)
 	return secret, nil
 }
 
@@ -157,7 +157,7 @@ func (h *handler) OnSecretChange(key string, secret *v1.Secret) (*v1.Secret, err
 // bundledeployments and update their status in its own cluster namespace on upstream.
 // It can also get content resources, but not list them. The name of content
 // resources is random.
-func (h *handler) OnChange(request *fleet.ClusterRegistration, status fleet.ClusterRegistrationStatus) ([]runtime.Object, fleet.ClusterRegistrationStatus, error) {
+func (h *Handler) OnChange(request *fleet.ClusterRegistration, status fleet.ClusterRegistrationStatus) ([]runtime.Object, fleet.ClusterRegistrationStatus, error) {
 	if status.Granted {
 		// only create the cluster for the request once
 		return nil, status, generic.ErrSkip
@@ -191,14 +191,14 @@ func (h *handler) OnChange(request *fleet.ClusterRegistration, status fleet.Clus
 				UID:        cluster.UID,
 			},
 		})
-		request, err = h.clusterRegistration.Update(request)
+		request, err = h.ClusterRegistration.Update(request)
 		if err != nil {
 			return nil, status, err
 		}
 	}
 
 	saName := names.SafeConcatName(request.Name, string(request.UID))
-	sa, err := h.serviceAccountCache.Get(cluster.Status.Namespace, saName)
+	sa, err := h.ServiceAccountCache.Get(cluster.Status.Namespace, saName)
 	if err != nil && apierrors.IsNotFound(err) {
 		// create request service account if missing
 		status.ClusterName = cluster.Name
@@ -219,11 +219,11 @@ func (h *handler) OnChange(request *fleet.ClusterRegistration, status fleet.Clus
 	}
 
 	// delete old cluster registrations
-	crlist, _ := h.clusterRegistration.List(request.Namespace, metav1.ListOptions{})
+	crlist, _ := h.ClusterRegistration.List(request.Namespace, metav1.ListOptions{})
 	for _, creg := range crlist.Items {
 		if shouldDelete(creg, *request) {
 			logrus.Debugf("Deleting old clusterregistration '%s/%s', now at '%s'", creg.Namespace, creg.Name, request.Name)
-			if err := h.clusterRegistration.Delete(creg.Namespace, creg.Name, nil); err != nil && !apierrors.IsNotFound(err) {
+			if err := h.ClusterRegistration.Delete(creg.Namespace, creg.Name, nil); err != nil && !apierrors.IsNotFound(err) {
 				return nil, status, err
 			}
 		}
@@ -340,8 +340,8 @@ func shouldDelete(creg fleet.ClusterRegistration, request fleet.ClusterRegistrat
 		creg.CreationTimestamp.Time.Before(request.CreationTimestamp.Time)
 }
 
-func (h *handler) createOrGetCluster(request *fleet.ClusterRegistration) (*fleet.Cluster, error) {
-	clusters, err := h.clusterCache.GetByIndex(clusterByClientID, fmt.Sprintf("%s/%s", request.Namespace, request.Spec.ClientID))
+func (h *Handler) createOrGetCluster(request *fleet.ClusterRegistration) (*fleet.Cluster, error) {
+	clusters, err := h.ClusterCache.GetByIndex(clusterByClientID, fmt.Sprintf("%s/%s", request.Namespace, request.Spec.ClientID))
 	if err == nil && len(clusters) > 0 {
 		return clusters[0], nil
 	} else if err != nil && !apierrors.IsNotFound(err) {
@@ -349,7 +349,7 @@ func (h *handler) createOrGetCluster(request *fleet.ClusterRegistration) (*fleet
 	}
 
 	clusterName := names.SafeConcatName("cluster", names.KeyHash(request.Spec.ClientID))
-	if cluster, err := h.clusterCache.Get(request.Namespace, clusterName); !apierrors.IsNotFound(err) {
+	if cluster, err := h.ClusterCache.Get(request.Namespace, clusterName); !apierrors.IsNotFound(err) {
 		if cluster.Spec.ClientID != request.Spec.ClientID {
 			// This would happen with a hash collision
 			return nil, fmt.Errorf("non-matching ClientID on cluster %s/%s got %s expected %s",
@@ -368,7 +368,7 @@ func (h *handler) createOrGetCluster(request *fleet.ClusterRegistration) (*fleet
 	}
 	labels[fleet.ClusterAnnotation] = clusterName
 
-	cluster, err := h.clusters.Create(&fleet.Cluster{
+	cluster, err := h.Clusters.Create(&fleet.Cluster{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      clusterName,
 			Namespace: request.Namespace,
@@ -379,7 +379,7 @@ func (h *handler) createOrGetCluster(request *fleet.ClusterRegistration) (*fleet
 		},
 	})
 	if apierrors.IsAlreadyExists(err) {
-		return h.clusters.Get(request.Namespace, clusterName, metav1.GetOptions{})
+		return h.Clusters.Get(request.Namespace, clusterName, metav1.GetOptions{})
 	}
 	if err == nil {
 		logrus.Infof("Created cluster %s/%s", request.Namespace, clusterName)
@@ -387,17 +387,17 @@ func (h *handler) createOrGetCluster(request *fleet.ClusterRegistration) (*fleet
 	return cluster, err
 }
 
-func (h *handler) authorizeCluster(sa *v1.ServiceAccount, cluster *fleet.Cluster, req *fleet.ClusterRegistration) (*v1.Secret, error) {
+func (h *Handler) authorizeCluster(sa *v1.ServiceAccount, cluster *fleet.Cluster, req *fleet.ClusterRegistration) (*v1.Secret, error) {
 	var secret *v1.Secret
 	var err error
 	if len(sa.Secrets) != 0 {
-		secret, err = h.secretsCache.Get(sa.Namespace, sa.Secrets[0].Name)
+		secret, err = h.SecretsCache.Get(sa.Namespace, sa.Secrets[0].Name)
 		if apierrors.IsNotFound(err) {
 			// secrets can be slow to propagate to the cache
-			secret, err = h.secrets.Get(sa.Namespace, sa.Secrets[0].Name, metav1.GetOptions{})
+			secret, err = h.Secrets.Get(sa.Namespace, sa.Secrets[0].Name, metav1.GetOptions{})
 		}
 	} else {
-		secret, err = secretutil.GetServiceAccountTokenSecret(sa, h.secrets)
+		secret, err = secretutil.GetServiceAccountTokenSecret(sa, h.Secrets)
 	}
 	if err != nil || secret == nil {
 		return nil, err
@@ -405,7 +405,7 @@ func (h *handler) authorizeCluster(sa *v1.ServiceAccount, cluster *fleet.Cluster
 	return &v1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      registration.SecretName(req.Spec.ClientID, req.Spec.ClientRandom),
-			Namespace: h.systemRegistrationNamespace,
+			Namespace: h.SystemRegistrationNamespace,
 			Labels: map[string]string{
 				fleet.ClusterAnnotation: cluster.Name,
 				fleet.ManagedLabel:      "true",
@@ -417,7 +417,7 @@ func (h *handler) authorizeCluster(sa *v1.ServiceAccount, cluster *fleet.Cluster
 			"deploymentNamespace": []byte(cluster.Status.Namespace),
 			"clusterNamespace":    []byte(cluster.Namespace),
 			"clusterName":         []byte(cluster.Name),
-			"systemNamespace":     []byte(h.systemNamespace),
+			"systemNamespace":     []byte(h.SystemNamespace),
 		},
 	}, nil
 }
