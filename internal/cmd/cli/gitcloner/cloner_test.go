@@ -1,4 +1,4 @@
-package gitcloner
+package gitcloner_test
 
 import (
 	"errors"
@@ -11,6 +11,8 @@ import (
 	httpgit "github.com/go-git/go-git/v5/plumbing/transport/http"
 	gossh "github.com/go-git/go-git/v5/plumbing/transport/ssh"
 	"github.com/google/go-cmp/cmp"
+
+	"github.com/rancher/fleet/internal/cmd/cli/gitcloner"
 )
 
 func TestCloneRepo(t *testing.T) {
@@ -50,14 +52,14 @@ udiSlDctMM/X3ZM2JN5M1rtAJ2WR3ZQtmWbOjZAbG2Eq
 	errorComparer := cmp.Comparer(func(x, y error) bool {
 		return x.Error() == y.Error()
 	})
-	plainClone = func(path string, isBare bool, o *git.CloneOptions) (*git.Repository, error) {
+	gitcloner.PlainClone = func(path string, isBare bool, o *git.CloneOptions) (*git.Repository, error) {
 		pathCalled = path
 		isBareCalled = isBare
 		cloneOptsCalled = o
 
 		return &git.Repository{}, nil
 	}
-	readFile = func(name string) ([]byte, error) {
+	gitcloner.ReadFile = func(name string) ([]byte, error) {
 		if name == passwordFile {
 			return []byte(passwordFileContent), nil
 		}
@@ -67,17 +69,17 @@ udiSlDctMM/X3ZM2JN5M1rtAJ2WR3ZQtmWbOjZAbG2Eq
 		return nil, errors.New("file not found")
 	}
 	defer func() {
-		plainClone = git.PlainClone
-		readFile = os.ReadFile
+		gitcloner.PlainClone = git.PlainClone
+		gitcloner.ReadFile = os.ReadFile
 	}()
 
 	tests := map[string]struct {
-		opts              *GitCloner
+		opts              *gitcloner.GitCloner
 		expectedCloneOpts *git.CloneOptions
 		expectedErr       error
 	}{
 		"branch no auth": {
-			opts: &GitCloner{
+			opts: &gitcloner.GitCloner{
 				Repo:   "repo",
 				Path:   "path",
 				Branch: "master",
@@ -90,7 +92,7 @@ udiSlDctMM/X3ZM2JN5M1rtAJ2WR3ZQtmWbOjZAbG2Eq
 			},
 		},
 		"branch basic auth": {
-			opts: &GitCloner{
+			opts: &gitcloner.GitCloner{
 				Repo:         "repo",
 				Path:         "path",
 				Branch:       "master",
@@ -109,7 +111,7 @@ udiSlDctMM/X3ZM2JN5M1rtAJ2WR3ZQtmWbOjZAbG2Eq
 			},
 		},
 		"branch ssh auth": {
-			opts: &GitCloner{
+			opts: &gitcloner.GitCloner{
 				Repo:              "ssh://git@localhost/test/test-repo",
 				Path:              "path",
 				Branch:            "master",
@@ -124,7 +126,7 @@ udiSlDctMM/X3ZM2JN5M1rtAJ2WR3ZQtmWbOjZAbG2Eq
 			},
 		},
 		"password file does not exist": {
-			opts: &GitCloner{
+			opts: &gitcloner.GitCloner{
 				Repo:         "repo",
 				Branch:       "master",
 				PasswordFile: "doesntexist",
@@ -134,7 +136,7 @@ udiSlDctMM/X3ZM2JN5M1rtAJ2WR3ZQtmWbOjZAbG2Eq
 			expectedErr:       errors.New("file not found"),
 		},
 		"ca file does not exist": {
-			opts: &GitCloner{
+			opts: &gitcloner.GitCloner{
 				Repo:         "repo",
 				Branch:       "master",
 				CABundleFile: "doesntexist",
@@ -143,7 +145,7 @@ udiSlDctMM/X3ZM2JN5M1rtAJ2WR3ZQtmWbOjZAbG2Eq
 			expectedErr:       errors.New("file not found"),
 		},
 		"ssh private key file does not exist": {
-			opts: &GitCloner{
+			opts: &gitcloner.GitCloner{
 				Repo:              "repo",
 				Branch:            "master",
 				SSHPrivateKeyFile: "doesntexist",
@@ -159,7 +161,7 @@ udiSlDctMM/X3ZM2JN5M1rtAJ2WR3ZQtmWbOjZAbG2Eq
 		cloneOptsCalled = nil
 
 		t.Run(name, func(t *testing.T) {
-			c := Cloner{}
+			c := gitcloner.Cloner{}
 			err := c.CloneRepo(test.opts)
 			if !cmp.Equal(err, test.expectedErr, errorComparer) {
 				t.Fatalf("err expected to be %v, got %v", test.expectedErr, err)

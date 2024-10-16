@@ -19,8 +19,8 @@ import (
 const defaultBranch = "master"
 
 var (
-	plainClone = git.PlainClone
-	readFile   = os.ReadFile
+	PlainClone = git.PlainClone
+	ReadFile   = os.ReadFile
 )
 
 type Cloner struct{}
@@ -72,7 +72,7 @@ func (c *Cloner) CloneRepo(opts *GitCloner) error {
 }
 
 func cloneBranch(opts *GitCloner, auth transport.AuthMethod, caBundle []byte) error {
-	_, err := plainClone(opts.Path, false, &git.CloneOptions{
+	_, err := PlainClone(opts.Path, false, &git.CloneOptions{
 		URL:               opts.Repo,
 		Auth:              auth,
 		InsecureSkipTLS:   opts.InsecureSkipTLS,
@@ -86,7 +86,7 @@ func cloneBranch(opts *GitCloner, auth transport.AuthMethod, caBundle []byte) er
 }
 
 func cloneRevision(opts *GitCloner, auth transport.AuthMethod, caBundle []byte) error {
-	r, err := plainClone(opts.Path, false, &git.CloneOptions{
+	r, err := PlainClone(opts.Path, false, &git.CloneOptions{
 		URL:               opts.Repo,
 		Auth:              auth,
 		InsecureSkipTLS:   opts.InsecureSkipTLS,
@@ -114,13 +114,13 @@ func getCABundleFromFile(path string) ([]byte, error) {
 	if path == "" {
 		return nil, nil
 	}
-	return readFile(path)
+	return ReadFile(path)
 }
 
 // createAuthFromOpts adds auth for cloning git repos based on the parameters provided in opts.
 func createAuthFromOpts(opts *GitCloner) (transport.AuthMethod, error) {
 	if opts.SSHPrivateKeyFile != "" {
-		privateKey, err := readFile(opts.SSHPrivateKeyFile)
+		privateKey, err := ReadFile(opts.SSHPrivateKeyFile)
 		if err != nil {
 			return nil, err
 		}
@@ -133,7 +133,7 @@ func createAuthFromOpts(opts *GitCloner) (transport.AuthMethod, error) {
 			return nil, err
 		}
 		if opts.KnownHostsFile != "" {
-			knownHosts, err := readFile(opts.KnownHostsFile)
+			knownHosts, err := ReadFile(opts.KnownHostsFile)
 			if err != nil {
 				return nil, err
 			}
@@ -151,7 +151,7 @@ func createAuthFromOpts(opts *GitCloner) (transport.AuthMethod, error) {
 	}
 
 	if opts.Username != "" && opts.PasswordFile != "" {
-		password, err := readFile(opts.PasswordFile)
+		password, err := ReadFile(opts.PasswordFile)
 		if err != nil {
 			return nil, err
 		}

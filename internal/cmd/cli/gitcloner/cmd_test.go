@@ -1,12 +1,14 @@
-package gitcloner
+package gitcloner_test
 
 import (
 	"testing"
+
+	"github.com/rancher/fleet/internal/cmd/cli/gitcloner"
 )
 
 func TestArgsAreSet(t *testing.T) {
 	mock := &clonerMock{}
-	cmd := NewCmd(mock)
+	cmd := gitcloner.NewCmd(mock)
 	cmd.SetArgs([]string{"test-repo", "test-path", "--branch", "master", "--revision", "v0.1.0", "--ca-bundle-file", "caFile", "--username", "user",
 		"--password-file", "passwordFile", "--ssh-private-key-file", "sshFile", "--insecure-skip-tls", "--known-hosts-file", "knownFile"})
 	err := cmd.Execute()
@@ -43,10 +45,10 @@ func TestArgsAreSet(t *testing.T) {
 }
 
 type clonerMock struct {
-	opts *GitCloner
+	opts *gitcloner.GitCloner
 }
 
-func (m *clonerMock) CloneRepo(opts *GitCloner) error {
+func (m *clonerMock) CloneRepo(opts *gitcloner.GitCloner) error {
 	m.opts = opts
 
 	return nil
