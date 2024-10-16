@@ -1,7 +1,7 @@
 //go:generate mockgen --build_flags=--mod=mod -destination=../../../../mocks/poller_mock.go -package=mocks github.com/rancher/fleet/internal/cmd/controller/gitops/reconciler GitPoller
 //go:generate mockgen --build_flags=--mod=mod -destination=../../../../mocks/client_mock.go -package=mocks sigs.k8s.io/controller-runtime/pkg/client Client,SubResourceWriter
 
-package reconciler
+package reconciler_test
 
 import (
 	"context"
@@ -14,6 +14,7 @@ import (
 	"go.uber.org/mock/gomock"
 
 	"github.com/rancher/fleet/internal/cmd/controller/finalize"
+	"github.com/rancher/fleet/internal/cmd/controller/gitops/reconciler"
 	"github.com/rancher/fleet/internal/mocks"
 	fleetv1 "github.com/rancher/fleet/pkg/apis/fleet.cattle.io/v1alpha1"
 	"github.com/rancher/wrangler/v3/pkg/genericcondition"
@@ -82,7 +83,7 @@ func (m gitRepoPointerMatcher) String() string {
 
 func getGitPollingCondition(gitrepo *fleetv1.GitRepo) (genericcondition.GenericCondition, bool) {
 	for _, cond := range gitrepo.Status.Conditions {
-		if cond.Type == gitPollingCondition {
+		if cond.Type == reconciler.GitPollingCondition {
 			return cond, true
 		}
 	}
@@ -122,12 +123,12 @@ func TestReconcile_ReturnsAndRequeuesAfterAddingFinalizer(t *testing.T) {
 		},
 	).Times(1)
 
-	r := GitJobReconciler{
+	r := reconciler.GitJobReconciler{
 		Client:     client,
 		Scheme:     scheme,
 		Image:      "",
 		GitFetcher: fetcher,
-		Clock:      RealClock{},
+		Clock:      reconciler.RealClock{},
 	}
 
 	ctx := context.TODO()
@@ -174,13 +175,13 @@ func TestReconcile_LatestCommitErrorIsSetInConditions(t *testing.T) {
 		func(ctx context.Context, repo *fleetv1.GitRepo, opts ...interface{}) {
 			cond, found := getGitPollingCondition(repo)
 			if !found {
-				t.Errorf("expecting Condition %s to be found", gitPollingCondition)
+				t.Errorf("expecting Condition %s to be found", reconciler.GitPollingCondition)
 			}
 			if cond.Message != "TEST ERROR" {
 				t.Errorf("expecting condition message [TEST ERROR], got [%s]", cond.Message)
 			}
-			if cond.Type != gitPollingCondition {
-				t.Errorf("expecting condition type [%s], got [%s]", gitPollingCondition, cond.Type)
+			if cond.Type != reconciler.GitPollingCondition {
+				t.Errorf("expecting condition type [%s], got [%s]", reconciler.GitPollingCondition, cond.Type)
 			}
 			if cond.Status != "False" {
 				t.Errorf("expecting condition Status [False], got [%s]", cond.Type)
@@ -195,12 +196,12 @@ func TestReconcile_LatestCommitErrorIsSetInConditions(t *testing.T) {
 		"FailedToCheckCommit",
 		"TEST ERROR",
 	)
-	r := GitJobReconciler{
+	r := reconciler.GitJobReconciler{
 		Client:     client,
 		Scheme:     scheme,
 		Image:      "",
 		GitFetcher: fetcher,
-		Clock:      RealClock{},
+		Clock:      reconciler.RealClock{},
 		Recorder:   recorderMock,
 	}
 
@@ -247,13 +248,13 @@ func TestReconcile_LatestCommitIsOkay(t *testing.T) {
 		func(ctx context.Context, repo *fleetv1.GitRepo, opts ...interface{}) {
 			cond, found := getGitPollingCondition(repo)
 			if !found {
-				t.Errorf("expecting Condition %s to be found", gitPollingCondition)
+				t.Errorf("expecting Condition %s to be found", reconciler.GitPollingCondition)
 			}
 			if cond.Message != "" {
 				t.Errorf("expecting condition message empty, got [%s]", cond.Message)
 			}
-			if cond.Type != gitPollingCondition {
-				t.Errorf("expecting condition type [%s], got [%s]", gitPollingCondition, cond.Type)
+			if cond.Type != reconciler.GitPollingCondition {
+				t.Errorf("expecting condition type [%s], got [%s]", reconciler.GitPollingCondition, cond.Type)
 			}
 			if cond.Status != "True" {
 				t.Errorf("expecting condition Status [True], got [%s]", cond.Type)
@@ -272,12 +273,12 @@ func TestReconcile_LatestCommitIsOkay(t *testing.T) {
 		"1883fd54bc5dfd225acf02aecbb6cb8020458e33",
 	)
 
-	r := GitJobReconciler{
+	r := reconciler.GitJobReconciler{
 		Client:     client,
 		Scheme:     scheme,
 		Image:      "",
 		GitFetcher: fetcher,
-		Clock:      RealClock{},
+		Clock:      reconciler.RealClock{},
 		Recorder:   recorderMock,
 	}
 
@@ -327,18 +328,18 @@ func TestReconcile_LatestCommitNotCalledYet(t *testing.T) {
 			}
 			cond, found := getGitPollingCondition(repo)
 			if found {
-				t.Errorf("not expecting Condition %s to be found. Got [%s]", gitPollingCondition, cond)
+				t.Errorf("not expecting Condition %s to be found. Got [%s]", reconciler.GitPollingCondition, cond)
 			}
 		},
 	).Times(1)
 
 	fetcher := gitmocks.NewMockGitFetcher(mockCtrl)
-	r := GitJobReconciler{
+	r := reconciler.GitJobReconciler{
 		Client:     client,
 		Scheme:     scheme,
 		Image:      "",
 		GitFetcher: fetcher,
-		Clock:      RealClock{},
+		Clock:      reconciler.RealClock{},
 	}
 
 	ctx := context.TODO()
@@ -390,13 +391,13 @@ func TestReconcile_LatestCommitShouldBeCalled(t *testing.T) {
 		func(ctx context.Context, repo *fleetv1.GitRepo, opts ...interface{}) {
 			cond, found := getGitPollingCondition(repo)
 			if !found {
-				t.Errorf("expecting Condition %s to be found", gitPollingCondition)
+				t.Errorf("expecting Condition %s to be found", reconciler.GitPollingCondition)
 			}
 			if cond.Message != "" {
 				t.Errorf("expecting condition message empty, got [%s]", cond.Message)
 			}
-			if cond.Type != gitPollingCondition {
-				t.Errorf("expecting condition type [%s], got [%s]", gitPollingCondition, cond.Type)
+			if cond.Type != reconciler.GitPollingCondition {
+				t.Errorf("expecting condition type [%s], got [%s]", reconciler.GitPollingCondition, cond.Type)
 			}
 			if cond.Status != "True" {
 				t.Errorf("expecting condition Status [True], got [%s]", cond.Type)
@@ -415,12 +416,12 @@ func TestReconcile_LatestCommitShouldBeCalled(t *testing.T) {
 		"1883fd54bc5dfd225acf02aecbb6cb8020458e33",
 	)
 
-	r := GitJobReconciler{
+	r := reconciler.GitJobReconciler{
 		Client:     client,
 		Scheme:     scheme,
 		Image:      "",
 		GitFetcher: fetcher,
-		Clock:      RealClock{},
+		Clock:      reconciler.RealClock{},
 		Recorder:   recorderMock,
 	}
 
@@ -484,11 +485,11 @@ func TestReconcile_Error_WhenGitrepoRestrictionsAreNotMet(t *testing.T) {
 		"empty targetNamespace denied, because allowedTargetNamespaces restriction is present",
 	)
 
-	r := GitJobReconciler{
+	r := reconciler.GitJobReconciler{
 		Client:   mockClient,
 		Scheme:   scheme,
 		Image:    "",
-		Clock:    RealClock{},
+		Clock:    reconciler.RealClock{},
 		Recorder: recorderMock,
 	}
 
@@ -551,11 +552,11 @@ func TestReconcile_Error_WhenGetGitJobErrors(t *testing.T) {
 		"error retrieving git job: GITJOB ERROR",
 	)
 
-	r := GitJobReconciler{
+	r := reconciler.GitJobReconciler{
 		Client:     mockClient,
 		Scheme:     scheme,
 		Image:      "",
-		Clock:      RealClock{},
+		Clock:      reconciler.RealClock{},
 		Recorder:   recorderMock,
 		GitFetcher: mockFetcher,
 	}
@@ -641,11 +642,11 @@ func TestReconcile_Error_WhenSecretDoesNotExist(t *testing.T) {
 		},
 	)
 
-	r := GitJobReconciler{
+	r := reconciler.GitJobReconciler{
 		Client:     mockClient,
 		Scheme:     scheme,
 		Image:      "",
-		Clock:      RealClock{},
+		Clock:      reconciler.RealClock{},
 		Recorder:   recorderMock,
 		GitFetcher: mockFetcher,
 	}
@@ -698,11 +699,11 @@ func TestNewJob(t *testing.T) { // nolint:funlen
 					Name:  "gitcloner-initializer",
 					VolumeMounts: []corev1.VolumeMount{
 						{
-							Name:      gitClonerVolumeName,
+							Name:      reconciler.GitClonerVolumeName,
 							MountPath: "/workspace",
 						},
 						{
-							Name:      emptyDirVolumeName,
+							Name:      reconciler.EmptyDirVolumeName,
 							MountPath: "/tmp",
 						},
 					},
@@ -711,13 +712,13 @@ func TestNewJob(t *testing.T) { // nolint:funlen
 			},
 			expectedVolumes: []corev1.Volume{
 				{
-					Name: gitClonerVolumeName,
+					Name: reconciler.GitClonerVolumeName,
 					VolumeSource: corev1.VolumeSource{
 						EmptyDir: &corev1.EmptyDirVolumeSource{},
 					},
 				},
 				{
-					Name: emptyDirVolumeName,
+					Name: reconciler.EmptyDirVolumeName,
 					VolumeSource: corev1.VolumeSource{
 						EmptyDir: &corev1.EmptyDirVolumeSource{},
 					},
@@ -742,11 +743,11 @@ func TestNewJob(t *testing.T) { // nolint:funlen
 					Name:  "gitcloner-initializer",
 					VolumeMounts: []corev1.VolumeMount{
 						{
-							Name:      gitClonerVolumeName,
+							Name:      reconciler.GitClonerVolumeName,
 							MountPath: "/workspace",
 						},
 						{
-							Name:      emptyDirVolumeName,
+							Name:      reconciler.EmptyDirVolumeName,
 							MountPath: "/tmp",
 						},
 					},
@@ -755,13 +756,13 @@ func TestNewJob(t *testing.T) { // nolint:funlen
 			},
 			expectedVolumes: []corev1.Volume{
 				{
-					Name: gitClonerVolumeName,
+					Name: reconciler.GitClonerVolumeName,
 					VolumeSource: corev1.VolumeSource{
 						EmptyDir: &corev1.EmptyDirVolumeSource{},
 					},
 				},
 				{
-					Name: emptyDirVolumeName,
+					Name: reconciler.EmptyDirVolumeName,
 					VolumeSource: corev1.VolumeSource{
 						EmptyDir: &corev1.EmptyDirVolumeSource{},
 					},
@@ -786,11 +787,11 @@ func TestNewJob(t *testing.T) { // nolint:funlen
 					Name:  "gitcloner-initializer",
 					VolumeMounts: []corev1.VolumeMount{
 						{
-							Name:      gitClonerVolumeName,
+							Name:      reconciler.GitClonerVolumeName,
 							MountPath: "/workspace",
 						},
 						{
-							Name:      emptyDirVolumeName,
+							Name:      reconciler.EmptyDirVolumeName,
 							MountPath: "/tmp",
 						},
 					},
@@ -799,13 +800,13 @@ func TestNewJob(t *testing.T) { // nolint:funlen
 			},
 			expectedVolumes: []corev1.Volume{
 				{
-					Name: gitClonerVolumeName,
+					Name: reconciler.GitClonerVolumeName,
 					VolumeSource: corev1.VolumeSource{
 						EmptyDir: &corev1.EmptyDirVolumeSource{},
 					},
 				},
 				{
-					Name: emptyDirVolumeName,
+					Name: reconciler.EmptyDirVolumeName,
 					VolumeSource: corev1.VolumeSource{
 						EmptyDir: &corev1.EmptyDirVolumeSource{},
 					},
@@ -840,15 +841,15 @@ func TestNewJob(t *testing.T) { // nolint:funlen
 					Name:  "gitcloner-initializer",
 					VolumeMounts: []corev1.VolumeMount{
 						{
-							Name:      gitClonerVolumeName,
+							Name:      reconciler.GitClonerVolumeName,
 							MountPath: "/workspace",
 						},
 						{
-							Name:      emptyDirVolumeName,
+							Name:      reconciler.EmptyDirVolumeName,
 							MountPath: "/tmp",
 						},
 						{
-							Name:      gitCredentialVolumeName,
+							Name:      reconciler.GitCredentialVolumeName,
 							MountPath: "/gitjob/credentials",
 						},
 					},
@@ -857,19 +858,19 @@ func TestNewJob(t *testing.T) { // nolint:funlen
 			},
 			expectedVolumes: []corev1.Volume{
 				{
-					Name: gitClonerVolumeName,
+					Name: reconciler.GitClonerVolumeName,
 					VolumeSource: corev1.VolumeSource{
 						EmptyDir: &corev1.EmptyDirVolumeSource{},
 					},
 				},
 				{
-					Name: emptyDirVolumeName,
+					Name: reconciler.EmptyDirVolumeName,
 					VolumeSource: corev1.VolumeSource{
 						EmptyDir: &corev1.EmptyDirVolumeSource{},
 					},
 				},
 				{
-					Name: gitCredentialVolumeName,
+					Name: reconciler.GitCredentialVolumeName,
 					VolumeSource: corev1.VolumeSource{
 						Secret: &corev1.SecretVolumeSource{
 							SecretName: "secretName",
@@ -904,15 +905,15 @@ func TestNewJob(t *testing.T) { // nolint:funlen
 					Name:  "gitcloner-initializer",
 					VolumeMounts: []corev1.VolumeMount{
 						{
-							Name:      gitClonerVolumeName,
+							Name:      reconciler.GitClonerVolumeName,
 							MountPath: "/workspace",
 						},
 						{
-							Name:      emptyDirVolumeName,
+							Name:      reconciler.EmptyDirVolumeName,
 							MountPath: "/tmp",
 						},
 						{
-							Name:      gitCredentialVolumeName,
+							Name:      reconciler.GitCredentialVolumeName,
 							MountPath: "/gitjob/ssh",
 						},
 					},
@@ -921,19 +922,19 @@ func TestNewJob(t *testing.T) { // nolint:funlen
 			},
 			expectedVolumes: []corev1.Volume{
 				{
-					Name: gitClonerVolumeName,
+					Name: reconciler.GitClonerVolumeName,
 					VolumeSource: corev1.VolumeSource{
 						EmptyDir: &corev1.EmptyDirVolumeSource{},
 					},
 				},
 				{
-					Name: emptyDirVolumeName,
+					Name: reconciler.EmptyDirVolumeName,
 					VolumeSource: corev1.VolumeSource{
 						EmptyDir: &corev1.EmptyDirVolumeSource{},
 					},
 				},
 				{
-					Name: gitCredentialVolumeName,
+					Name: reconciler.GitCredentialVolumeName,
 					VolumeSource: corev1.VolumeSource{
 						Secret: &corev1.SecretVolumeSource{
 							SecretName: "secretName",
@@ -962,21 +963,21 @@ func TestNewJob(t *testing.T) { // nolint:funlen
 						"--branch",
 						"master",
 						"--ca-bundle-file",
-						"/gitjob/cabundle/" + bundleCAFile,
+						"/gitjob/cabundle/" + reconciler.BundleCAFile,
 					},
 					Image: "test",
 					Name:  "gitcloner-initializer",
 					VolumeMounts: []corev1.VolumeMount{
 						{
-							Name:      gitClonerVolumeName,
+							Name:      reconciler.GitClonerVolumeName,
 							MountPath: "/workspace",
 						},
 						{
-							Name:      emptyDirVolumeName,
+							Name:      reconciler.EmptyDirVolumeName,
 							MountPath: "/tmp",
 						},
 						{
-							Name:      bundleCAVolumeName,
+							Name:      reconciler.BundleCAVolumeName,
 							MountPath: "/gitjob/cabundle",
 						},
 					},
@@ -985,19 +986,19 @@ func TestNewJob(t *testing.T) { // nolint:funlen
 			},
 			expectedVolumes: []corev1.Volume{
 				{
-					Name: gitClonerVolumeName,
+					Name: reconciler.GitClonerVolumeName,
 					VolumeSource: corev1.VolumeSource{
 						EmptyDir: &corev1.EmptyDirVolumeSource{},
 					},
 				},
 				{
-					Name: emptyDirVolumeName,
+					Name: reconciler.EmptyDirVolumeName,
 					VolumeSource: corev1.VolumeSource{
 						EmptyDir: &corev1.EmptyDirVolumeSource{},
 					},
 				},
 				{
-					Name: bundleCAVolumeName,
+					Name: reconciler.BundleCAVolumeName,
 					VolumeSource: corev1.VolumeSource{
 						Secret: &corev1.SecretVolumeSource{
 							SecretName: "-cabundle",
@@ -1030,11 +1031,11 @@ func TestNewJob(t *testing.T) { // nolint:funlen
 					Name:  "gitcloner-initializer",
 					VolumeMounts: []corev1.VolumeMount{
 						{
-							Name:      gitClonerVolumeName,
+							Name:      reconciler.GitClonerVolumeName,
 							MountPath: "/workspace",
 						},
 						{
-							Name:      emptyDirVolumeName,
+							Name:      reconciler.EmptyDirVolumeName,
 							MountPath: "/tmp",
 						},
 					},
@@ -1043,13 +1044,13 @@ func TestNewJob(t *testing.T) { // nolint:funlen
 			},
 			expectedVolumes: []corev1.Volume{
 				{
-					Name: gitClonerVolumeName,
+					Name: reconciler.GitClonerVolumeName,
 					VolumeSource: corev1.VolumeSource{
 						EmptyDir: &corev1.EmptyDirVolumeSource{},
 					},
 				},
 				{
-					Name: emptyDirVolumeName,
+					Name: reconciler.EmptyDirVolumeName,
 					VolumeSource: corev1.VolumeSource{
 						EmptyDir: &corev1.EmptyDirVolumeSource{},
 					},
@@ -1060,13 +1061,13 @@ func TestNewJob(t *testing.T) { // nolint:funlen
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			r := GitJobReconciler{
+			r := reconciler.GitJobReconciler{
 				Client: test.client,
 				Scheme: scheme,
 				Image:  "test",
-				Clock:  RealClock{},
+				Clock:  reconciler.RealClock{},
 			}
-			job, err := r.newGitJob(ctx, test.gitrepo)
+			job, err := r.NewGitJob(ctx, test.gitrepo)
 			if err != nil {
 				t.Fatalf("unexpected error: %v", err)
 			}
@@ -1168,10 +1169,10 @@ func TestGenerateJob_EnvVars(t *testing.T) {
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			r := GitJobReconciler{
+			r := reconciler.GitJobReconciler{
 				Client: fake.NewFakeClient(),
 				Image:  "test",
-				Clock:  RealClock{},
+				Clock:  reconciler.RealClock{},
 			}
 			for k, v := range test.osEnv {
 				err := os.Setenv(k, v)
@@ -1179,7 +1180,7 @@ func TestGenerateJob_EnvVars(t *testing.T) {
 					t.Errorf("unexpected error: %v", err)
 				}
 			}
-			job, err := r.newGitJob(ctx, test.gitrepo)
+			job, err := r.NewGitJob(ctx, test.gitrepo)
 			if err != nil {
 				t.Errorf("unexpected error: %v", err)
 			}
@@ -1262,13 +1263,13 @@ func TestCheckforPollingTask(t *testing.T) {
 			if test.expectedResult {
 				fetcher.EXPECT().LatestCommit(gomock.Any(), gomock.Any(), gomock.Any()).Times(1).Return(commit, nil)
 			}
-			r := GitJobReconciler{
+			r := reconciler.GitJobReconciler{
 				Client:     fake.NewFakeClient(),
 				Image:      "test",
 				Clock:      ClockMock{t: test.timeNow},
 				GitFetcher: fetcher,
 			}
-			res, err := r.repoPolled(context.TODO(), test.gitrepo)
+			res, err := r.RepoPolled(context.TODO(), test.gitrepo)
 			if res != test.expectedResult {
 				t.Errorf("unexpected result. Expecting %t, got %t", test.expectedResult, res)
 			}

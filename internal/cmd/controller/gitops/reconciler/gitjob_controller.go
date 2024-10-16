@@ -47,16 +47,16 @@ import (
 )
 
 const (
-	bundleCAVolumeName        = "additional-ca"
-	bundleCAFile              = "additional-ca.crt"
-	gitCredentialVolumeName   = "git-credential" // #nosec G101 this is not a credential
+	BundleCAVolumeName        = "additional-ca"
+	BundleCAFile              = "additional-ca.crt"
+	GitCredentialVolumeName   = "git-credential" // #nosec G101 this is not a credential
 	ociRegistryAuthVolumeName = "oci-auth"
-	gitClonerVolumeName       = "git-cloner"
-	emptyDirVolumeName        = "git-cloner-empty-dir"
+	GitClonerVolumeName       = "git-cloner"
+	EmptyDirVolumeName        = "git-cloner-empty-dir"
 	fleetHomeDir              = "/fleet-home"
 
 	defaultPollingSyncInterval = 15 * time.Second
-	gitPollingCondition        = "GitPolling"
+	GitPollingCondition        = "GitPolling"
 )
 
 var zero = int32(0)
@@ -183,7 +183,7 @@ func (r *GitJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 	}
 
 	oldCommit := gitrepo.Status.Commit
-	repoPolled, err := r.repoPolled(ctx, gitrepo)
+	repoPolled, err := r.RepoPolled(ctx, gitrepo)
 	if err != nil {
 		r.Recorder.Event(gitrepo, fleetevent.Warning, "FailedToCheckCommit", err.Error())
 	} else if repoPolled && oldCommit != gitrepo.Status.Commit {
@@ -252,7 +252,7 @@ func (r *GitJobReconciler) manageGitJob(ctx context.Context, logger logr.Logger,
 	if errors.IsNotFound(err) {
 		if gitrepo.Spec.DisablePolling {
 			commit, err := r.GitFetcher.LatestCommit(ctx, gitrepo, r.Client)
-			condition.Cond(gitPollingCondition).SetError(&gitrepo.Status, "", err)
+			condition.Cond(GitPollingCondition).SetError(&gitrepo.Status, "", err)
 			if err == nil && commit != "" {
 				gitrepo.Status.Commit = commit
 			}
@@ -438,7 +438,7 @@ func (r *GitJobReconciler) createCABundleSecret(ctx context.Context, gitrepo *v1
 			Name:      caBundleName(gitrepo),
 		},
 		Data: map[string][]byte{
-			bundleCAFile: gitrepo.Spec.CABundle,
+			BundleCAFile: gitrepo.Spec.CABundle,
 		},
 	}
 	if err := controllerutil.SetControllerReference(gitrepo, secret, r.Scheme); err != nil {
@@ -467,7 +467,7 @@ func (r *GitJobReconciler) validateExternalSecretExist(ctx context.Context, gitr
 }
 
 func (r *GitJobReconciler) createJob(ctx context.Context, gitRepo *v1alpha1.GitRepo) error {
-	job, err := r.newGitJob(ctx, gitRepo)
+	job, err := r.NewGitJob(ctx, gitRepo)
 	if err != nil {
 		return err
 	}
@@ -551,7 +551,7 @@ func caBundleName(obj *v1alpha1.GitRepo) string {
 	return fmt.Sprintf("%s-cabundle", obj.Name)
 }
 
-func (r *GitJobReconciler) newGitJob(ctx context.Context, obj *v1alpha1.GitRepo) (*batchv1.Job, error) {
+func (r *GitJobReconciler) NewGitJob(ctx context.Context, obj *v1alpha1.GitRepo) (*batchv1.Job, error) {
 	jobSpec, err := r.newJobSpec(ctx, obj)
 	if err != nil {
 		return nil, err
@@ -585,12 +585,12 @@ func (r *GitJobReconciler) newGitJob(ctx context.Context, obj *v1alpha1.GitRepo)
 	job.Spec.Template.Spec.InitContainers = []corev1.Container{initContainer}
 	job.Spec.Template.Spec.Volumes = append(job.Spec.Template.Spec.Volumes,
 		corev1.Volume{
-			Name: gitClonerVolumeName,
+			Name: GitClonerVolumeName,
 			VolumeSource: corev1.VolumeSource{
 				EmptyDir: &corev1.EmptyDirVolumeSource{},
 			},
 		}, corev1.Volume{
-			Name: emptyDirVolumeName,
+			Name: EmptyDirVolumeName,
 			VolumeSource: corev1.VolumeSource{
 				EmptyDir: &corev1.EmptyDirVolumeSource{},
 			},
@@ -599,7 +599,7 @@ func (r *GitJobReconciler) newGitJob(ctx context.Context, obj *v1alpha1.GitRepo)
 
 	if obj.Spec.CABundle != nil {
 		job.Spec.Template.Spec.Volumes = append(job.Spec.Template.Spec.Volumes, corev1.Volume{
-			Name: bundleCAVolumeName,
+			Name: BundleCAVolumeName,
 			VolumeSource: corev1.VolumeSource{
 				Secret: &corev1.SecretVolumeSource{
 					SecretName: caBundleName(obj),
@@ -611,7 +611,7 @@ func (r *GitJobReconciler) newGitJob(ctx context.Context, obj *v1alpha1.GitRepo)
 	if obj.Spec.ClientSecretName != "" {
 		job.Spec.Template.Spec.Volumes = append(job.Spec.Template.Spec.Volumes,
 			corev1.Volume{
-				Name: gitCredentialVolumeName,
+				Name: GitCredentialVolumeName,
 				VolumeSource: corev1.VolumeSource{
 					Secret: &corev1.SecretVolumeSource{
 						SecretName: obj.Spec.ClientSecretName,
@@ -624,7 +624,7 @@ func (r *GitJobReconciler) newGitJob(ctx context.Context, obj *v1alpha1.GitRepo)
 	for i := range job.Spec.Template.Spec.Containers {
 		job.Spec.Template.Spec.Containers[i].VolumeMounts = append(job.Spec.Template.Spec.Containers[i].VolumeMounts, corev1.VolumeMount{
 			MountPath: "/workspace/source",
-			Name:      gitClonerVolumeName,
+			Name:      GitClonerVolumeName,
 		})
 		job.Spec.Template.Spec.Containers[i].Env = append(job.Spec.Template.Spec.Containers[i].Env,
 			corev1.EnvVar{
@@ -1021,11 +1021,11 @@ func (r *GitJobReconciler) newGitCloner(ctx context.Context, obj *v1alpha1.GitRe
 	args := []string{"gitcloner", obj.Spec.Repo, "/workspace"}
 	volumeMounts := []corev1.VolumeMount{
 		{
-			Name:      gitClonerVolumeName,
+			Name:      GitClonerVolumeName,
 			MountPath: "/workspace",
 		},
 		{
-			Name:      emptyDirVolumeName,
+			Name:      EmptyDirVolumeName,
 			MountPath: "/tmp",
 		},
 	}
@@ -1051,14 +1051,14 @@ func (r *GitJobReconciler) newGitCloner(ctx context.Context, obj *v1alpha1.GitRe
 		switch secret.Type {
 		case corev1.SecretTypeBasicAuth:
 			volumeMounts = append(volumeMounts, corev1.VolumeMount{
-				Name:      gitCredentialVolumeName,
+				Name:      GitCredentialVolumeName,
 				MountPath: "/gitjob/credentials",
 			})
 			args = append(args, "--username", string(secret.Data[corev1.BasicAuthUsernameKey]))
 			args = append(args, "--password-file", "/gitjob/credentials/"+corev1.BasicAuthPasswordKey)
 		case corev1.SecretTypeSSHAuth:
 			volumeMounts = append(volumeMounts, corev1.VolumeMount{
-				Name:      gitCredentialVolumeName,
+				Name:      GitCredentialVolumeName,
 				MountPath: "/gitjob/ssh",
 			})
 			args = append(args, "--ssh-private-key-file", "/gitjob/ssh/"+corev1.SSHAuthPrivateKey)
@@ -1074,10 +1074,10 @@ func (r *GitJobReconciler) newGitCloner(ctx context.Context, obj *v1alpha1.GitRe
 	}
 	if obj.Spec.CABundle != nil {
 		volumeMounts = append(volumeMounts, corev1.VolumeMount{
-			Name:      bundleCAVolumeName,
+			Name:      BundleCAVolumeName,
 			MountPath: "/gitjob/cabundle",
 		})
-		args = append(args, "--ca-bundle-file", "/gitjob/cabundle/"+bundleCAFile)
+		args = append(args, "--ca-bundle-file", "/gitjob/cabundle/"+BundleCAFile)
 	}
 
 	return corev1.Container{
@@ -1137,15 +1137,15 @@ func bundleStatusChangedPredicate() predicate.Funcs {
 	}
 }
 
-// repoPolled returns true if the git poller was executed and the repo should still be polled.
-func (r *GitJobReconciler) repoPolled(ctx context.Context, gitrepo *v1alpha1.GitRepo) (bool, error) {
+// RepoPolled returns true if the git poller was executed and the repo should still be polled.
+func (r *GitJobReconciler) RepoPolled(ctx context.Context, gitrepo *v1alpha1.GitRepo) (bool, error) {
 	if gitrepo.Spec.DisablePolling {
 		return false, nil
 	}
 	if r.shouldRunPollingTask(gitrepo) {
 		gitrepo.Status.LastPollingTime.Time = r.Clock.Now()
 		commit, err := r.GitFetcher.LatestCommit(ctx, gitrepo, r.Client)
-		condition.Cond(gitPollingCondition).SetError(&gitrepo.Status, "", err)
+		condition.Cond(GitPollingCondition).SetError(&gitrepo.Status, "", err)
 		if err != nil {
 			return true, err
 		}
