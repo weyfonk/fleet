@@ -48,21 +48,21 @@ const (
 )
 
 type Webhook struct {
-	client          client.Client
-	namespace       string
-	github          *github.Webhook
+	Client          client.Client
+	Namespace       string
+	Github          *github.Webhook
 	gitlab          *gitlab.Webhook
 	bitbucket       *bitbucket.Webhook
 	bitbucketServer *bitbucketserver.Webhook
 	gogs            *gogs.Webhook
 	log             logr.Logger
-	azureDevops     *azuredevops.Webhook
+	AzureDevops     *azuredevops.Webhook
 }
 
 func New(namespace string, client client.Client) (*Webhook, error) {
 	webhook := &Webhook{
-		client:    client,
-		namespace: namespace,
+		Client:    client,
+		Namespace: namespace,
 		log:       ctrl.Log.WithName("webhook"),
 	}
 	err := webhook.initGitProviders()
@@ -76,7 +76,7 @@ func New(namespace string, client client.Client) (*Webhook, error) {
 func (w *Webhook) initGitProviders() error {
 	var err error
 
-	w.github, err = github.New()
+	w.Github, err = github.New()
 	if err != nil {
 		return err
 	}
@@ -96,7 +96,7 @@ func (w *Webhook) initGitProviders() error {
 	if err != nil {
 		return err
 	}
-	w.azureDevops, err = azuredevops.New()
+	w.AzureDevops, err = azuredevops.New()
 	if err != nil {
 		return err
 	}
@@ -109,7 +109,7 @@ func (w *Webhook) onSecretChange(obj interface{}) error {
 	if !ok {
 		return fmt.Errorf("expected secret object but got %T", obj)
 	}
-	if secret.Name != webhookSecretName && secret.Namespace != w.namespace {
+	if secret.Name != webhookSecretName && secret.Namespace != w.Namespace {
 		return nil
 	}
 
@@ -118,7 +118,7 @@ func (w *Webhook) onSecretChange(obj interface{}) error {
 	if err != nil {
 		return err
 	}
-	w.github = github
+	w.Github = github
 	gitlab, err := gitlab.New(gitlab.Options.Secret(string(secret.Data[gitlabKey])))
 	if err != nil {
 		return err
@@ -143,7 +143,7 @@ func (w *Webhook) onSecretChange(obj interface{}) error {
 	if err != nil {
 		return err
 	}
-	w.azureDevops = azureDevops
+	w.AzureDevops = azureDevops
 
 	return nil
 }
@@ -162,7 +162,7 @@ func (w *Webhook) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 		_, _ = rw.Write([]byte("Webhook received successfully"))
 		return
 	case r.Header.Get("X-GitHub-Event") != "":
-		payload, err = w.github.Parse(r, github.PushEvent)
+		payload, err = w.Github.Parse(r, github.PushEvent)
 	case r.Header.Get("X-Gitlab-Event") != "":
 		payload, err = w.gitlab.Parse(r, gitlab.PushEvents, gitlab.TagEvents)
 	case r.Header.Get("X-Hook-UUID") != "":
@@ -170,7 +170,7 @@ func (w *Webhook) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	case r.Header.Get("X-Event-Key") != "":
 		payload, err = w.bitbucketServer.Parse(r, bitbucketserver.RepositoryReferenceChangedEvent)
 	case r.Header.Get("X-Vss-Activityid") != "" || r.Header.Get("X-Vss-Subscriptionid") != "":
-		payload, err = w.azureDevops.Parse(r, azuredevops.GitPushEventType)
+		payload, err = w.AzureDevops.Parse(r, azuredevops.GitPushEventType)
 	default:
 		w.log.V(1).Info("Ignoring unknown webhook event")
 		return
@@ -186,7 +186,7 @@ func (w *Webhook) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	revision, branch, _, repoURLs := parsePayload(payload)
 
 	var gitRepoList v1alpha1.GitRepoList
-	err = w.client.List(ctx, &gitRepoList, &client.ListOptions{LabelSelector: labels.Everything()})
+	err = w.Client.List(ctx, &gitRepoList, &client.ListOptions{LabelSelector: labels.Everything()})
 	if err != nil {
 		w.logAndReturn(rw, err)
 		return
@@ -225,7 +225,7 @@ func (w *Webhook) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 			if gitrepo.Status.WebhookCommit != revision && revision != "" {
 				if err := retry.RetryOnConflict(retry.DefaultRetry, func() error {
 					var gitRepoFromCluster v1alpha1.GitRepo
-					err := w.client.Get(
+					err := w.Client.Get(
 						ctx,
 						ktypes.NamespacedName{
 							Name:      gitrepo.Name,
@@ -242,7 +242,7 @@ func (w *Webhook) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 							Duration: webhookDefaultSyncInterval * time.Second,
 						}
 					}
-					return w.client.Status().Update(ctx, &gitRepoFromCluster)
+					return w.Client.Status().Update(ctx, &gitRepoFromCluster)
 				}); err != nil {
 					w.logAndReturn(rw, err)
 					return
@@ -298,11 +298,11 @@ func HandleHooks(ctx context.Context, namespace string, client client.Client, cl
 
 func (w *Webhook) logAndReturn(rw http.ResponseWriter, err error) {
 	w.log.Error(err, "Webhook processing failed")
-	rw.WriteHeader(getErrorCodeFromErr(err))
+	rw.WriteHeader(GetErrorCodeFromErr(err))
 	_, _ = rw.Write([]byte(err.Error()))
 }
 
-func getErrorCodeFromErr(err error) int {
+func GetErrorCodeFromErr(err error) int {
 	// check if the error is a verification of identity error
 	// secret check, or basic credentials or token verification
 	// depending on the provider
@@ -325,7 +325,7 @@ func getErrorCodeFromErr(err error) int {
 }
 
 // git ref docs: https://git-scm.com/book/en/v2/Git-Internals-Git-References
-func getBranchTagFromRef(ref string) (string, string) {
+func GetBranchTagFromRef(ref string) (string, string) {
 	if strings.HasPrefix(ref, branchRefPrefix) {
 		return strings.TrimPrefix(ref, branchRefPrefix), ""
 	}
@@ -343,15 +343,15 @@ func parsePayload(payload interface{}) (revision, branch, tag string, repoURLs [
 	// credit from https://github.com/argoproj/argo-cd/blob/97003caebcaafe1683e71934eb483a88026a4c33/util/webhook/webhook.go#L84-L87
 	switch t := payload.(type) {
 	case github.PushPayload:
-		branch, tag = getBranchTagFromRef(t.Ref)
+		branch, tag = GetBranchTagFromRef(t.Ref)
 		revision = t.After
 		repoURLs = append(repoURLs, t.Repository.HTMLURL)
 	case gitlab.PushEventPayload:
-		branch, tag = getBranchTagFromRef(t.Ref)
+		branch, tag = GetBranchTagFromRef(t.Ref)
 		revision = t.CheckoutSHA
 		repoURLs = append(repoURLs, t.Project.WebURL)
 	case gitlab.TagEventPayload:
-		branch, tag = getBranchTagFromRef(t.Ref)
+		branch, tag = GetBranchTagFromRef(t.Ref)
 		revision = t.CheckoutSHA
 		repoURLs = append(repoURLs, t.Project.WebURL)
 	// https://support.atlassian.com/bitbucket-cloud/docs/event-payloads/#Push
@@ -380,17 +380,17 @@ func parsePayload(payload interface{}) (revision, branch, tag string, repoURLs [
 		}
 		for _, change := range t.Changes {
 			revision = change.ToHash
-			branch, tag = getBranchTagFromRef(change.ReferenceId)
+			branch, tag = GetBranchTagFromRef(change.ReferenceId)
 			break
 		}
 	case gogsclient.PushPayload:
 		repoURLs = append(repoURLs, t.Repo.HTMLURL)
-		branch, tag = getBranchTagFromRef(t.Ref)
+		branch, tag = GetBranchTagFromRef(t.Ref)
 		revision = t.After
 	case azuredevops.GitPushEvent:
 		repoURLs = append(repoURLs, t.Resource.Repository.RemoteURL)
 		for _, refUpdate := range t.Resource.RefUpdates {
-			branch, tag = getBranchTagFromRef(refUpdate.Name)
+			branch, tag = GetBranchTagFromRef(refUpdate.Name)
 			revision = refUpdate.NewObjectID
 			break
 		}

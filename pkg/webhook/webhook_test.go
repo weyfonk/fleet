@@ -1,4 +1,4 @@
-package webhook
+package webhook_test
 
 import (
 	"bytes"
@@ -7,6 +7,9 @@ import (
 	"crypto/sha1"
 	"encoding/hex"
 	"fmt"
+	"net/http"
+	"net/http/httptest"
+	"testing"
 
 	"go.uber.org/mock/gomock"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -16,6 +19,7 @@ import (
 	"github.com/go-playground/webhooks/v6/azuredevops"
 	"github.com/rancher/fleet/internal/mocks"
 	v1alpha1 "github.com/rancher/fleet/pkg/apis/fleet.cattle.io/v1alpha1"
+	"github.com/rancher/fleet/pkg/webhook"
 	"gopkg.in/go-playground/webhooks.v5/bitbucket"
 	bitbucketserver "gopkg.in/go-playground/webhooks.v5/bitbucket-server"
 	"gopkg.in/go-playground/webhooks.v5/github"
@@ -24,10 +28,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	cfake "sigs.k8s.io/controller-runtime/pkg/client/fake"
-
-	"net/http"
-	"net/http/httptest"
-	"testing"
 
 	"gotest.tools/assert"
 )
@@ -52,7 +52,7 @@ func TestGetBranchTagFromRef(t *testing.T) {
 	}
 
 	for i, input := range inputs {
-		branch, tag := getBranchTagFromRef(input)
+		branch, tag := webhook.GetBranchTagFromRef(input)
 		assert.Equal(t, branch, outputs[i][0])
 		assert.Equal(t, tag, outputs[i][1])
 	}
@@ -76,8 +76,8 @@ func TestAzureDevopsWebhook(t *testing.T) {
 		t.Errorf("unexpected error %v", err)
 	}
 	client := cfake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(gitRepo).WithStatusSubresource(gitRepo).Build()
-	w := &Webhook{client: client}
-	w.azureDevops, _ = azuredevops.New()
+	w := &webhook.Webhook{Client: client}
+	w.AzureDevops, _ = azuredevops.New()
 	jsonBody := []byte(`{"subscriptionId":"xxx","notificationId":1,"id":"xxx","eventType":"git.push","publisherId":"tfs","message":{"text":"commit pushed","html":"commit pushed"},"detailedMessage":{"text":"pushed a commit to git-test"},"resource":{"commits":[{"commitId":"` + commit + `","author":{"name":"fleet","email":"fleet@suse.com","date":"2024-01-05T10:16:56Z"},"committer":{"name":"fleet","email":"fleet@suse.com","date":"2024-01-05T10:16:56Z"},"comment":"test commit","url":"https://dev.azure.com/fleet/_apis/git/repositories/xxx/commits/f00c3a181697bb3829a6462e931c7456bbed557b"}],"refUpdates":[{"name":"refs/heads/main","oldObjectId":"135f8a827edae980466f72eef385881bb4e158d8","newObjectId":"` + commit + `"}],"repository":{"id":"xxx","name":"git-test","url":"https://dev.azure.com/fleet/_apis/git/repositories/xxx","project":{"id":"xxx","name":"git-test","url":"https://dev.azure.com/fleet/_apis/projects/xxx","state":"wellFormed","visibility":"unchanged","lastUpdateTime":"0001-01-01T00:00:00"},"defaultBranch":"refs/heads/main","remoteUrl":"` + repoURL + `"},"pushedBy":{"displayName":"Fleet","url":"https://spsprodneu1.vssps.visualstudio.com/xxx/_apis/Identities/xxx","_links":{"avatar":{"href":"https://dev.azure.com/fleet/_apis/GraphProfile/MemberAvatars/msa.xxxx"}},"id":"xxx","uniqueName":"fleet@suse.com","imageUrl":"https://dev.azure.com/fleet/_api/_common/identityImage?id=xxx","descriptor":"xxxx"},"pushId":22,"date":"2024-01-05T10:17:18.735088Z","url":"https://dev.azure.com/fleet/_apis/git/repositories/xxx/pushes/22","_links":{"self":{"href":"https://dev.azure.com/fleet/_apis/git/repositories/xxx/pushes/22"},"repository":{"href":"https://dev.azure.com/fleet/xxx/_apis/git/repositories/xxx"},"commits":{"href":"https://dev.azure.com/fleet/_apis/git/repositories/xxx/pushes/22/commits"},"pusher":{"href":"https://spsprodneu1.vssps.visualstudio.com/xxx/_apis/Identities/xxx"},"refs":{"href":"https://dev.azure.com/fleet/xxx/_apis/git/repositories/xxx/refs/heads/main"}}},"resourceVersion":"1.0","resourceContainers":{"collection":{"id":"xxx","baseUrl":"https://dev.azure.com/fleet/"},"account":{"id":"ec365173-fce3-4dfc-8fc2-950f0b5728b1","baseUrl":"https://dev.azure.com/fleet/"},"project":{"id":"xxx","baseUrl":"https://dev.azure.com/fleet/"}},"createdDate":"2024-01-05T10:17:26.0098694Z"}`)
 	bodyReader := bytes.NewReader(jsonBody)
 	req, err := http.NewRequest(http.MethodPost, repoURL, bodyReader)
@@ -122,8 +122,8 @@ func TestAzureDevopsWebhookWithSSHURL(t *testing.T) {
 		t.Errorf("unexpected error %v", err)
 	}
 	client := cfake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(gitRepo).WithStatusSubresource(gitRepo).Build()
-	w := &Webhook{client: client}
-	w.azureDevops, _ = azuredevops.New()
+	w := &webhook.Webhook{Client: client}
+	w.AzureDevops, _ = azuredevops.New()
 	jsonBody := []byte(`{"subscriptionId":"xxx","notificationId":1,"id":"xxx","eventType":"git.push","publisherId":"tfs","message":{"text":"commit pushed","html":"commit pushed"},"detailedMessage":{"text":"pushed a commit to git-test"},"resource":{"commits":[{"commitId":"` + commit + `","author":{"name":"fleet","email":"fleet@suse.com","date":"2024-01-05T10:16:56Z"},"committer":{"name":"fleet","email":"fleet@suse.com","date":"2024-01-05T10:16:56Z"},"comment":"test commit","url":"https://dev.azure.com/fleet/_apis/git/repositories/xxx/commits/f00c3a181697bb3829a6462e931c7456bbed557b"}],"refUpdates":[{"name":"refs/heads/main","oldObjectId":"135f8a827edae980466f72eef385881bb4e158d8","newObjectId":"` + commit + `"}],"repository":{"id":"xxx","name":"git-test","url":"https://dev.azure.com/fleet/_apis/git/repositories/xxx","project":{"id":"xxx","name":"git-test","url":"https://dev.azure.com/fleet/_apis/projects/xxx","state":"wellFormed","visibility":"unchanged","lastUpdateTime":"0001-01-01T00:00:00"},"defaultBranch":"refs/heads/main","remoteUrl":"` + responseRemoteURL + `"},"pushedBy":{"displayName":"Fleet","url":"https://spsprodneu1.vssps.visualstudio.com/xxx/_apis/Identities/xxx","_links":{"avatar":{"href":"https://dev.azure.com/fleet/_apis/GraphProfile/MemberAvatars/msa.xxxx"}},"id":"xxx","uniqueName":"fleet@suse.com","imageUrl":"https://dev.azure.com/fleet/_api/_common/identityImage?id=xxx","descriptor":"xxxx"},"pushId":22,"date":"2024-01-05T10:17:18.735088Z","url":"https://dev.azure.com/fleet/_apis/git/repositories/xxx/pushes/22","_links":{"self":{"href":"https://dev.azure.com/fleet/_apis/git/repositories/xxx/pushes/22"},"repository":{"href":"https://dev.azure.com/fleet/xxx/_apis/git/repositories/xxx"},"commits":{"href":"https://dev.azure.com/fleet/_apis/git/repositories/xxx/pushes/22/commits"},"pusher":{"href":"https://spsprodneu1.vssps.visualstudio.com/xxx/_apis/Identities/xxx"},"refs":{"href":"https://dev.azure.com/fleet/xxx/_apis/git/repositories/xxx/refs/heads/main"}}},"resourceVersion":"1.0","resourceContainers":{"collection":{"id":"xxx","baseUrl":"https://dev.azure.com/fleet/"},"account":{"id":"ec365173-fce3-4dfc-8fc2-950f0b5728b1","baseUrl":"https://dev.azure.com/fleet/"},"project":{"id":"xxx","baseUrl":"https://dev.azure.com/fleet/"}},"createdDate":"2024-01-05T10:17:26.0098694Z"}`)
 	bodyReader := bytes.NewReader(jsonBody)
 	req, err := http.NewRequest(http.MethodPost, responseRemoteURL, bodyReader)
@@ -181,12 +181,12 @@ func TestGitHubPingWebhook(t *testing.T) {
 	client := cfake.NewClientBuilder().WithScheme(sch).WithRuntimeObjects(gitRepo).Build()
 
 	// Webhook initialisation
-	w := &Webhook{
-		client:    client,
-		namespace: "default",
+	w := &webhook.Webhook{
+		Client:    client,
+		Namespace: "default",
 	}
 
-	w.github, _ = github.New(github.Options.Secret(""))
+	w.Github, _ = github.New(github.Options.Secret(""))
 
 	// JSON payload for the ping event
 	jsonBody := []byte(fmt.Sprintf(`{
@@ -293,7 +293,7 @@ func TestAuthErrorCodes(t *testing.T) {
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			errCode := getErrorCodeFromErr(test.err)
+			errCode := webhook.GetErrorCodeFromErr(test.err)
 
 			if errCode != test.expectedErrorCode {
 				t.Errorf("expected error code does not match. Got %d, expected %d", errCode, test.expectedErrorCode)
@@ -323,12 +323,12 @@ func TestGitHubWrongSecret(t *testing.T) {
 	client := cfake.NewClientBuilder().WithScheme(sch).WithRuntimeObjects(gitRepo).Build()
 
 	// Webhook initialisation
-	w := &Webhook{
-		client:    client,
-		namespace: "default",
+	w := &webhook.Webhook{
+		Client:    client,
+		Namespace: "default",
 	}
 
-	w.github, _ = github.New(github.Options.Secret("badsecret"))
+	w.Github, _ = github.New(github.Options.Secret("badsecret"))
 
 	// The secret header check is not going to pass so we don't need any particular payload
 	jsonBody := []byte("{}")
@@ -393,12 +393,12 @@ func TestGitHubRightSecretAndCommitUpdated(t *testing.T) {
 		},
 	).Times(1)
 
-	w := &Webhook{
-		client:    mockClient,
-		namespace: "default",
+	w := &webhook.Webhook{
+		Client:    mockClient,
+		Namespace: "default",
 	}
 
-	w.github, _ = github.New(github.Options.Secret(""))
+	w.Github, _ = github.New(github.Options.Secret(""))
 
 	// we set only the values that we're going to use in the push event to make things simple
 	jsonBody := []byte(fmt.Sprintf(`
