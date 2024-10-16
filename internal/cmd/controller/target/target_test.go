@@ -1,4 +1,4 @@
-package target
+package target_test
 
 import (
 	"bytes"
@@ -9,6 +9,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/yaml"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
+	"github.com/rancher/fleet/internal/cmd/controller/target"
 	"github.com/rancher/fleet/pkg/apis/fleet.cattle.io/v1alpha1"
 )
 
@@ -47,7 +48,7 @@ func TestProcessLabelValues(t *testing.T) {
 		t.Fatalf("error during yaml parsing %v", err)
 	}
 
-	err = processLabelValues(zap.New(), bundle.Helm.Values.Data, clusterLabels, 0)
+	err = target.ProcessLabelValues(zap.New(), bundle.Helm.Values.Data, clusterLabels, 0)
 	if err != nil {
 		t.Fatalf("error during label processing %v", err)
 	}
@@ -185,7 +186,7 @@ func TestProcessTemplateValues(t *testing.T) {
 		t.Fatalf("error during yaml parsing %v", err)
 	}
 
-	templatedValues, err := processTemplateValues(bundle.Helm.Values.Data, values)
+	templatedValues, err := target.ProcessTemplateValues(bundle.Helm.Values.Data, values)
 	if err != nil {
 		t.Fatalf("error during label processing %v", err)
 	}
@@ -361,7 +362,7 @@ func TestDisablePreProcessFlagEnabled(t *testing.T) {
 		t.Fatal(err.Error())
 	}
 
-	err = preprocessHelmValues(zap.New(), bundle, cluster)
+	err = target.PreprocessHelmValues(zap.New(), bundle, cluster)
 	if err != nil {
 		t.Fatalf("error during cluster processing %v", err)
 	}
@@ -415,7 +416,7 @@ func TestDisablePreProcessFlagDisabled(t *testing.T) {
 		t.Fatal(err.Error())
 	}
 
-	err = preprocessHelmValues(zap.New(), bundle, cluster)
+	err = target.PreprocessHelmValues(zap.New(), bundle, cluster)
 	if err != nil {
 		t.Fatalf("error during cluster processing %v", err)
 	}
@@ -448,7 +449,7 @@ func TestDisablePreProcessFlagMissing(t *testing.T) {
 		t.Fatal(err.Error())
 	}
 
-	err = preprocessHelmValues(zap.New(), bundle, cluster)
+	err = target.PreprocessHelmValues(zap.New(), bundle, cluster)
 	if err != nil {
 		t.Fatalf("error during cluster processing %v", err)
 	}

@@ -83,7 +83,7 @@ func (m *Manager) Targets(ctx context.Context, bundle *fleet.Bundle, manifestID 
 			}
 
 			opts := options.Merge(bundle.Spec.BundleDeploymentOptions, targetOpts)
-			err = preprocessHelmValues(logger, &opts, &cluster)
+			err = PreprocessHelmValues(logger, &opts, &cluster)
 			if err != nil {
 				return nil, err
 			}
@@ -165,7 +165,7 @@ func (m *Manager) getNamespacesForBundle(ctx context.Context, bundle *fleet.Bund
 	return nses.List(), nil
 }
 
-func preprocessHelmValues(logger logr.Logger, opts *fleet.BundleDeploymentOptions, cluster *fleet.Cluster) (err error) {
+func PreprocessHelmValues(logger logr.Logger, opts *fleet.BundleDeploymentOptions, cluster *fleet.Cluster) (err error) {
 	clusterLabels := yaml.CleanAnnotationsForExport(cluster.Labels)
 	clusterAnnotations := yaml.CleanAnnotationsForExport(cluster.Annotations)
 
@@ -191,7 +191,7 @@ func preprocessHelmValues(logger logr.Logger, opts *fleet.BundleDeploymentOption
 		return nil
 	}
 
-	if err := processLabelValues(logger, opts.Helm.Values.Data, clusterLabels, 0); err != nil {
+	if err := ProcessLabelValues(logger, opts.Helm.Values.Data, clusterLabels, 0); err != nil {
 		return err
 	}
 
@@ -209,7 +209,7 @@ func preprocessHelmValues(logger logr.Logger, opts *fleet.BundleDeploymentOption
 			"ClusterValues":      templateValues,
 		}
 
-		opts.Helm.Values.Data, err = processTemplateValues(opts.Helm.Values.Data, values)
+		opts.Helm.Values.Data, err = ProcessTemplateValues(opts.Helm.Values.Data, values)
 		if err != nil {
 			return err
 		}
@@ -229,7 +229,7 @@ func toDict(values map[string]string) map[string]interface{} {
 	return dict
 }
 
-func processLabelValues(logger logr.Logger, valuesMap map[string]interface{}, clusterLabels map[string]string, recursionDepth int) error {
+func ProcessLabelValues(logger logr.Logger, valuesMap map[string]interface{}, clusterLabels map[string]string, recursionDepth int) error {
 	if recursionDepth > maxTemplateRecursionDepth {
 		return fmt.Errorf("maximum recursion depth of %v exceeded for cluster label prefix processing, too many nested values", maxTemplateRecursionDepth)
 	}
@@ -248,7 +248,7 @@ func processLabelValues(logger logr.Logger, valuesMap map[string]interface{}, cl
 		}
 
 		if valMap, ok := val.(map[string]interface{}); ok {
-			err := processLabelValues(logger, valMap, clusterLabels, recursionDepth+1)
+			err := ProcessLabelValues(logger, valMap, clusterLabels, recursionDepth+1)
 			if err != nil {
 				return err
 			}
@@ -257,7 +257,7 @@ func processLabelValues(logger logr.Logger, valuesMap map[string]interface{}, cl
 		if valArr, ok := val.([]interface{}); ok {
 			for _, item := range valArr {
 				if itemMap, ok := item.(map[string]interface{}); ok {
-					err := processLabelValues(logger, itemMap, clusterLabels, recursionDepth+1)
+					err := ProcessLabelValues(logger, itemMap, clusterLabels, recursionDepth+1)
 					if err != nil {
 						return err
 					}
@@ -280,7 +280,7 @@ func tplFuncMap() template.FuncMap {
 	return f
 }
 
-func processTemplateValues(helmValues map[string]interface{}, templateContext map[string]interface{}) (map[string]interface{}, error) {
+func ProcessTemplateValues(helmValues map[string]interface{}, templateContext map[string]interface{}) (map[string]interface{}, error) {
 	data, err := kyaml.Marshal(helmValues)
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal helm values section into a template: %w", err)
