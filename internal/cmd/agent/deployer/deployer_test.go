@@ -1,9 +1,10 @@
-package deployer
+package deployer_test
 
 import (
 	"context"
 	"testing"
 
+	"github.com/rancher/fleet/internal/cmd/agent/deployer"
 	fleet "github.com/rancher/fleet/pkg/apis/fleet.cattle.io/v1alpha1"
 
 	corev1 "k8s.io/api/core/v1"
@@ -123,10 +124,10 @@ func TestSetNamespaceLabelsAndAnnotations(t *testing.T) {
 			scheme := runtime.NewScheme()
 			utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 			client := fake.NewClientBuilder().WithScheme(scheme).WithObjects(&test.ns).Build()
-			h := Deployer{
-				client: client,
+			h := deployer.Deployer{
+				Client: client,
 			}
-			err := h.setNamespaceLabelsAndAnnotations(context.Background(), test.bd, test.release)
+			err := h.SetNamespaceLabelsAndAnnotations(context.Background(), test.bd, test.release)
 			if err != nil {
 				t.Errorf("expected nil error: got %v", err)
 			}
@@ -162,11 +163,11 @@ func TestSetNamespaceLabelsAndAnnotationsError(t *testing.T) {
 	scheme := runtime.NewScheme()
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 	client := fake.NewClientBuilder().WithScheme(scheme).Build()
-	h := Deployer{
-		client: client,
+	h := deployer.Deployer{
+		Client: client,
 	}
 
-	err := h.setNamespaceLabelsAndAnnotations(context.Background(), bd, release)
+	err := h.SetNamespaceLabelsAndAnnotations(context.Background(), bd, release)
 
 	if !apierrors.IsNotFound(err) {
 		t.Errorf("expected not found error: got %v", err)

@@ -25,7 +25,7 @@ import (
 )
 
 type Deployer struct {
-	client         client.Client
+	Client         client.Client
 	upstreamClient client.Reader
 	lookup         Lookup
 	helm           *helmdeployer.Helm
@@ -37,7 +37,7 @@ type Lookup interface {
 
 func New(localClient client.Client, upstreamClient client.Reader, lookup Lookup, deployer *helmdeployer.Helm) *Deployer {
 	return &Deployer{
-		client:         localClient,
+		Client:         localClient,
 		upstreamClient: upstreamClient,
 		lookup:         lookup,
 		helm:           deployer,
@@ -87,7 +87,7 @@ func (d *Deployer) DeployBundle(ctx context.Context, bd *fleet.BundleDeployment)
 	status.Release = releaseID
 	status.AppliedDeploymentID = bd.Spec.DeploymentID
 
-	if err := d.setNamespaceLabelsAndAnnotations(ctx, bd, releaseID); err != nil {
+	if err := d.SetNamespaceLabelsAndAnnotations(ctx, bd, releaseID); err != nil {
 		return fleet.BundleDeploymentStatus{}, err
 	}
 
@@ -164,8 +164,8 @@ func (d *Deployer) helmdeploy(ctx context.Context, logger logr.Logger, bd *fleet
 	return resourceID, nil
 }
 
-// setNamespaceLabelsAndAnnotations updates the namespace for the release, applying all labels and annotations to that namespace as configured in the bundle spec.
-func (d *Deployer) setNamespaceLabelsAndAnnotations(ctx context.Context, bd *fleet.BundleDeployment, releaseID string) error {
+// SetNamespaceLabelsAndAnnotations updates the namespace for the release, applying all labels and annotations to that namespace as configured in the bundle spec.
+func (d *Deployer) SetNamespaceLabelsAndAnnotations(ctx context.Context, bd *fleet.BundleDeployment, releaseID string) error {
 	if bd.Spec.Options.NamespaceLabels == nil && bd.Spec.Options.NamespaceAnnotations == nil {
 		return nil
 	}
@@ -198,7 +198,7 @@ func (d *Deployer) setNamespaceLabelsAndAnnotations(ctx context.Context, bd *fle
 
 // updateNamespace updates a namespace resource in the cluster.
 func (d *Deployer) updateNamespace(ctx context.Context, ns *corev1.Namespace) error {
-	err := d.client.Update(ctx, ns)
+	err := d.Client.Update(ctx, ns)
 	if err != nil {
 		return err
 	}
@@ -211,7 +211,7 @@ func (d *Deployer) updateNamespace(ctx context.Context, ns *corev1.Namespace) er
 func (d *Deployer) fetchNamespace(ctx context.Context, releaseID string) (*corev1.Namespace, error) {
 	namespace := strings.Split(releaseID, "/")[0]
 	ns := &corev1.Namespace{}
-	err := d.client.Get(ctx, types.NamespacedName{Name: namespace}, ns)
+	err := d.Client.Get(ctx, types.NamespacedName{Name: namespace}, ns)
 	if err != nil {
 		return nil, err
 	}
