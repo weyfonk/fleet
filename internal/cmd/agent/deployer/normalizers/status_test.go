@@ -1,4 +1,4 @@
-package normalizers
+package normalizers_test
 
 import (
 	"errors"
@@ -7,6 +7,8 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
+
+	"github.com/rancher/fleet/internal/cmd/agent/deployer/normalizers"
 )
 
 func TestStatusNormalizer_Normalize(t *testing.T) {
@@ -41,7 +43,7 @@ func TestStatusNormalizer_Normalize(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			if err := (StatusNormalizer{}).Normalize(&unstructured.Unstructured{Object: un}); err != nil {
+			if err := (normalizers.StatusNormalizer{}).Normalize(&unstructured.Unstructured{Object: un}); err != nil {
 				t.Fatal(err)
 			}
 			if err := runtime.DefaultUnstructuredConverter.FromUnstructured(un, tt.obj); err != nil {
