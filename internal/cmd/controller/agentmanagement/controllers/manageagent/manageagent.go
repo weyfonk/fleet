@@ -36,12 +36,12 @@ const (
 	AgentBundleName = "fleet-agent"
 )
 
-type handler struct {
+type Handler struct {
 	apply           apply.Apply
 	systemNamespace string
 	clusterCache    fleetcontrollers.ClusterCache
 	bundleCache     fleetcontrollers.BundleCache
-	namespaces      corecontrollers.NamespaceController
+	Namespaces      corecontrollers.NamespaceController
 }
 
 func Register(ctx context.Context,
@@ -51,11 +51,11 @@ func Register(ctx context.Context,
 	clusters fleetcontrollers.ClusterController,
 	bundle fleetcontrollers.BundleController,
 ) {
-	h := handler{
+	h := Handler{
 		systemNamespace: systemNamespace,
 		clusterCache:    clusters.Cache(),
 		bundleCache:     bundle.Cache(),
-		namespaces:      namespaces,
+		Namespaces:      namespaces,
 		apply: apply.
 			WithSetID("fleet-manage-agent").
 			WithCacheTypes(bundle),
@@ -69,10 +69,10 @@ func Register(ctx context.Context,
 		clusters,
 		"Reconciled",
 		"agent-env-vars",
-		h.onClusterStatusChange)
+		h.OnClusterStatusChange)
 }
 
-func (h *handler) onClusterStatusChange(cluster *fleet.Cluster, status fleet.ClusterStatus) (fleet.ClusterStatus, error) {
+func (h *Handler) OnClusterStatusChange(cluster *fleet.Cluster, status fleet.ClusterStatus) (fleet.ClusterStatus, error) {
 	logrus.Debugf("Reconciling agent settings for cluster %s/%s", cluster.Namespace, cluster.Name)
 
 	status, vars, err := h.reconcileAgentEnvVars(cluster, status)
@@ -89,13 +89,13 @@ func (h *handler) onClusterStatusChange(cluster *fleet.Cluster, status fleet.Clu
 		// trigger importCluster to re-create the deployment, in case
 		// the agent cannot update itself from the bundle
 		status.AgentConfigChanged = true
-		h.namespaces.Enqueue(cluster.Namespace)
+		h.Namespaces.Enqueue(cluster.Namespace)
 	}
 
 	return status, nil
 }
 
-func hashStatusField(field any) (string, error) {
+func HashStatusField(field any) (string, error) {
 	hasher := sha256.New224()
 	b, err := json.Marshal(field)
 	if err != nil {
@@ -126,7 +126,7 @@ func hashChanged(field any, statusHash string) (bool, string, error) {
 		return false, "", nil
 	}
 
-	hash, err := hashStatusField(field)
+	hash, err := HashStatusField(field)
 	if err != nil {
 		return false, "", err
 	}
@@ -136,7 +136,7 @@ func hashChanged(field any, statusHash string) (bool, string, error) {
 
 // reconcileAgentEnvVars checks if the agent environment variables field was
 // updated by hashing its contents into a status field.
-func (h *handler) reconcileAgentEnvVars(cluster *fleet.Cluster, status fleet.ClusterStatus) (fleet.ClusterStatus, bool, error) {
+func (h *Handler) reconcileAgentEnvVars(cluster *fleet.Cluster, status fleet.ClusterStatus) (fleet.ClusterStatus, bool, error) {
 	enqueue := false
 
 	if len(cluster.Spec.AgentEnvVars) < 1 {
@@ -149,7 +149,7 @@ func (h *handler) reconcileAgentEnvVars(cluster *fleet.Cluster, status fleet.Clu
 		return status, enqueue, nil
 	}
 
-	hash, err := hashStatusField(cluster.Spec.AgentEnvVars)
+	hash, err := HashStatusField(cluster.Spec.AgentEnvVars)
 	if err != nil {
 		return status, enqueue, err
 	}
@@ -163,7 +163,7 @@ func (h *handler) reconcileAgentEnvVars(cluster *fleet.Cluster, status fleet.Clu
 	return status, enqueue, nil
 }
 
-func (h *handler) updateClusterStatus(cluster *fleet.Cluster, status fleet.ClusterStatus) (fleet.ClusterStatus, bool, error) {
+func (h *Handler) updateClusterStatus(cluster *fleet.Cluster, status fleet.ClusterStatus) (fleet.ClusterStatus, bool, error) {
 	changed := false
 
 	if status.AgentPrivateRepoURL != cluster.Spec.PrivateRepoURL {
@@ -200,7 +200,7 @@ func (h *handler) updateClusterStatus(cluster *fleet.Cluster, status fleet.Clust
 	return status, changed, nil
 }
 
-func (h *handler) resolveNS(namespace, _ string, obj runtime.Object) ([]relatedresource.Key, error) {
+func (h *Handler) resolveNS(namespace, _ string, obj runtime.Object) ([]relatedresource.Key, error) {
 	if cluster, ok := obj.(*fleet.Cluster); ok {
 		if _, err := h.bundleCache.Get(namespace, names.SafeConcatName(AgentBundleName, cluster.Name)); err != nil {
 			return []relatedresource.Key{{Name: namespace}}, nil
@@ -210,7 +210,7 @@ func (h *handler) resolveNS(namespace, _ string, obj runtime.Object) ([]relatedr
 }
 
 // OnNamespace updates agent bundles for all clusters in the namespace
-func (h *handler) OnNamespace(key string, namespace *corev1.Namespace) (*corev1.Namespace, error) {
+func (h *Handler) OnNamespace(key string, namespace *corev1.Namespace) (*corev1.Namespace, error) {
 	if namespace == nil {
 		return nil, nil
 	}
@@ -249,7 +249,7 @@ func (h *handler) OnNamespace(key string, namespace *corev1.Namespace) (*corev1.
 		ApplyObjects(objs...)
 }
 
-func (h *handler) newAgentBundle(ns string, cluster *fleet.Cluster) (runtime.Object, error) {
+func (h *Handler) newAgentBundle(ns string, cluster *fleet.Cluster) (runtime.Object, error) {
 	cfg := config.Get()
 	agentNamespace := h.systemNamespace
 	if cluster.Spec.AgentNamespace != "" {

@@ -1,4 +1,4 @@
-package manageagent
+package manageagent_test
 
 import (
 	"testing"
@@ -9,13 +9,14 @@ import (
 	"k8s.io/apimachinery/pkg/api/resource"
 	"k8s.io/utils/ptr"
 
+	"github.com/rancher/fleet/internal/cmd/controller/agentmanagement/controllers/manageagent"
 	fleet "github.com/rancher/fleet/pkg/apis/fleet.cattle.io/v1alpha1"
 )
 
 func TestOnClusterChangeAffinity(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	namespaces := fake.NewMockNonNamespacedControllerInterface[*corev1.Namespace, *corev1.NamespaceList](ctrl)
-	h := &handler{namespaces: namespaces}
+	h := &manageagent.Handler{Namespaces: namespaces}
 
 	// defaultAffinity from the manifest in manifest.go
 	defaultAffinity := &corev1.Affinity{NodeAffinity: &corev1.NodeAffinity{
@@ -27,7 +28,7 @@ func TestOnClusterChangeAffinity(t *testing.T) {
 			}},
 		}},
 	}
-	hash, _ := hashStatusField(defaultAffinity)
+	hash, _ := manageagent.HashStatusField(defaultAffinity)
 
 	customAffinity := &corev1.Affinity{NodeAffinity: &corev1.NodeAffinity{
 		RequiredDuringSchedulingIgnoredDuringExecution: &corev1.NodeSelector{
@@ -38,9 +39,9 @@ func TestOnClusterChangeAffinity(t *testing.T) {
 			}},
 		}},
 	}
-	customHash, _ := hashStatusField(customAffinity)
+	customHash, _ := manageagent.HashStatusField(customAffinity)
 
-	emptyHash, _ := hashStatusField(&corev1.Affinity{})
+	emptyHash, _ := manageagent.HashStatusField(&corev1.Affinity{})
 
 	for _, tt := range []struct {
 		name           string
@@ -95,7 +96,7 @@ func TestOnClusterChangeAffinity(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			namespaces.EXPECT().Enqueue(gomock.Any()).Times(tt.enqueues)
 
-			status, err := h.onClusterStatusChange(tt.cluster, tt.status)
+			status, err := h.OnClusterStatusChange(tt.cluster, tt.status)
 			if err != nil {
 				t.Error(err)
 			}
@@ -110,7 +111,7 @@ func TestOnClusterChangeAffinity(t *testing.T) {
 func TestOnClusterChangeResources(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	namespaces := fake.NewMockNonNamespacedControllerInterface[*corev1.Namespace, *corev1.NamespaceList](ctrl)
-	h := &handler{namespaces: namespaces}
+	h := &manageagent.Handler{Namespaces: namespaces}
 
 	customResources := corev1.ResourceRequirements{
 		Limits: corev1.ResourceList{
@@ -123,7 +124,7 @@ func TestOnClusterChangeResources(t *testing.T) {
 			corev1.ResourceMemory: resource.MustParse("50Mi"),
 		},
 	}
-	customHash, _ := hashStatusField(customResources)
+	customHash, _ := manageagent.HashStatusField(customResources)
 
 	for _, tt := range []struct {
 		name           string
@@ -164,7 +165,7 @@ func TestOnClusterChangeResources(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			namespaces.EXPECT().Enqueue(gomock.Any()).Times(tt.enqueues)
 
-			status, err := h.onClusterStatusChange(tt.cluster, tt.status)
+			status, err := h.OnClusterStatusChange(tt.cluster, tt.status)
 			if err != nil {
 				t.Error(err)
 			}
@@ -179,7 +180,7 @@ func TestOnClusterChangeResources(t *testing.T) {
 func TestOnClusterChangeTolerations(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	namespaces := fake.NewMockNonNamespacedControllerInterface[*corev1.Namespace, *corev1.NamespaceList](ctrl)
-	h := &handler{namespaces: namespaces}
+	h := &manageagent.Handler{Namespaces: namespaces}
 
 	// defaultTolerations from the manifest in manifest.go
 	defaultTolerations := []corev1.Toleration{
@@ -196,7 +197,7 @@ func TestOnClusterChangeTolerations(t *testing.T) {
 			Effect:   corev1.TaintEffectNoSchedule,
 		},
 	}
-	hash, _ := hashStatusField(defaultTolerations)
+	hash, _ := manageagent.HashStatusField(defaultTolerations)
 
 	customTolerations := []corev1.Toleration{
 		{
@@ -206,7 +207,7 @@ func TestOnClusterChangeTolerations(t *testing.T) {
 			Effect:   corev1.TaintEffectNoSchedule,
 		},
 	}
-	customHash, _ := hashStatusField(customTolerations)
+	customHash, _ := manageagent.HashStatusField(customTolerations)
 
 	for _, tt := range []struct {
 		name           string
@@ -261,7 +262,7 @@ func TestOnClusterChangeTolerations(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			namespaces.EXPECT().Enqueue(gomock.Any()).Times(tt.enqueues)
 
-			status, err := h.onClusterStatusChange(tt.cluster, tt.status)
+			status, err := h.OnClusterStatusChange(tt.cluster, tt.status)
 			if err != nil {
 				t.Error(err)
 			}
@@ -276,7 +277,7 @@ func TestOnClusterChangeTolerations(t *testing.T) {
 func TestOnClusterChangeHostNetwork(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	namespaces := fake.NewMockNonNamespacedControllerInterface[*corev1.Namespace, *corev1.NamespaceList](ctrl)
-	h := &handler{namespaces: namespaces}
+	h := &manageagent.Handler{Namespaces: namespaces}
 
 	for _, tt := range []struct {
 		name           string
@@ -317,7 +318,7 @@ func TestOnClusterChangeHostNetwork(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			namespaces.EXPECT().Enqueue(gomock.Any()).Times(tt.enqueues)
 
-			status, err := h.onClusterStatusChange(tt.cluster, tt.status)
+			status, err := h.OnClusterStatusChange(tt.cluster, tt.status)
 			if err != nil {
 				t.Error(err)
 			}
