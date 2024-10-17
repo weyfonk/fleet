@@ -1,4 +1,4 @@
-package ociwrapper
+package ociwrapper_test
 
 import (
 	"bytes"
@@ -23,6 +23,7 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/rancher/fleet/internal/manifest"
 	"github.com/rancher/fleet/internal/mocks"
+	"github.com/rancher/fleet/internal/ociwrapper"
 	orasmemory "oras.land/oras-go/v2/content/memory"
 )
 
@@ -74,7 +75,7 @@ var _ = Describe("OCIUtils tests", func() {
 		orasOperatorMock := NewMockOrasOperator(ctrl, false)
 		orasOperatorMock.Target.EXPECT().Push(gomock.Any(), gomock.Any(), gomock.Any()).Return(fmt.Errorf("TEST ERROR")).Times(1)
 
-		opts := OCIOpts{
+		opts := ociwrapper.OCIOpts{
 			Reference: "test.com",
 		}
 		manifest := &manifest.Manifest{
@@ -87,8 +88,8 @@ var _ = Describe("OCIUtils tests", func() {
 				},
 			},
 		}
-		oci := &OCIWrapper{
-			oci: orasOperatorMock,
+		oci := &ociwrapper.OCIWrapper{
+			Oci: orasOperatorMock,
 		}
 		err := oci.PushManifest(context.Background(), opts, "123", manifest)
 		Expect(err.Error()).To(Equal("TEST ERROR"))
@@ -102,10 +103,10 @@ var _ = Describe("OCIUtils tests", func() {
 			_ oras.PackManifestOptions) (ocispec.Descriptor, error) {
 			return ocispec.Descriptor{}, fmt.Errorf("ERROR PACKING")
 		}
-		oci := &OCIWrapper{
-			oci: orasOperatorMock,
+		oci := &ociwrapper.OCIWrapper{
+			Oci: orasOperatorMock,
 		}
-		opts := OCIOpts{
+		opts := ociwrapper.OCIOpts{
 			Reference: "test.com",
 		}
 		manifest := &manifest.Manifest{
@@ -122,8 +123,8 @@ var _ = Describe("OCIUtils tests", func() {
 		Expect(err.Error()).To(Equal("ERROR PACKING"))
 	})
 	It("returns an error when is unable to connect to the registry", func() {
-		oci := NewOCIWrapper()
-		opts := OCIOpts{
+		oci := ociwrapper.NewOCIWrapper()
+		opts := ociwrapper.OCIOpts{
 			Reference: "127.0.0.0:2334",
 		}
 		manifest := &manifest.Manifest{
@@ -140,21 +141,21 @@ var _ = Describe("OCIUtils tests", func() {
 		Expect(err.Error()).To(ContainSubstring("connection refused"))
 	})
 	It("returns an OCI repository with the expected values when using basic HTTP", func() {
-		opts := OCIOpts{
+		opts := ociwrapper.OCIOpts{
 			Reference: "test.com",
 			BasicHTTP: true,
 		}
-		repo, err := newOCIRepository("1234", opts)
+		repo, err := ociwrapper.NewOCIRepository("1234", opts)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(repo.PlainHTTP).To(Equal(true))
 
 		opts.BasicHTTP = false
-		repo, err = newOCIRepository("1234", opts)
+		repo, err = ociwrapper.NewOCIRepository("1234", opts)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(repo.PlainHTTP).To(Equal(false))
 	})
 	It("return the expected tls client", func() {
-		client := getHTTPClient(true)
+		client := ociwrapper.GetHTTPClient(true)
 		expected := &http.Client{
 			Transport: &http.Transport{
 				TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
@@ -162,19 +163,19 @@ var _ = Describe("OCIUtils tests", func() {
 		}
 		Expect(client).To(Equal(expected))
 
-		client = getHTTPClient(false)
+		client = ociwrapper.GetHTTPClient(false)
 		Expect(client).To(Equal(retry.DefaultClient))
 	})
 	It("return the expected credentials", func() {
-		opts := OCIOpts{
+		opts := ociwrapper.OCIOpts{
 			Reference: "test.com",
 			BasicHTTP: true,
 		}
-		client := getAuthClient(opts)
+		client := ociwrapper.GetAuthClient(opts)
 		Expect(client.Credential).To(BeNil())
 
 		opts.Username = "user"
-		client = getAuthClient(opts)
+		client = ociwrapper.GetAuthClient(opts)
 		Expect(client.Credential).ToNot(BeNil())
 		cred, err := client.Credential(context.Background(), "test")
 		Expect(err).ToNot(HaveOccurred())
@@ -184,7 +185,7 @@ var _ = Describe("OCIUtils tests", func() {
 		}))
 
 		opts.Password = "pass"
-		client = getAuthClient(opts)
+		client = ociwrapper.GetAuthClient(opts)
 		Expect(client.Credential).ToNot(BeNil())
 		cred, err = client.Credential(context.Background(), "test")
 		Expect(err).ToNot(HaveOccurred())
@@ -194,7 +195,7 @@ var _ = Describe("OCIUtils tests", func() {
 		}))
 	})
 	It("returns an error when using an empty OCI registry reference", func() {
-		opts := OCIOpts{
+		opts := ociwrapper.OCIOpts{
 			Reference: "",
 		}
 		manifest := &manifest.Manifest{
@@ -207,7 +208,7 @@ var _ = Describe("OCIUtils tests", func() {
 				},
 			},
 		}
-		oci := NewOCIWrapper()
+		oci := ociwrapper.NewOCIWrapper()
 		err := oci.PushManifest(context.Background(), opts, "123", manifest)
 		Expect(err.Error()).To(Equal("invalid reference: missing registry or repository"))
 	})
@@ -240,7 +241,7 @@ var _ = Describe("OCIUtils tests", func() {
 				Layers: fileDescriptors,
 			}
 
-			manifestDescriptor, err := oras.PackManifest(ctx, target, oras.PackManifestVersion1_1, artifactType, ociOpts)
+			manifestDescriptor, err := oras.PackManifest(ctx, target, oras.PackManifestVersion1_1, ociwrapper.ArtifactType, ociOpts)
 			Expect(err).ToNot(HaveOccurred())
 
 			tag := "latest"
@@ -250,11 +251,11 @@ var _ = Describe("OCIUtils tests", func() {
 			return ocispec.Descriptor{}, nil
 		}
 
-		opts := OCIOpts{
+		opts := ociwrapper.OCIOpts{
 			Reference: "test.com",
 		}
-		oci := &OCIWrapper{
-			oci: orasOperatorMock,
+		oci := &ociwrapper.OCIWrapper{
+			Oci: orasOperatorMock,
 		}
 		_, err := oci.PullManifest(context.Background(), opts, "s-123456")
 		// s-123456 != example_id so PullManifest should return an error
@@ -283,7 +284,7 @@ var _ = Describe("OCIUtils tests", func() {
 			ociOpts := oras.PackManifestOptions{
 				Layers: fileDescriptors,
 			}
-			manifestDescriptor, err := oras.PackManifest(ctx, target, oras.PackManifestVersion1_1, artifactType, ociOpts)
+			manifestDescriptor, err := oras.PackManifest(ctx, target, oras.PackManifestVersion1_1, ociwrapper.ArtifactType, ociOpts)
 			Expect(err).ToNot(HaveOccurred())
 
 			tag := "this_tag_is_not_expected"
@@ -293,11 +294,11 @@ var _ = Describe("OCIUtils tests", func() {
 			return ocispec.Descriptor{}, nil
 		}
 
-		opts := OCIOpts{
+		opts := ociwrapper.OCIOpts{
 			Reference: "test.com",
 		}
-		oci := &OCIWrapper{
-			oci: orasOperatorMock,
+		oci := &ociwrapper.OCIWrapper{
+			Oci: orasOperatorMock,
 		}
 		_, err := oci.PullManifest(context.Background(), opts, "s-123456")
 		Expect(err.Error()).To(Equal("not found"))
@@ -312,7 +313,7 @@ var _ = Describe("OCIUtils tests", func() {
 			ociOpts := oras.PackManifestOptions{
 				Layers: fileDescriptors,
 			}
-			manifestDescriptor, err := oras.PackManifest(ctx, target, oras.PackManifestVersion1_1, artifactType, ociOpts)
+			manifestDescriptor, err := oras.PackManifest(ctx, target, oras.PackManifestVersion1_1, ociwrapper.ArtifactType, ociOpts)
 			Expect(err).ToNot(HaveOccurred())
 
 			tag := "latest"
@@ -322,11 +323,11 @@ var _ = Describe("OCIUtils tests", func() {
 			return ocispec.Descriptor{}, nil
 		}
 
-		opts := OCIOpts{
+		opts := ociwrapper.OCIOpts{
 			Reference: "test.com",
 		}
-		oci := &OCIWrapper{
-			oci: orasOperatorMock,
+		oci := &ociwrapper.OCIWrapper{
+			Oci: orasOperatorMock,
 		}
 		_, err := oci.PullManifest(context.Background(), opts, "s-123456")
 		Expect(err.Error()).To(Equal("expecting 1 Annotation in layer descriptor. Found 0"))
@@ -357,7 +358,7 @@ var _ = Describe("OCIUtils Experimental flag tests", func() {
 			} else {
 				Expect(os.Setenv(experimentalEnv, value)).ToNot(HaveOccurred())
 			}
-			result := ExperimentalOCIIsEnabled()
+			result := ociwrapper.ExperimentalOCIIsEnabled()
 			Expect(result).To(Equal(expected))
 		},
 		Entry("When setting to True", "True", true),

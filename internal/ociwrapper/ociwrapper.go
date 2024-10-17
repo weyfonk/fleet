@@ -26,7 +26,7 @@ import (
 
 const (
 	fileType     = "application/fleet.file"
-	artifactType = "application/fleet.manifest"
+	ArtifactType = "application/fleet.manifest"
 
 	OCISecretUsername  = "username"
 	OCISecretPassword  = "password"
@@ -64,16 +64,16 @@ func (o *OrasOperator) Copy(ctx context.Context, src oras.ReadOnlyTarget, srcRef
 }
 
 type OCIWrapper struct {
-	oci OrasOps
+	Oci OrasOps
 }
 
 func NewOCIWrapper() *OCIWrapper {
 	return &OCIWrapper{
-		oci: &OrasOperator{},
+		Oci: &OrasOperator{},
 	}
 }
 
-func getHTTPClient(insecureSkipTLS bool) *http.Client {
+func GetHTTPClient(insecureSkipTLS bool) *http.Client {
 	if !insecureSkipTLS {
 		return retry.DefaultClient
 	}
@@ -84,9 +84,9 @@ func getHTTPClient(insecureSkipTLS bool) *http.Client {
 	}
 }
 
-func getAuthClient(opts OCIOpts) *auth.Client {
+func GetAuthClient(opts OCIOpts) *auth.Client {
 	client := &auth.Client{
-		Client: getHTTPClient(opts.InsecureSkipTLS),
+		Client: GetHTTPClient(opts.InsecureSkipTLS),
 		Cache:  auth.NewCache(),
 	}
 	if opts.Username != "" {
@@ -101,13 +101,13 @@ func getAuthClient(opts OCIOpts) *auth.Client {
 	return client
 }
 
-func newOCIRepository(id string, opts OCIOpts) (*remote.Repository, error) {
+func NewOCIRepository(id string, opts OCIOpts) (*remote.Repository, error) {
 	repo, err := remote.NewRepository(join(opts.Reference, id))
 	if err != nil {
 		return nil, err
 	}
 	repo.PlainHTTP = opts.BasicHTTP
-	repo.Client = getAuthClient(opts)
+	repo.Client = GetAuthClient(opts)
 	return repo, nil
 }
 
@@ -150,7 +150,7 @@ func checkIDAnnotation(desc ocispec.Descriptor, id string) error {
 }
 
 func (o *OCIWrapper) pushFile(ctx context.Context, opts OCIOpts, reader io.Reader, desc ocispec.Descriptor, id string) error {
-	s := o.oci.NewStore()
+	s := o.Oci.NewStore()
 	err := s.Push(ctx, desc, reader)
 	if err != nil {
 		return err
@@ -161,7 +161,7 @@ func (o *OCIWrapper) pushFile(ctx context.Context, opts OCIOpts, reader io.Reade
 	ociOpts := oras.PackManifestOptions{
 		Layers: fileDescriptors,
 	}
-	manifestDescriptor, err := o.oci.PackManifest(ctx, s, oras.PackManifestVersion1_1, artifactType, ociOpts)
+	manifestDescriptor, err := o.Oci.PackManifest(ctx, s, oras.PackManifestVersion1_1, ArtifactType, ociOpts)
 	if err != nil {
 		return err
 	}
@@ -170,25 +170,25 @@ func (o *OCIWrapper) pushFile(ctx context.Context, opts OCIOpts, reader io.Reade
 	if err != nil {
 		return err
 	}
-	repo, err := newOCIRepository(id, opts)
+	repo, err := NewOCIRepository(id, opts)
 	if err != nil {
 		return err
 	}
 
-	_, err = o.oci.Copy(ctx, s, tag, repo, tag, oras.DefaultCopyOptions)
+	_, err = o.Oci.Copy(ctx, s, tag, repo, tag, oras.DefaultCopyOptions)
 	return err
 }
 
 func (o *OCIWrapper) pullFile(ctx context.Context, opts OCIOpts, id string) ([]byte, error) {
-	s := o.oci.NewStore()
+	s := o.Oci.NewStore()
 
 	// copy from remote OCI registry to local memory store
-	repo, err := newOCIRepository(id, opts)
+	repo, err := NewOCIRepository(id, opts)
 	if err != nil {
 		return nil, err
 	}
 	tag := "latest"
-	_, err = o.oci.Copy(ctx, repo, tag, s, tag, oras.DefaultCopyOptions)
+	_, err = o.Oci.Copy(ctx, repo, tag, s, tag, oras.DefaultCopyOptions)
 	if err != nil {
 		return nil, err
 	}
