@@ -1,9 +1,11 @@
-package v1alpha1
+package v1alpha1_test
 
 import (
 	"testing"
 
 	"k8s.io/apimachinery/pkg/api/equality"
+
+	"github.com/rancher/fleet/pkg/apis/fleet.cattle.io/v1alpha1"
 )
 
 func Test_deepCopyMap(t *testing.T) {
@@ -73,7 +75,7 @@ func Test_deepCopyMap(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			res := map[string]interface{}{}
-			deepCopyMap(tt.src, res)
+			v1alpha1.DeepCopyMap(tt.src, res)
 
 			if got, want := res, tt.src; !equality.Semantic.DeepEqual(got, want) {
 				t.Errorf("the produced copy is not identical, got: %s, want: %s", got, want)
