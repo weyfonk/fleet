@@ -1,7 +1,9 @@
-package names
+package names_test
 
 import (
 	"testing"
+
+	"github.com/rancher/fleet/internal/names"
 )
 
 const (
@@ -56,7 +58,7 @@ func TestSafeConcatName(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			if got := SafeConcatName(tt.input...); got != tt.output {
+			if got := names.SafeConcatName(tt.input...); got != tt.output {
 				t.Errorf("SafeConcatName() = %v, want %v", got, tt.output)
 			}
 		})
