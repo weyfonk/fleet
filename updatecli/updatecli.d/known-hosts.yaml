@@ -29,13 +29,11 @@ targets:
           files:
             - charts/fleet/templates/configmap_known_hosts.yaml
       command: |
-        providers=(
-            'bitbucket.org'
-            'github.com'
-            'gitlab.com'
-            'ssh.dev.azure.com'
-            'vs-ssh.visualstudio.com'
-        )
+        providers[0]='bitbucket.org'
+        providers[1]='github.com'
+        providers[2]='gitlab.com'
+        providers[3]='ssh.dev.azure.com'
+        providers[4]='vs-ssh.visualstudio.com'
 
         dst=charts/fleet/templates/configmap_known_hosts.yaml
         echo "apiVersion: v1" > "$dst"
