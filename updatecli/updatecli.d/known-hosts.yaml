@@ -29,12 +29,13 @@ targets:
           files:
             - charts/fleet/templates/configmap_known_hosts.yaml
       command: |
+        #!/bin/bash
         providers=(
-            'bitbucket.org'
-            'github.com'
-            'gitlab.com'
-            'ssh.dev.azure.com'
-            'vs-ssh.visualstudio.com'
+            "bitbucket.org"
+            "github.com"
+            "gitlab.com"
+            "ssh.dev.azure.com"
+            "vs-ssh.visualstudio.com"
         )
 
         dst=charts/fleet/templates/configmap_known_hosts.yaml
