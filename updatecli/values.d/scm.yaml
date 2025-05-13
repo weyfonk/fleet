@@ -3,6 +3,6 @@ scm:
   default:
     user: 'fleet-bot'
     email: 'fleet@suse.de'
-    owner: rancher
+    owner: weyfonk
     repository: fleet
-    branch: main
+    branch: test-known-hosts-monitoring
