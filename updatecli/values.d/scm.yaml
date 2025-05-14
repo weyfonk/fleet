@@ -3,27 +3,27 @@ scms:
     enabled: true
     user: 'fleet-bot'
     email: 'fleet@suse.de'
-    owner: rancher
+    owner: weyfonk
     repository: fleet
     branch: main
   v12:
     enabled: true
     user: 'fleet-bot'
     email: 'fleet@suse.de'
-    owner: rancher
+    owner: weyfonk
     repository: fleet
-    branch: 'release/v0.12'
+    branch: 'release-v0.12-with-known-hosts-update-script'
   v11:
     enabled: true
     user: 'fleet-bot'
     email: 'fleet@suse.de'
-    owner: rancher
+    owner: weyfonk
     repository: fleet
-    branch: 'release/v0.11'
+    branch: 'release-v0.11-with-known-hosts-update-script'
   v10:
     enabled: true
     user: 'fleet-bot'
     email: 'fleet@suse.de'
-    owner: rancher
+    owner: weyfonk
     repository: fleet
-    branch: 'release/v0.10'
+    branch: 'release-v0.10-with-known-hosts-update-script'
