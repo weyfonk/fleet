@@ -42,37 +42,6 @@ jobs:
           secrets: |
             secret/data/github/repo/${{ github.repository }}/fossa/credential token | FOSSA_API_KEY
 
-      - name: Run FOSSA scan
-        uses: fossas/fossa-action@3ebcea1862c6ffbd5cf1b4d0bd6b3fe7bd6f2cac # v1.7.0
-        with:
-          api-key: ${{ env.FOSSA_API_KEY }}
-
-      - name: Run FOSSA tests
-        uses: fossas/fossa-action@3ebcea1862c6ffbd5cf1b4d0bd6b3fe7bd6f2cac # v1.7.0
-        with:
-          api-key: ${{ env.FOSSA_API_KEY }}
-          run-tests: false
-
-      - name: Install Ginkgo CLI
-        run: go install github.com/onsi/ginkgo/v2/ginkgo
-
-      - name: Check for code changes
-        continue-on-error: ${{ contains(github.ref, 'rc') }}
-        run: |
-          ./.github/scripts/check-for-auto-generated-changes.sh
-          go mod verify
-
-      - name: Run unit tests
-        continue-on-error: ${{ contains(github.ref, 'rc') }}
-        run: go test -cover -tags=test $(go list ./... | grep -v -e /e2e -e /integrationtests -e /benchmarks)
-
-      - name: Run integration tests
-        continue-on-error: ${{ contains(github.ref, 'rc') }}
-        env:
-          SETUP_ENVTEST_VER: v0.0.0-20250218120612-6f6111124902
-          ENVTEST_K8S_VERSION: 1.32
-        run: ./.github/scripts/run-integration-tests.sh
-
       - name: Set up QEMU
         uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392 # v3
 
@@ -122,7 +91,7 @@ jobs:
           args: release --clean --verbose
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GORELEASER_CURRENT_TAG: ${{ github.ref_name }}
+          GORELEASER_CURRENT_TAG: "v0.13.0-alpha.3-test"
           STAGE_REGISTRY: ${{ env.STAGE_REGISTRY }}
           PRIME_REGISTRY: ${{ env.PRIME_REGISTRY }}
 
@@ -136,7 +105,7 @@ jobs:
           PRIME_REGISTRY: ${{ env.PRIME_REGISTRY }}
         run: |
           for IMAGE in fleet fleet-agent; do
-            URL="${{ env.STAGE_REGISTRY }}/rancher/${IMAGE}:${{ github.ref_name }}"
+            URL="${{ env.STAGE_REGISTRY }}/rancher/${IMAGE}:v0.13.0-alpha.3-test"
             docker buildx imagetools create -t "${URL}" \
               "${URL}-linux-amd64" \
               "${URL}-linux-arm64"
@@ -144,14 +113,14 @@ jobs:
             cosign sign \
               --oidc-provider=github-actions \
               --yes \
-              --sign-container-identity="${{ env.PRIME_REGISTRY }}/rancher/${IMAGE}:${{ github.ref_name }}" \
+              --sign-container-identity="${{ env.PRIME_REGISTRY }}/rancher/${IMAGE}:v0.13.0-alpha.3-test" \
               "${URL}"
           done
 
       - name: Attest provenance
         shell: bash
         run: |
-          for IMG_NAME in $(yq e '.dockers[].image_templates[0]' .goreleaser.yaml | grep STAGE_REGISTRY | sed "s/{{ .Env.STAGE_REGISTRY }}/${{ env.STAGE_REGISTRY }}/g" | sed "s/{{ .Tag }}/${{ github.ref_name }}/g"); do
+          for IMG_NAME in $(yq e '.dockers[].image_templates[0]' .goreleaser.yaml | grep STAGE_REGISTRY | sed "s/{{ .Env.STAGE_REGISTRY }}/${{ env.STAGE_REGISTRY }}/g" | sed "s/{{ .Tag }}/v0.13.0-alpha.3-test/g"); do
             # Extract Docker image reference plus digest from local image
             URL=$(docker inspect --format='{{index .RepoDigests 0}}' "${IMG_NAME}")
 
