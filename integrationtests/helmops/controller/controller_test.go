@@ -171,6 +171,7 @@ func getRandomHelmOpWithTargets(name string, t []fleet.BundleTarget) fleet.HelmO
 			},
 			HelmSecretName:        randString(),
 			InsecureSkipTLSverify: randBool(),
+			PollingInterval:       &metav1.Duration{Duration: 1 * time.Second},
 		},
 	}
 
@@ -488,6 +489,8 @@ var _ = Describe("HelmOps controller", func() {
 		})
 
 		Context("fetching a chart version", func() {
+			var svr *httptest.Server
+
 			BeforeEach(func() {
 				targets = []fleet.BundleTarget{}
 				helmop = getRandomHelmOpWithTargets("test-no-version", targets)
@@ -495,7 +498,7 @@ var _ = Describe("HelmOps controller", func() {
 				// reset secret, no auth is required
 				helmop.Spec.HelmSecretName = ""
 
-				svr := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				svr = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 					w.WriteHeader(http.StatusOK)
 					fmt.Fprint(w, helmRepoIndex)
 				}))
@@ -676,6 +679,56 @@ var _ = Describe("HelmOps controller", func() {
 							"improper constraint: foo",
 						)
 
+					}).Should(Succeed())
+				})
+			})
+
+			When("polling for a new version fails", func() {
+				BeforeEach(func() {
+					helmop.Spec.Helm.Version = "0.x.x"
+				})
+
+				FIt("returns and sets an error including the reason for the polling failure", func() {
+					By("first creating a bundle with the latest available version at the time", bundleCreatedWithLatestVersion)
+					/* // this may be useful if migrating the polling e2e test to integration
+										By("having a newer chart release available")
+										svr.Close()
+
+										newEntry := `- created: 2016-11-06T16:23:20.499814565-06:00
+					      description: Deploy a basic Alpine Linux pod
+
+					      digest: 0bf6620d6f58a0c7e5c4663bd2ec7b0ac184486d4b921f422b9dcb8a7c8b559c
+					      home: https://helm.sh/helm
+					      name: alpine
+					      sources:
+					      - https://github.com/helm/helm
+					      urls:
+					      - https://technosophos.github.io/tscharts/alpine-0.3.0.tgz
+					      version: 0.3.0`
+
+										newRepoIndex := strings.Replace(helmRepoIndex, "# <placeholder>", newEntry, 1)
+										svr = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+											w.WriteHeader(http.StatusOK)
+											fmt.Fprint(w, newRepoIndex)
+										}))
+					*/
+
+					By("not being able to reach the Helm repository anymore")
+					svr.Close()
+
+					Eventually(func(g Gomega) {
+						fh := &fleet.HelmOp{}
+						ns := types.NamespacedName{Name: helmop.Name, Namespace: helmop.Namespace}
+						err := k8sClient.Get(ctx, ns, fh)
+						g.Expect(err).ToNot(HaveOccurred())
+						// check that the condition has the error
+						checkConditionContains(
+							g,
+							fh,
+							fleet.HelmOpPolledCondition,
+							v1.ConditionFalse,
+							"could not get a chart version",
+						)
 					}).Should(Succeed())
 				})
 			})

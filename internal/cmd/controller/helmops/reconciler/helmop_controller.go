@@ -84,6 +84,10 @@ func (r *HelmOpReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 	logger := log.FromContext(ctx).WithName("HelmOp")
 	helmop := &fleet.HelmOp{}
 
+	// TODO add polling condition to HelmOp
+
+	// TODO record event when new Helm chart version is found?
+
 	if err := r.Get(ctx, req.NamespacedName, helmop); err != nil && !k8serrors.IsNotFound(err) {
 		return ctrl.Result{}, err
 	} else if k8serrors.IsNotFound(err) {
@@ -100,7 +104,6 @@ func (r *HelmOpReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 	}
 
 	if !helmop.GetDeletionTimestamp().IsZero() {
-
 		metrics.HelmCollector.Delete(helmop.Name, helmop.Namespace)
 
 		if err := purgeBundlesFn(); err != nil {
@@ -112,7 +115,12 @@ func (r *HelmOpReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 			}
 		}
 
-		return ctrl.Result{}, nil
+		err := r.Scheduler.DeleteJob(jobKey(*helmop))
+		if errors.Is(err, quartz.ErrJobNotFound) { // ignore error in this case
+			err = nil
+		}
+
+		return ctrl.Result{}, err
 	}
 
 	if !controllerutil.ContainsFinalizer(helmop, finalize.HelmOpFinalizer) {
@@ -121,10 +129,6 @@ func (r *HelmOpReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 		}
 
 		return ctrl.Result{Requeue: true}, nil
-	}
-
-	if err := r.managePollingJob(logger, *helmop); err != nil {
-		return ctrl.Result{}, updateErrorStatusHelm(ctx, r.Client, req.NamespacedName, helmop.Status, err)
 	}
 
 	// Reconciling
@@ -139,6 +143,11 @@ func (r *HelmOpReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 
 	bundle, err := r.createUpdateBundle(ctx, helmop)
 	if err != nil {
+		return ctrl.Result{}, updateErrorStatusHelm(ctx, r.Client, req.NamespacedName, helmop.Status, err)
+	}
+
+	// Running this logic after creating/updating the bundle to avoid scheduling a job if the bundle has not been created.
+	if err := r.managePollingJob(logger, *helmop); err != nil {
 		return ctrl.Result{}, updateErrorStatusHelm(ctx, r.Client, req.NamespacedName, helmop.Status, err)
 	}
 
@@ -313,6 +322,12 @@ func (r *HelmOpReconciler) handleVersion(ctx context.Context, oldBundle *fleet.B
 		return nil
 	}
 
+	// Prevent version computation from interfering with polling but, if polling applies, set the version when first
+	// creating the bundle, to avoid having to wait a full polling interval.
+	if oldBundle.Spec.Helm != nil && usesPolling(*helmop) {
+		return nil
+	}
+
 	if !helmChartSpecChanged(oldBundle.Spec.Helm, bundle.Spec.Helm, helmop.Status.Version) {
 		bundle.Spec.Helm.Version = helmop.Status.Version
 
@@ -346,12 +361,13 @@ func (r *HelmOpReconciler) managePollingJob(logger logr.Logger, helmop fleet.Hel
 		return nil
 	}
 
-	jobKey := quartz.NewJobKey(string(helmop.UID))
+	jobKey := jobKey(helmop)
 	existingJob, err := r.Scheduler.GetScheduledJob(jobKey)
 
-	if shouldSetUpPolling(helmop) {
+	if usesPolling(helmop) {
 		currentTrigger := quartz.NewSimpleTrigger(helmop.Spec.PollingInterval.Duration)
 		if errors.Is(err, quartz.ErrJobNotFound) {
+			logger.V(1).Info("Scheduling new polling job")
 			err = r.Scheduler.ScheduleJob(
 				quartz.NewJobDetail(
 					newHelmPollingJob(r.Client, helmop.Namespace, helmop.Name),
@@ -363,8 +379,10 @@ func (r *HelmOpReconciler) managePollingJob(logger logr.Logger, helmop fleet.Hel
 			if err != nil {
 				return fmt.Errorf("failed to schedule polling job: %w", err)
 			}
+			logger.V(1).Info("Scheduled new polling job")
 		} else if existingJob.Trigger().Description() != currentTrigger.Description() {
 			// The polling interval has changed; replace the existing job if any.
+			logger.V(1).Info("Scheduling new polling job replacing the existing one")
 			err = r.Scheduler.ScheduleJob(
 				quartz.NewJobDetailWithOptions(
 					newHelmPollingJob(r.Client, helmop.Namespace, helmop.Name),
@@ -390,8 +408,8 @@ func (r *HelmOpReconciler) managePollingJob(logger logr.Logger, helmop fleet.Hel
 	return nil
 }
 
-// shouldSetUpPolling returns a boolean indicating whether polling makes sense for the provided helmop.
-func shouldSetUpPolling(helmop fleet.HelmOp) bool {
+// usesPolling returns a boolean indicating whether polling makes sense for the provided helmop.
+func usesPolling(helmop fleet.HelmOp) bool {
 	if helmop.Spec.PollingInterval == nil || helmop.Spec.PollingInterval.Duration == 0 {
 		return false
 	}
@@ -489,3 +507,9 @@ func experimentalHelmOpsEnabled() bool {
 	value, err := strconv.ParseBool(os.Getenv("EXPERIMENTAL_HELM_OPS"))
 	return err == nil && value
 }
+
+func jobKey(h fleet.HelmOp) *quartz.JobKey {
+	return quartz.NewJobKey(string(h.UID))
+}
+
+// TODO reorder methods vs functions
