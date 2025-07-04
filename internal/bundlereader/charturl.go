@@ -1,6 +1,7 @@
 package bundlereader
 
 import (
+	"context"
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
@@ -9,16 +10,28 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/Masterminds/semver/v3"
 	fleet "github.com/rancher/fleet/pkg/apis/fleet.cattle.io/v1alpha1"
 	"helm.sh/helm/v3/pkg/repo"
 	"sigs.k8s.io/yaml"
+
+	"oras.land/oras-go/v2/registry"
+	"oras.land/oras-go/v2/registry/remote"
+	"oras.land/oras-go/v2/registry/remote/auth"
+	"oras.land/oras-go/v2/registry/remote/retry"
 )
 
 // ChartVersion returns the version of the helm chart from a helm repo server, by
 // inspecting the repo's index.yaml
 func ChartVersion(location fleet.HelmOptions, auth Auth) (string, error) {
 	if hasOCIURL.MatchString(location.Repo) {
-		return location.Version, nil
+		tag, err := getOCITag(location, auth)
+
+		if err != nil {
+			return "", fmt.Errorf("could not find tag matching constraint %q in registry %s", location.Version, location.Repo)
+		}
+
+		return tag, nil
 	}
 
 	if location.Repo == "" {
@@ -150,4 +163,76 @@ func getHelmChartVersion(location fleet.HelmOptions, auth Auth) (*repo.ChartVers
 	}
 
 	return chart, nil
+}
+
+func getOCITag(location fleet.HelmOptions, a Auth) (string, error) {
+	// TODO handle auth
+	r, err := remote.NewRepository(location.Repo)
+	if err != nil {
+		return "", fmt.Errorf("failed to create OCI client: %w", err)
+	}
+
+	var hc *http.Client
+	if !a.InsecureSkipVerify {
+		hc = retry.DefaultClient
+	} else {
+		hc = &http.Client{
+			Transport: &http.Transport{
+				TLSClientConfig: &tls.Config{InsecureSkipVerify: true}, // #nosec G402
+			},
+		}
+	}
+
+	client := &auth.Client{
+		Client: hc,
+		Cache:  auth.NewCache(),
+	}
+	if a.Username != "" {
+		cred := auth.Credential{
+			Username: a.Username,
+			Password: a.Password,
+		}
+		client.Credential = func(ctx context.Context, s string) (auth.Credential, error) {
+			return cred, nil
+		}
+	}
+
+	r.Client = client
+
+	availableTags, err := registry.Tags(context.TODO(), r)
+	if err != nil {
+		panic(err)
+	}
+
+	// TODO sort tags: https://github.com/Masterminds/semver?tab=readme-ov-file#sorting-semantic-versions
+
+	constraint, err := semver.NewConstraint(location.Version)
+	if err != nil {
+		return "", fmt.Errorf("failed to compute version constraint from version %q", location.Version)
+	}
+
+	var tagToResolve string
+
+	for _, tag := range availableTags {
+		// check for exact match before trying something more involved.
+		if len(location.Version) > 0 && location.Version == tag {
+			tagToResolve = tag
+		}
+
+		test, err := semver.NewVersion(tag)
+		if err != nil {
+			continue
+		}
+
+		if constraint.Check(test) {
+			tagToResolve = tag
+		}
+	}
+
+	_, err = r.Resolve(context.TODO(), tagToResolve)
+	if err != nil {
+		return "", fmt.Errorf("failed to resolve tag %q", tagToResolve)
+	}
+
+	return tagToResolve, nil
 }
