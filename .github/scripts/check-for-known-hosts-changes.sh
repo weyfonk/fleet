@@ -17,4 +17,5 @@ if [ $? -eq 1 ]; then # The PR contains changes to the config map
     if [ $? -eq 1 ]; then
         echo "Locally-computed changes for the known-hosts config map do not match initial changes."
         exit 1
+    fi
 fi
