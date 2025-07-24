@@ -1,5 +1,5 @@
 #!/bin/sh
-set -ue
+set -u
 
 if [ $# -eq 0 ]; then
     echo "Usage: $0 <base_branch>"
