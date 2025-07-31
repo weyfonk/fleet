@@ -3,7 +3,7 @@ scms:
     enabled: true
     user: 'fleet-bot'
     email: 'fleet@suse.de'
-    owner: rancher
+    owner: weyfonk
     repository: fleet
     branch: main
   v12:
