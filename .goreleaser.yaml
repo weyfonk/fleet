@@ -220,7 +220,6 @@ docker_signs:
       - "--yes"
       - "--sign-container-identity={{ .Env.PRIME_REGISTRY }}/rancher/fleet"
       - "${artifact}@${digest}"
-    artifacts: all
     ids:
       - fleet-private
 
@@ -232,6 +231,5 @@ docker_signs:
       - "--yes"
       - "--sign-container-identity={{ .Env.PRIME_REGISTRY }}/rancher/fleet-agent"
       - "${artifact}@${digest}"
-    artifacts: all
     ids:
       - fleet-agent-private
