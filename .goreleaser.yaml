@@ -218,7 +218,7 @@ docker_signs:
       - "sign"
       - "--oidc-provider=github-actions"
       - "--yes"
-      - "--sign-container-identity={{ .Env.PRIME_REGISTRY }}/rancher/fleet"
+      - "--sign-container-identity={{ .Env.PRIME_REGISTRY }}/rancher/fleet:{{ .Tag }}"
       - "${artifact}@${digest}"
     ids:
       - fleet-private
@@ -229,7 +229,7 @@ docker_signs:
       - "sign"
       - "--oidc-provider=github-actions"
       - "--yes"
-      - "--sign-container-identity={{ .Env.PRIME_REGISTRY }}/rancher/fleet-agent"
+      - "--sign-container-identity={{ .Env.PRIME_REGISTRY }}/rancher/fleet-agent:{{ .Tag }}"
       - "${artifact}@${digest}"
     ids:
       - fleet-agent-private

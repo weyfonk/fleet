@@ -249,6 +249,34 @@ jobs:
 
           echo "✓ Platform tags created for all images"
 
+      - name: Sign staging images
+        shell: bash
+        env:
+          PRIME_REGISTRY: ${{ env.PRIME_REGISTRY }}
+        run: |
+          set -euo pipefail
+
+          staging_images='${{ steps.digests.outputs.staging_images }}'
+          if [[ -z "$staging_images" ]]; then
+            echo "No staging images to sign"
+            exit 0
+          fi
+
+          while read -r digest image_ref; do
+            image_and_tag=$(basename "${image_ref}")
+
+            echo "Signing: ${image_ref}@${digest}"
+            cosign sign \
+              --oidc-provider=github-actions \
+              --yes \
+              --sign-container-identity="${PRIME_REGISTRY}/rancher/${image_and_tag}" \
+              "${image_ref}@${digest}"
+            echo "  ✓ Signed"
+          done <<< "$staging_images"
+
+          echo ""
+          echo "✓ All staging images signed"
+
       - name: Attest provenance
         shell: bash
         run: |
