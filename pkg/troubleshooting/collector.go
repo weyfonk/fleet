@@ -633,7 +633,7 @@ func (col *Collector) checkAPIConsistency(ctx context.Context, c client.Client) 
 		}
 		versions[i] = namespace.ResourceVersion
 
-		if i > 0 && versions[i] != versions[i-1] { //nolint:gosec // G602 false positive: versions is sized to APIConsistencyRetries, loop bounds guarantee valid indices
+		if i > 0 && versions[i] != versions[i-1] {
 			consistent = false
 		}
 	}
