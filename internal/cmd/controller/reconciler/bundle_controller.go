@@ -27,13 +27,19 @@ import (
 	fleet "github.com/rancher/fleet/pkg/apis/fleet.cattle.io/v1alpha1"
 	fleetevent "github.com/rancher/fleet/pkg/event"
 	"github.com/rancher/fleet/pkg/sharding"
+	"github.com/sirupsen/logrus"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
 	errutil "k8s.io/apimachinery/pkg/util/errors"
 	"k8s.io/apimachinery/pkg/util/sets"
+	"k8s.io/client-go/dynamic"
+	"k8s.io/client-go/metadata"
+	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/record"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
@@ -81,6 +87,68 @@ type BundleReconciler struct {
 
 // SetupWithManager sets up the controller with the Manager.
 func (r *BundleReconciler) SetupWithManager(mgr ctrl.Manager) error {
+	// TEST
+	cfg, err := rest.InClusterConfig()
+	if err != nil {
+		return fmt.Errorf("failed to create in-cluster config: %w", err)
+	}
+
+	dynamicClient, err := dynamic.NewForConfig(cfg)
+	if err != nil {
+		return fmt.Errorf("failed to create in-cluster dynamic client: %w", err)
+	}
+
+	gvr := schema.GroupVersionResource{Group: "management.cattle.io", Version: "v3", Resource: "projects"}
+
+	list, err := dynamicClient.Resource(gvr).Namespace("local").List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		return fmt.Errorf("failed to list projects: %w", err)
+	}
+
+	for _, p := range list.Items {
+		name, found, err := unstructured.NestedString(p.Object, "metadata", "name")
+		if err != nil || !found {
+			logrus.Error("Could not find name for Project", err)
+			continue
+		}
+		logrus.Info("Found project ", "name", name)
+	}
+
+	cli, err := metadata.NewForConfig(cfg)
+	if err != nil {
+		return fmt.Errorf("failed to create in-cluster client for PartialObjectMetadata: %w", err)
+	}
+
+	gvr = schema.GroupVersionResource{
+		Version:  "v1",
+		Resource: "namespaces",
+	}
+	nsList, err := cli.Resource(gvr).List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		return fmt.Errorf("failed to list namespaces as PartialObjectMetadata: %w", err)
+	}
+
+	projAnnVal := "local:p-lqrmj"
+
+	namespaces := []string{}
+	for _, pom := range nsList.Items {
+		ann, ok := pom.Annotations["field.cattle.io/projectId"]
+		if !ok {
+			continue
+		}
+
+		if ann == projAnnVal {
+			namespaces = append(namespaces, pom.GetName())
+		}
+	}
+
+	logrus.Info(
+		"Found namespaces for project: ",
+		"project ", strings.Split(projAnnVal, ":")[1],
+		"namespaces ", fmt.Sprintf("%v", namespaces),
+	)
+	// END TEST
+
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&fleet.Bundle{},
 			builder.WithPredicates(
