@@ -2,6 +2,8 @@ package target
 
 import (
 	"context"
+	"strings"
+	"sync"
 
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
@@ -113,6 +115,7 @@ func (m *Manager) clusterGroupsForCluster(ctx context.Context, cluster *fleet.Cl
 				continue
 			}
 			m.selectorCache.Store(cacheKey, sel)
+			purgeObsoleteEntries(&m.selectorCache, cacheKey)
 		}
 		if sel.Matches(labels.Set(cluster.Labels)) {
 			cgCopy := cg
@@ -156,4 +159,27 @@ func ClusterGroupsToLabelMap(cgs []*fleet.ClusterGroup) map[string]map[string]st
 		result[cg.Name] = cg.Labels
 	}
 	return result
+}
+
+func purgeObsoleteEntries(cache *sync.Map, key string) {
+	if cache == nil {
+		return
+	}
+
+	keyPrefix, _, _ := strings.Cut(key, "@")
+
+	cache.Range(func(k, _ any) bool {
+		kstr, ok := k.(string)
+		if !ok {
+			return true
+		}
+
+		// Do not delete current key
+		if strings.HasPrefix(kstr, keyPrefix) && kstr != key {
+			cache.Delete(k)
+			return false
+		}
+
+		return true
+	})
 }
