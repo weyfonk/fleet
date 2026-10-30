@@ -23,6 +23,14 @@
     },
     {
       "matchBaseBranches": [
+        "release/v0.42"
+      ],
+      "extends": [
+        "github>rancher/renovate-config//rancher-2.41#main"
+      ]
+    },
+    {
+      "matchBaseBranches": [
         "release/v0.16"
       ],
       "extends": [
