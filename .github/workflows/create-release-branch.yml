@@ -32,7 +32,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          set -x
           latest=$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -n 1)
+
+          echo "latest tag found: $latest"
 
           if [ -z "$latest" ]; then
             echo "Could not extract latest version from repo; aborting."
