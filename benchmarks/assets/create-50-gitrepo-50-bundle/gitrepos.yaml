@@ -7,7 +7,7 @@ metadata:
     fleet.cattle.io/group: bm-50-gitrepo-50-bundle
 spec:
   repo: https://github.com/rancher/fleet-test-data
-  branch: master
+  branch: release/v0.17
   paths:
   - benchmarks/create-50-gitrepo-50-bundle
   targetNamespace: bm-50-gitrepo-50-bundle-part-1
@@ -24,7 +24,7 @@ metadata:
     fleet.cattle.io/group: bm-50-gitrepo-50-bundle
 spec:
   repo: https://github.com/rancher/fleet-test-data
-  branch: master
+  branch: release/v0.17
   paths:
   - benchmarks/create-50-gitrepo-50-bundle
   targetNamespace: bm-50-gitrepo-50-bundle-part-2
@@ -41,7 +41,7 @@ metadata:
     fleet.cattle.io/group: bm-50-gitrepo-50-bundle
 spec:
   repo: https://github.com/rancher/fleet-test-data
-  branch: master
+  branch: release/v0.17
   paths:
   - benchmarks/create-50-gitrepo-50-bundle
   targetNamespace: bm-50-gitrepo-50-bundle-part-3
@@ -58,7 +58,7 @@ metadata:
     fleet.cattle.io/group: bm-50-gitrepo-50-bundle
 spec:
   repo: https://github.com/rancher/fleet-test-data
-  branch: master
+  branch: release/v0.17
   paths:
   - benchmarks/create-50-gitrepo-50-bundle
   targetNamespace: bm-50-gitrepo-50-bundle-part-4
@@ -75,7 +75,7 @@ metadata:
     fleet.cattle.io/group: bm-50-gitrepo-50-bundle
 spec:
   repo: https://github.com/rancher/fleet-test-data
-  branch: master
+  branch: release/v0.17
   paths:
   - benchmarks/create-50-gitrepo-50-bundle
   targetNamespace: bm-50-gitrepo-50-bundle-part-5
@@ -92,7 +92,7 @@ metadata:
     fleet.cattle.io/group: bm-50-gitrepo-50-bundle
 spec:
   repo: https://github.com/rancher/fleet-test-data
-  branch: master
+  branch: release/v0.17
   paths:
   - benchmarks/create-50-gitrepo-50-bundle
   targetNamespace: bm-50-gitrepo-50-bundle-part-6
@@ -109,7 +109,7 @@ metadata:
     fleet.cattle.io/group: bm-50-gitrepo-50-bundle
 spec:
   repo: https://github.com/rancher/fleet-test-data
-  branch: master
+  branch: release/v0.17
   paths:
   - benchmarks/create-50-gitrepo-50-bundle
   targetNamespace: bm-50-gitrepo-50-bundle-part-7
@@ -126,7 +126,7 @@ metadata:
     fleet.cattle.io/group: bm-50-gitrepo-50-bundle
 spec:
   repo: https://github.com/rancher/fleet-test-data
-  branch: master
+  branch: release/v0.17
   paths:
   - benchmarks/create-50-gitrepo-50-bundle
   targetNamespace: bm-50-gitrepo-50-bundle-part-8
@@ -143,7 +143,7 @@ metadata:
     fleet.cattle.io/group: bm-50-gitrepo-50-bundle
 spec:
   repo: https://github.com/rancher/fleet-test-data
-  branch: master
+  branch: release/v0.17
   paths:
   - benchmarks/create-50-gitrepo-50-bundle
   targetNamespace: bm-50-gitrepo-50-bundle-part-9
@@ -160,7 +160,7 @@ metadata:
     fleet.cattle.io/group: bm-50-gitrepo-50-bundle
 spec:
   repo: https://github.com/rancher/fleet-test-data
-  branch: master
+  branch: release/v0.17
   paths:
   - benchmarks/create-50-gitrepo-50-bundle
   targetNamespace: bm-50-gitrepo-50-bundle-part-10
@@ -177,7 +177,7 @@ metadata:
     fleet.cattle.io/group: bm-50-gitrepo-50-bundle
 spec:
   repo: https://github.com/rancher/fleet-test-data
-  branch: master
+  branch: release/v0.17
   paths:
   - benchmarks/create-50-gitrepo-50-bundle
   targetNamespace: bm-50-gitrepo-50-bundle-part-11
@@ -194,7 +194,7 @@ metadata:
     fleet.cattle.io/group: bm-50-gitrepo-50-bundle
 spec:
   repo: https://github.com/rancher/fleet-test-data
-  branch: master
+  branch: release/v0.17
   paths:
   - benchmarks/create-50-gitrepo-50-bundle
   targetNamespace: bm-50-gitrepo-50-bundle-part-12
@@ -211,7 +211,7 @@ metadata:
     fleet.cattle.io/group: bm-50-gitrepo-50-bundle
 spec:
   repo: https://github.com/rancher/fleet-test-data
-  branch: master
+  branch: release/v0.17
   paths:
   - benchmarks/create-50-gitrepo-50-bundle
   targetNamespace: bm-50-gitrepo-50-bundle-part-13
@@ -228,7 +228,7 @@ metadata:
     fleet.cattle.io/group: bm-50-gitrepo-50-bundle
 spec:
   repo: https://github.com/rancher/fleet-test-data
-  branch: master
+  branch: release/v0.17
   paths:
   - benchmarks/create-50-gitrepo-50-bundle
   targetNamespace: bm-50-gitrepo-50-bundle-part-14
@@ -245,7 +245,7 @@ metadata:
     fleet.cattle.io/group: bm-50-gitrepo-50-bundle
 spec:
   repo: https://github.com/rancher/fleet-test-data
-  branch: master
+  branch: release/v0.17
   paths:
   - benchmarks/create-50-gitrepo-50-bundle
   targetNamespace: bm-50-gitrepo-50-bundle-part-15
@@ -262,7 +262,7 @@ metadata:
     fleet.cattle.io/group: bm-50-gitrepo-50-bundle
 spec:
   repo: https://github.com/rancher/fleet-test-data
-  branch: master
+  branch: release/v0.17
   paths:
   - benchmarks/create-50-gitrepo-50-bundle
   targetNamespace: bm-50-gitrepo-50-bundle-part-16
@@ -279,7 +279,7 @@ metadata:
     fleet.cattle.io/group: bm-50-gitrepo-50-bundle
 spec:
   repo: https://github.com/rancher/fleet-test-data
-  branch: master
+  branch: release/v0.17
   paths:
   - benchmarks/create-50-gitrepo-50-bundle
   targetNamespace: bm-50-gitrepo-50-bundle-part-17
@@ -296,7 +296,7 @@ metadata:
     fleet.cattle.io/group: bm-50-gitrepo-50-bundle
 spec:
   repo: https://github.com/rancher/fleet-test-data
-  branch: master
+  branch: release/v0.17
   paths:
   - benchmarks/create-50-gitrepo-50-bundle
   targetNamespace: bm-50-gitrepo-50-bundle-part-18
@@ -313,7 +313,7 @@ metadata:
     fleet.cattle.io/group: bm-50-gitrepo-50-bundle
 spec:
   repo: https://github.com/rancher/fleet-test-data
-  branch: master
+  branch: release/v0.17
   paths:
   - benchmarks/create-50-gitrepo-50-bundle
   targetNamespace: bm-50-gitrepo-50-bundle-part-19
@@ -330,7 +330,7 @@ metadata:
     fleet.cattle.io/group: bm-50-gitrepo-50-bundle
 spec:
   repo: https://github.com/rancher/fleet-test-data
-  branch: master
+  branch: release/v0.17
   paths:
   - benchmarks/create-50-gitrepo-50-bundle
   targetNamespace: bm-50-gitrepo-50-bundle-part-20
@@ -347,7 +347,7 @@ metadata:
     fleet.cattle.io/group: bm-50-gitrepo-50-bundle
 spec:
   repo: https://github.com/rancher/fleet-test-data
-  branch: master
+  branch: release/v0.17
   paths:
   - benchmarks/create-50-gitrepo-50-bundle
   targetNamespace: bm-50-gitrepo-50-bundle-part-21
@@ -364,7 +364,7 @@ metadata:
     fleet.cattle.io/group: bm-50-gitrepo-50-bundle
 spec:
   repo: https://github.com/rancher/fleet-test-data
-  branch: master
+  branch: release/v0.17
   paths:
   - benchmarks/create-50-gitrepo-50-bundle
   targetNamespace: bm-50-gitrepo-50-bundle-part-22
@@ -381,7 +381,7 @@ metadata:
     fleet.cattle.io/group: bm-50-gitrepo-50-bundle
 spec:
   repo: https://github.com/rancher/fleet-test-data
-  branch: master
+  branch: release/v0.17
   paths:
   - benchmarks/create-50-gitrepo-50-bundle
   targetNamespace: bm-50-gitrepo-50-bundle-part-23
@@ -398,7 +398,7 @@ metadata:
     fleet.cattle.io/group: bm-50-gitrepo-50-bundle
 spec:
   repo: https://github.com/rancher/fleet-test-data
-  branch: master
+  branch: release/v0.17
   paths:
   - benchmarks/create-50-gitrepo-50-bundle
   targetNamespace: bm-50-gitrepo-50-bundle-part-24
@@ -415,7 +415,7 @@ metadata:
     fleet.cattle.io/group: bm-50-gitrepo-50-bundle
 spec:
   repo: https://github.com/rancher/fleet-test-data
-  branch: master
+  branch: release/v0.17
   paths:
   - benchmarks/create-50-gitrepo-50-bundle
   targetNamespace: bm-50-gitrepo-50-bundle-part-25
@@ -432,7 +432,7 @@ metadata:
     fleet.cattle.io/group: bm-50-gitrepo-50-bundle
 spec:
   repo: https://github.com/rancher/fleet-test-data
-  branch: master
+  branch: release/v0.17
   paths:
   - benchmarks/create-50-gitrepo-50-bundle
   targetNamespace: bm-50-gitrepo-50-bundle-part-26
@@ -449,7 +449,7 @@ metadata:
     fleet.cattle.io/group: bm-50-gitrepo-50-bundle
 spec:
   repo: https://github.com/rancher/fleet-test-data
-  branch: master
+  branch: release/v0.17
   paths:
   - benchmarks/create-50-gitrepo-50-bundle
   targetNamespace: bm-50-gitrepo-50-bundle-part-27
@@ -466,7 +466,7 @@ metadata:
     fleet.cattle.io/group: bm-50-gitrepo-50-bundle
 spec:
   repo: https://github.com/rancher/fleet-test-data
-  branch: master
+  branch: release/v0.17
   paths:
   - benchmarks/create-50-gitrepo-50-bundle
   targetNamespace: bm-50-gitrepo-50-bundle-part-28
@@ -483,7 +483,7 @@ metadata:
     fleet.cattle.io/group: bm-50-gitrepo-50-bundle
 spec:
   repo: https://github.com/rancher/fleet-test-data
-  branch: master
+  branch: release/v0.17
   paths:
   - benchmarks/create-50-gitrepo-50-bundle
   targetNamespace: bm-50-gitrepo-50-bundle-part-29
@@ -500,7 +500,7 @@ metadata:
     fleet.cattle.io/group: bm-50-gitrepo-50-bundle
 spec:
   repo: https://github.com/rancher/fleet-test-data
-  branch: master
+  branch: release/v0.17
   paths:
   - benchmarks/create-50-gitrepo-50-bundle
   targetNamespace: bm-50-gitrepo-50-bundle-part-30
@@ -517,7 +517,7 @@ metadata:
     fleet.cattle.io/group: bm-50-gitrepo-50-bundle
 spec:
   repo: https://github.com/rancher/fleet-test-data
-  branch: master
+  branch: release/v0.17
   paths:
   - benchmarks/create-50-gitrepo-50-bundle
   targetNamespace: bm-50-gitrepo-50-bundle-part-31
@@ -534,7 +534,7 @@ metadata:
     fleet.cattle.io/group: bm-50-gitrepo-50-bundle
 spec:
   repo: https://github.com/rancher/fleet-test-data
-  branch: master
+  branch: release/v0.17
   paths:
   - benchmarks/create-50-gitrepo-50-bundle
   targetNamespace: bm-50-gitrepo-50-bundle-part-32
@@ -551,7 +551,7 @@ metadata:
     fleet.cattle.io/group: bm-50-gitrepo-50-bundle
 spec:
   repo: https://github.com/rancher/fleet-test-data
-  branch: master
+  branch: release/v0.17
   paths:
   - benchmarks/create-50-gitrepo-50-bundle
   targetNamespace: bm-50-gitrepo-50-bundle-part-33
@@ -568,7 +568,7 @@ metadata:
     fleet.cattle.io/group: bm-50-gitrepo-50-bundle
 spec:
   repo: https://github.com/rancher/fleet-test-data
-  branch: master
+  branch: release/v0.17
   paths:
   - benchmarks/create-50-gitrepo-50-bundle
   targetNamespace: bm-50-gitrepo-50-bundle-part-34
@@ -585,7 +585,7 @@ metadata:
     fleet.cattle.io/group: bm-50-gitrepo-50-bundle
 spec:
   repo: https://github.com/rancher/fleet-test-data
-  branch: master
+  branch: release/v0.17
   paths:
   - benchmarks/create-50-gitrepo-50-bundle
   targetNamespace: bm-50-gitrepo-50-bundle-part-35
@@ -602,7 +602,7 @@ metadata:
     fleet.cattle.io/group: bm-50-gitrepo-50-bundle
 spec:
   repo: https://github.com/rancher/fleet-test-data
-  branch: master
+  branch: release/v0.17
   paths:
   - benchmarks/create-50-gitrepo-50-bundle
   targetNamespace: bm-50-gitrepo-50-bundle-part-36
@@ -619,7 +619,7 @@ metadata:
     fleet.cattle.io/group: bm-50-gitrepo-50-bundle
 spec:
   repo: https://github.com/rancher/fleet-test-data
-  branch: master
+  branch: release/v0.17
   paths:
   - benchmarks/create-50-gitrepo-50-bundle
   targetNamespace: bm-50-gitrepo-50-bundle-part-37
@@ -636,7 +636,7 @@ metadata:
     fleet.cattle.io/group: bm-50-gitrepo-50-bundle
 spec:
   repo: https://github.com/rancher/fleet-test-data
-  branch: master
+  branch: release/v0.17
   paths:
   - benchmarks/create-50-gitrepo-50-bundle
   targetNamespace: bm-50-gitrepo-50-bundle-part-38
@@ -653,7 +653,7 @@ metadata:
     fleet.cattle.io/group: bm-50-gitrepo-50-bundle
 spec:
   repo: https://github.com/rancher/fleet-test-data
-  branch: master
+  branch: release/v0.17
   paths:
   - benchmarks/create-50-gitrepo-50-bundle
   targetNamespace: bm-50-gitrepo-50-bundle-part-39
@@ -670,7 +670,7 @@ metadata:
     fleet.cattle.io/group: bm-50-gitrepo-50-bundle
 spec:
   repo: https://github.com/rancher/fleet-test-data
-  branch: master
+  branch: release/v0.17
   paths:
   - benchmarks/create-50-gitrepo-50-bundle
   targetNamespace: bm-50-gitrepo-50-bundle-part-40
@@ -687,7 +687,7 @@ metadata:
     fleet.cattle.io/group: bm-50-gitrepo-50-bundle
 spec:
   repo: https://github.com/rancher/fleet-test-data
-  branch: master
+  branch: release/v0.17
   paths:
   - benchmarks/create-50-gitrepo-50-bundle
   targetNamespace: bm-50-gitrepo-50-bundle-part-41
@@ -704,7 +704,7 @@ metadata:
     fleet.cattle.io/group: bm-50-gitrepo-50-bundle
 spec:
   repo: https://github.com/rancher/fleet-test-data
-  branch: master
+  branch: release/v0.17
   paths:
   - benchmarks/create-50-gitrepo-50-bundle
   targetNamespace: bm-50-gitrepo-50-bundle-part-42
@@ -721,7 +721,7 @@ metadata:
     fleet.cattle.io/group: bm-50-gitrepo-50-bundle
 spec:
   repo: https://github.com/rancher/fleet-test-data
-  branch: master
+  branch: release/v0.17
   paths:
   - benchmarks/create-50-gitrepo-50-bundle
   targetNamespace: bm-50-gitrepo-50-bundle-part-43
@@ -738,7 +738,7 @@ metadata:
     fleet.cattle.io/group: bm-50-gitrepo-50-bundle
 spec:
   repo: https://github.com/rancher/fleet-test-data
-  branch: master
+  branch: release/v0.17
   paths:
   - benchmarks/create-50-gitrepo-50-bundle
   targetNamespace: bm-50-gitrepo-50-bundle-part-44
@@ -755,7 +755,7 @@ metadata:
     fleet.cattle.io/group: bm-50-gitrepo-50-bundle
 spec:
   repo: https://github.com/rancher/fleet-test-data
-  branch: master
+  branch: release/v0.17
   paths:
   - benchmarks/create-50-gitrepo-50-bundle
   targetNamespace: bm-50-gitrepo-50-bundle-part-45
@@ -772,7 +772,7 @@ metadata:
     fleet.cattle.io/group: bm-50-gitrepo-50-bundle
 spec:
   repo: https://github.com/rancher/fleet-test-data
-  branch: master
+  branch: release/v0.17
   paths:
   - benchmarks/create-50-gitrepo-50-bundle
   targetNamespace: bm-50-gitrepo-50-bundle-part-46
@@ -789,7 +789,7 @@ metadata:
     fleet.cattle.io/group: bm-50-gitrepo-50-bundle
 spec:
   repo: https://github.com/rancher/fleet-test-data
-  branch: master
+  branch: release/v0.17
   paths:
   - benchmarks/create-50-gitrepo-50-bundle
   targetNamespace: bm-50-gitrepo-50-bundle-part-47
@@ -806,7 +806,7 @@ metadata:
     fleet.cattle.io/group: bm-50-gitrepo-50-bundle
 spec:
   repo: https://github.com/rancher/fleet-test-data
-  branch: master
+  branch: release/v0.17
   paths:
   - benchmarks/create-50-gitrepo-50-bundle
   targetNamespace: bm-50-gitrepo-50-bundle-part-48
@@ -823,7 +823,7 @@ metadata:
     fleet.cattle.io/group: bm-50-gitrepo-50-bundle
 spec:
   repo: https://github.com/rancher/fleet-test-data
-  branch: master
+  branch: release/v0.17
   paths:
   - benchmarks/create-50-gitrepo-50-bundle
   targetNamespace: bm-50-gitrepo-50-bundle-part-49
@@ -840,7 +840,7 @@ metadata:
     fleet.cattle.io/group: bm-50-gitrepo-50-bundle
 spec:
   repo: https://github.com/rancher/fleet-test-data
-  branch: master
+  branch: release/v0.17
   paths:
   - benchmarks/create-50-gitrepo-50-bundle
   targetNamespace: bm-50-gitrepo-50-bundle-part-50
