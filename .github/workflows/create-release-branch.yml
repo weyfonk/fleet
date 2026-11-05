@@ -169,6 +169,8 @@ jobs:
           jq . .github/renovate.json > formatted.json
           mv formatted.json .github/renovate.json
 
+          set -x
+
           git --no-pager diff .github/renovate.json
 
           git add .github/renovate.json
