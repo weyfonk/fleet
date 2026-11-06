@@ -60,7 +60,7 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
-          repository: "rancher/fleet-test-data"
+          repository: "weyfonk/fleet-test-data"
           path: fleet-test-data
 
       - name: create release branch in fleet-test-data
